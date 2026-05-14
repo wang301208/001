@@ -52,7 +52,7 @@ export async function generateImage(
   for (const candidate of candidates) {
     const provider = getImageGenerationProvider(candidate.provider, params.cfg);
     if (!provider) {
-      const error = `No image-generation provider registered for ${candidate.provider}`;
+      const error = `没有为 ${candidate.provider} 注册图片生成提供商`;
       attempts.push({
         provider: candidate.provider,
         model: candidate.model,
@@ -84,7 +84,7 @@ export async function generateImage(
         inputImages: params.inputImages,
       });
       if (!Array.isArray(result.images) || result.images.length === 0) {
-        throw new Error("Image generation provider returned no images.");
+        throw new Error("图片生成提供商未返回任何图片。");
       }
       return {
         images: result.images,
@@ -112,7 +112,7 @@ export async function generateImage(
         status: described?.status,
         code: described?.code,
       });
-      log.debug(`image-generation candidate failed: ${candidate.provider}/${candidate.model}`);
+      log.debug(`图片生成候选失败: ${candidate.provider}/${candidate.model}`);
     }
   }
 

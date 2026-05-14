@@ -2,7 +2,7 @@
   "name": "@zhushou/opencode-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 OpenCode Zen provider plugin",
+  "description": "助手 OpenCode Zen 提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

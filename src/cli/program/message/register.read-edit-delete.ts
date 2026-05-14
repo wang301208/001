@@ -8,7 +8,7 @@ export function registerMessageReadEditDeleteCommands(
   helpers
     .withMessageBase(
       helpers.withRequiredMessageTarget(
-        message.command("read").description("Read recent messages"),
+        message.command("read").description("读取最近消息"),
       ),
     )
     .option("--limit <n>", "Result limit")
@@ -25,7 +25,7 @@ export function registerMessageReadEditDeleteCommands(
       helpers.withRequiredMessageTarget(
         message
           .command("edit")
-          .description("Edit a message")
+          .description("编辑消息")
           .requiredOption("--message-id <id>", "Message id")
           .requiredOption("-m, --message <text>", "Message body"),
       ),
@@ -40,7 +40,7 @@ export function registerMessageReadEditDeleteCommands(
       helpers.withRequiredMessageTarget(
         message
           .command("delete")
-          .description("Delete a message")
+          .description("删除消息")
           .requiredOption("--message-id <id>", "Message id"),
       ),
     )

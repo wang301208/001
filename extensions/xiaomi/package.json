@@ -2,7 +2,7 @@
   "name": "@zhushou/xiaomi-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Xiaomi provider plugin",
+  "description": "助手 小米提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

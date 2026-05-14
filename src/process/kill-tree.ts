@@ -4,13 +4,13 @@ const DEFAULT_GRACE_MS = 3000;
 const MAX_GRACE_MS = 60_000;
 
 /**
- * Best-effort process-tree termination with graceful shutdown.
- * - Windows: use taskkill /T to include descendants. Sends SIGTERM-equivalent
- *   first (without /F), then force-kills if process survives.
- * - Unix: send SIGTERM to process group first, wait grace period, then SIGKILL.
+ * 尽力终止进程树并优雅关闭。
+ * - Windows：使用 taskkill /T 包含后代进程。先发送 SIGTERM 等价信号
+ *   （不带 /F），进程存活则强制终止。
+ * - Unix：先向进程组发送 SIGTERM，等待宽限期后发送 SIGKILL。
  *
- * This gives child processes a chance to clean up (close connections, remove
- * temp files, terminate their own children) before being hard-killed.
+ * 这使子进程有机会清理（关闭连接、删除临时文件、终止自身的子进程）
+ * 然后再被强制终止。
  */
 export function killProcessTree(pid: number, opts?: { graceMs?: number }): void {
   if (!Number.isFinite(pid) || pid <= 0) {
@@ -44,27 +44,27 @@ function isProcessAlive(pid: number): boolean {
 }
 
 function killProcessTreeUnix(pid: number, graceMs: number): void {
-  // Step 1: Try graceful SIGTERM to process group
+  // 步骤 1：尝试向进程组发送优雅的 SIGTERM
   try {
     process.kill(-pid, "SIGTERM");
   } catch {
-    // Process group doesn't exist or we lack permission - try direct
+    // 进程组不存在或无权限 - 尝试直接终止
     try {
       process.kill(pid, "SIGTERM");
     } catch {
-      // Already gone
+      // 已退出
       return;
     }
   }
 
-  // Step 2: Wait grace period, then SIGKILL if still alive
+  // 步骤 2：等待宽限期，若仍存活则 SIGKILL
   setTimeout(() => {
     if (isProcessAlive(-pid)) {
       try {
         process.kill(-pid, "SIGKILL");
         return;
       } catch {
-        // Fall through to direct pid kill
+        // 继续尝试直接终止 pid
       }
     }
     if (!isProcessAlive(pid)) {
@@ -73,9 +73,9 @@ function killProcessTreeUnix(pid: number, graceMs: number): void {
     try {
       process.kill(pid, "SIGKILL");
     } catch {
-      // Process exited between liveness check and kill
+      // 进程在存活检查和终止之间已退出
     }
-  }, graceMs).unref(); // Don't block event loop exit
+  }, graceMs).unref(); // 不阻塞事件循环退出
 }
 
 function runTaskkill(args: string[]): void {
@@ -86,20 +86,20 @@ function runTaskkill(args: string[]): void {
       windowsHide: true,
     });
   } catch {
-    // Ignore taskkill spawn failures
+    // 忽略 taskkill 启动失败
   }
 }
 
 function killProcessTreeWindows(pid: number, graceMs: number): void {
-  // Step 1: Try graceful termination (taskkill without /F)
+  // 步骤 1：尝试优雅终止（taskkill 不带 /F）
   runTaskkill(["/T", "/PID", String(pid)]);
 
-  // Step 2: Wait grace period, then force kill only if pid still exists.
-  // This avoids unconditional delayed /F kills after graceful shutdown.
+  // 步骤 2：等待宽限期，仅在 pid 仍存在时强制终止。
+  // 避免在优雅关闭后无条件延迟 /F 终止。
   setTimeout(() => {
     if (!isProcessAlive(pid)) {
       return;
     }
     runTaskkill(["/F", "/T", "/PID", String(pid)]);
-  }, graceMs).unref(); // Don't block event loop exit
+  }, graceMs).unref(); // 不阻塞事件循环退出
 }

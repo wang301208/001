@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/msteams",
   "version": "2026.4.16",
-  "description": "助手 Microsoft Teams channel plugin",
+  "description": "助手 Microsoft Teams 渠道插件",
   "type": "module",
   "dependencies": {
     "@azure/identity": "^4.13.1",

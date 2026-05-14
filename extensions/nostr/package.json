@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/nostr",
   "version": "2026.4.16",
-  "description": "助手 Nostr channel plugin for NIP-04 encrypted DMs",
+  "description": "助手 Nostr 渠道插件（NIP-04 加密私信）",
   "type": "module",
   "dependencies": {
     "nostr-tools": "^2.23.3"

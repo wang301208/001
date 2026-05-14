@@ -4,7 +4,7 @@ import { hasErrnoCode } from "../infra/errors.js";
 import { isPathInside } from "./scan-paths.js";
 
 // ---------------------------------------------------------------------------
-// Types
+// 类型
 // ---------------------------------------------------------------------------
 
 export type SkillScanSeverity = "info" | "warn" | "critical";
@@ -33,7 +33,7 @@ export type SkillScanOptions = {
 };
 
 // ---------------------------------------------------------------------------
-// Scannable extensions
+// 可扫描扩展名
 // ---------------------------------------------------------------------------
 
 const SCANNABLE_EXTENSIONS = new Set([
@@ -122,7 +122,7 @@ export function clearSkillScanCacheForTest(): void {
 }
 
 // ---------------------------------------------------------------------------
-// Rule definitions
+// 规则定义
 // ---------------------------------------------------------------------------
 
 type LineRule = {
@@ -206,7 +206,7 @@ const SOURCE_RULES: SourceRule[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Core scanner
+// 核心扫描器
 // ---------------------------------------------------------------------------
 
 function truncateEvidence(evidence: string, maxLen = 120): string {
@@ -227,7 +227,7 @@ export function scanSource(source: string, filePath: string): SkillScanFinding[]
       continue;
     }
 
-    // Skip rule entirely if context requirement not met
+    // 若上下文要求未满足则跳过整条规则
     if (rule.requiresContext && !rule.requiresContext.test(source)) {
       continue;
     }
@@ -239,7 +239,7 @@ export function scanSource(source: string, filePath: string): SkillScanFinding[]
         continue;
       }
 
-      // Special handling for suspicious-network: check port
+      // suspicious-network 特殊处理：检查端口
       if (rule.ruleId === "suspicious-network") {
         const port = parseInt(match[1], 10);
         if (STANDARD_PORTS.has(port)) {
@@ -263,8 +263,8 @@ export function scanSource(source: string, filePath: string): SkillScanFinding[]
   // --- Source rules ---
   const matchedSourceRules = new Set<string>();
   for (const rule of SOURCE_RULES) {
-    // Allow multiple findings for different messages with the same ruleId
-    // but deduplicate exact (ruleId+message) combos
+    // 允许同一 ruleId 的不同消息产生多条发现
+    // 但去重完全相同的 (ruleId+message) 组合
     const ruleKey = `${rule.ruleId}::${rule.message}`;
     if (matchedSourceRules.has(ruleKey)) {
       continue;
@@ -277,7 +277,7 @@ export function scanSource(source: string, filePath: string): SkillScanFinding[]
       continue;
     }
 
-    // Find the first matching line for evidence + line number
+    // 查找第一个匹配行作为证据和行号
     let matchLine = 0;
     let matchEvidence = "";
     for (let i = 0; i < lines.length; i++) {
@@ -288,8 +288,8 @@ export function scanSource(source: string, filePath: string): SkillScanFinding[]
       }
     }
 
-    // For source rules, if we can't find a line match the pattern might span
-    // lines. Report line 0 with truncated source as evidence.
+    // 对于源码规则，若找不到行匹配，模式可能跨行。
+    // 报告第 0 行，并以截断源码作为证据。
     if (matchLine === 0) {
       matchLine = 1;
       matchEvidence = source.slice(0, 120);
@@ -310,7 +310,7 @@ export function scanSource(source: string, filePath: string): SkillScanFinding[]
 }
 
 // ---------------------------------------------------------------------------
-// Directory scanner
+// 目录扫描器
 // ---------------------------------------------------------------------------
 
 function normalizeScanOptions(opts?: SkillScanOptions): Required<SkillScanOptions> {
@@ -336,7 +336,7 @@ async function walkDirWithLimit(dirPath: string, maxFiles: number): Promise<stri
       if (files.length >= maxFiles) {
         break;
       }
-      // Skip hidden dirs and node_modules
+      // 跳过隐藏目录和 node_modules
       if (entry.name.startsWith(".") || entry.name === "node_modules") {
         continue;
       }

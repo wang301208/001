@@ -51,7 +51,7 @@ import { parseSessionMeta, resetSessionIfNeeded, resolveSessionKey } from "./ses
 import { defaultAcpSessionStore, type AcpSessionStore } from "./session.js";
 import { ACP_AGENT_INFO, type AcpServerOptions } from "./types.js";
 
-// Maximum allowed prompt size (2MB) to prevent DoS via memory exhaustion (CWE-400, GHSA-cxpw-2g23-2vgw)
+// 最大允许提示大小（2MB），以防止通过内存耗尽的 DoS 攻击 (CWE-400, GHSA-cxpw-2g23-2vgw)
 const MAX_PROMPT_BYTES = 2 * 1024 * 1024;
 const ACP_THOUGHT_LEVEL_CONFIG_ID = "thought_level";
 const ACP_FAST_MODE_CONFIG_ID = "fast_mode";
@@ -682,8 +682,8 @@ export class AcpGatewayAgent implements Agent {
     }
 
     const meta = parseSessionMeta(params._meta);
-    // Pass MAX_PROMPT_BYTES so extractTextFromPrompt rejects oversized content
-    // block-by-block, before the full string is ever assembled in memory (CWE-400)
+    // 传入 MAX_PROMPT_BYTES 以便 extractTextFromPrompt 逐块拒绝过大内容，
+    // 在完整字符串组装入内存之前 (CWE-400)
     const userText = extractTextFromPrompt(params.prompt, MAX_PROMPT_BYTES);
     const attachments = extractAttachmentsFromPrompt(params.prompt);
     const prefixCwd = meta.prefixCwd ?? this.opts.prefixCwd ?? true;

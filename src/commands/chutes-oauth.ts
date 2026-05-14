@@ -22,7 +22,7 @@ function parseManualOAuthInput(
 ): { code: string; state: string } {
   const trimmed = normalizeOptionalString(input ?? "") ?? "";
   if (!trimmed) {
-    throw new Error("Missing OAuth redirect URL or authorization code.");
+    throw new Error("缺少 OAuth 重定向 URL 或授权码。");
   }
 
   // Support pasting either:
@@ -39,7 +39,7 @@ function parseManualOAuthInput(
     throw new Error(parsed.error);
   }
   if (parsed.state !== expectedState) {
-    throw new Error("Invalid OAuth state");
+    throw new Error("无效的 OAuth 状态");
   }
   return parsed;
 }

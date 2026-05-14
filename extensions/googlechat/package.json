@@ -2,7 +2,7 @@
   "name": "@zhushou/googlechat",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Google Chat channel plugin",
+  "description": "助手 Google Chat 渠道插件",
   "type": "module",
   "dependencies": {
     "google-auth-library": "^10.6.2"

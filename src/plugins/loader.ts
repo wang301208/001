@@ -112,8 +112,8 @@ export type PluginLoadOptions = {
   activationSourceConfig?: ZhushouConfig;
   autoEnabledReasons?: Readonly<Record<string, string[]>>;
   workspaceDir?: string;
-  // Allows callers to resolve plugin roots and load paths against an explicit env
-  // instead of the process-global environment.
+  // 允许调用者根据显式环境解析插件根路径和加载路径，
+  // 而非使用进程全局环境。
   env?: NodeJS.ProcessEnv;
   logger?: PluginLogger;
   coreGatewayHandlers?: Record<string, GatewayRequestHandler>;
@@ -124,8 +124,8 @@ export type PluginLoadOptions = {
   onlyPluginIds?: string[];
   includeSetupOnlyChannelPlugins?: boolean;
   /**
-   * Prefer `setupEntry` for configured channel plugins that explicitly opt in
-   * via package metadata because their setup entry covers the pre-listen startup surface.
+   * 对已通过包元数据显式选择的已配置通道插件优先使用 `setupEntry`，
+   * 因为其 setup 入口覆盖了预监听启动面。
    */
   preferSetupRuntimeForChannelPlugins?: boolean;
   activate?: boolean;
@@ -166,9 +166,9 @@ export class PluginLoadFailureError extends Error {
   constructor(registry: PluginRegistry) {
     const failedPlugins = registry.plugins.filter((entry) => entry.status === "error");
     const summary = failedPlugins
-      .map((entry) => `${entry.id}: ${entry.error ?? "unknown plugin load error"}`)
+      .map((entry) => `${entry.id}: ${entry.error ?? "未知插件加载错误"}`)
       .join("; ");
-    super(`plugin load failed: ${summary}`);
+    super(`插件加载失败: ${summary}`);
     this.name = "PluginLoadFailureError";
     this.pluginIds = failedPlugins.map((entry) => entry.id);
     this.registry = registry;
@@ -179,7 +179,7 @@ export class PluginLoadReentryError extends Error {
   readonly cacheKey: string;
 
   constructor(cacheKey: string) {
-    super(`plugin load reentry detected for cache key: ${cacheKey}`);
+    super(`检测到插件加载重入，缓存键: ${cacheKey}`);
     this.name = "PluginLoadReentryError";
     this.cacheKey = cacheKey;
   }

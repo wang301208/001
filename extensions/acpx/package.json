@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/acpx",
   "version": "2026.4.16",
-  "description": "助手 ACP runtime backend",
+  "description": "助手 ACP 运行时后端",
   "type": "module",
   "dependencies": {
     "acpx": "0.5.3"

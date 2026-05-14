@@ -23,14 +23,14 @@ function isWindowsBatchCommand(resolvedCommand: string): boolean {
 }
 
 function escapeForCmdExe(arg: string): string {
-  // Reject cmd metacharacters to avoid injection when we must pass a single command line.
+  // 拒绝 cmd 元字符，以避免在必须传递单个命令行时注入。
   if (WINDOWS_UNSAFE_CMD_CHARS_RE.test(arg)) {
     throw new Error(
-      `Unsafe Windows cmd.exe argument detected: ${JSON.stringify(arg)}. ` +
-        "Pass an explicit shell-wrapper argv at the call site instead.",
+      `检测到不安全的 Windows cmd.exe 参数: ${JSON.stringify(arg)}。` +
+        "请在调用处传递显式的 shell-wrapper argv。",
     );
   }
-  // Quote when needed; double inner quotes for cmd parsing.
+  // 需要时加引号；内部双引号加倍以适配 cmd 解析。
   if (!arg.includes(" ") && !arg.includes('"')) {
     return arg;
   }
@@ -42,9 +42,9 @@ function buildCmdExeCommandLine(resolvedCommand: string, args: string[]): string
 }
 
 /**
- * On Windows, Node 18.20.2+ (CVE-2024-27980) rejects spawning .cmd/.bat directly
- * without shell, causing EINVAL. Resolve npm/npx to node + cli script so we
- * spawn node.exe instead of npm.cmd.
+ * 在 Windows 上，Node 18.20.2+（CVE-2024-27980）拒绝在没有 shell 的情况下
+ * 直接启动 .cmd/.bat，导致 EINVAL。将 npm/npx 解析为 node + cli 脚本，
+ * 以启动 node.exe 而非 npm.cmd。
  */
 function resolveNpmArgvForWindows(argv: string[]): string[] | null {
   if (process.platform !== "win32" || argv.length === 0) {
@@ -61,9 +61,9 @@ function resolveNpmArgvForWindows(argv: string[]): string[] | null {
   const nodeDir = path.dirname(process.execPath);
   const cliPath = path.join(nodeDir, "node_modules", "npm", "bin", cliName);
   if (!fs.existsSync(cliPath)) {
-    // Bun-based runs don't ship npm-cli.js next to process.execPath.
-    // Fall back to npm.cmd/npx.cmd so we still route through cmd wrapper
-    // (avoids direct .cmd spawn EINVAL on patched Node).
+    // 基于 Bun 的运行不在 process.execPath 旁边附带 npm-cli.js。
+    // 回退到 npm.cmd/npx.cmd 以仍通过 cmd 包装器路由
+    // （避免在已修补 Node 上直接 .cmd 启动的 EINVAL）。
     const command = argv[0] ?? "";
     const ext = normalizeLowercaseStringOrEmpty(path.extname(command));
     const shimmedCommand = ext ? command : `${command}.cmd`;
@@ -73,9 +73,9 @@ function resolveNpmArgvForWindows(argv: string[]): string[] | null {
 }
 
 /**
- * Resolves a command for Windows compatibility.
- * On Windows, non-.exe commands (like pnpm, yarn) are resolved to .cmd; npm/npx
- * are handled by resolveNpmArgvForWindows to avoid spawn EINVAL (no direct .cmd).
+ * 为 Windows 兼容性解析命令。
+ * 在 Windows 上，非 .exe 命令（如 pnpm、yarn）解析为 .cmd；npm/npx
+ * 由 resolveNpmArgvForWindows 处理以避免 spawn EINVAL（不直接 .cmd）。
  */
 function resolveCommand(command: string): string {
   return resolveWindowsCommandShim({

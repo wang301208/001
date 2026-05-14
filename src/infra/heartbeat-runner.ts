@@ -241,7 +241,7 @@ function resolveHeartbeatSession(
     };
   }
 
-  // Guard: never route heartbeats to subagent sessions, regardless of entry path.
+  // 守卫：无论入口路径如何，永不将心跳路由到子 Agent 会话。
   const forced = forcedSessionKey?.trim();
   if (forced && isSubagentSessionKey(forced)) {
     return {
@@ -363,12 +363,12 @@ function resolveIsolatedHeartbeatSessionKey(params: {
     }
   }
 
-  // Collapse repeated `:heartbeat` suffixes introduced by wake-triggered re-entry.
-  // The guard on configuredSessionKey ensures we do not strip a legitimate single
-  // `:heartbeat` suffix that is part of the user-configured base key itself
-  // (e.g. heartbeat.session: "alerts:heartbeat"). When the configured key already
-  // ends with `:heartbeat`, a forced wake passes `configuredKey:heartbeat` which
-  // must be treated as a new base rather than an existing isolated key.
+  // 折叠由唤醒触发的重入引入的重复 `:heartbeat` 后缀。
+  // 对 configuredSessionKey 的守卫确保我们不会剥离用户配置基础键
+  // 本身包含的合法单个 `:heartbeat` 后缀
+  // （如 heartbeat.session: "alerts:heartbeat"）。当配置键已以
+  // `:heartbeat` 结尾时，强制唤醒传入 `configuredKey:heartbeat`，
+  // 这必须被视为新基础而非现有隔离键。
   const configuredSuffix = params.sessionKey.slice(params.configuredSessionKey.length);
   if (
     params.sessionKey.startsWith(params.configuredSessionKey) &&
@@ -455,8 +455,8 @@ function stripLeadingHeartbeatResponsePrefix(
     return text;
   }
 
-  // Require a boundary after the configured prefix so short prefixes like "Hi"
-  // do not strip the beginning of normal words like "History".
+  // 在配置前缀后要求边界，使短前缀如 "Hi"
+  // 不会剥离正常单词如 "History" 的开头。
   const prefixPattern = new RegExp(
     `^${escapeRegExp(normalizedPrefix)}(?=$|\\s|[\\p{P}\\p{S}])\\s*`,
     "iu",
@@ -537,8 +537,8 @@ async function resolveHeartbeatPreflight(params: {
   const hasTaggedCronEvents = pendingEventEntries.some((event) =>
     event.contextKey?.startsWith("cron:"),
   );
-  // Wake-triggered runs should only inspect pending events when preflight peeks
-  // the same queue that the run itself will execute/drain.
+  // 唤醒触发的运行应仅在预检查看
+  // 与运行本身执行/排空的同一队列时检查待处理事件。
   const shouldInspectWakePendingEvents = (() => {
     if (!reasonFlags.isWakeReason) {
       return false;
@@ -591,7 +591,7 @@ async function resolveHeartbeatPreflight(params: {
         heartbeatFileContent,
       };
     }
-    // Return tasks even if file has other content - backward compatible
+    // 即使文件包含其他内容也返回任务 — 向后兼容
     return {
       ...basePreflight,
       tasks,
@@ -599,12 +599,12 @@ async function resolveHeartbeatPreflight(params: {
     };
   } catch (err: unknown) {
     if (hasErrnoCode(err, "ENOENT")) {
-      // Missing HEARTBEAT.md is intentional in some setups (for example, when
-      // heartbeat instructions live outside the file), so keep the run active.
-      // The heartbeat prompt already says "if it exists".
+      // 缺失 HEARTBEAT.md 在某些配置中是有意的（例如心跳
+      // 指令存放在文件之外），因此保持运行活跃。
+      // 心跳提示已说明"如果存在"。
       return basePreflight;
     }
-    // For other read errors, proceed with heartbeat as before.
+    // 其他读取错误，按原样继续心跳。
   }
 
   return basePreflight;
@@ -651,7 +651,7 @@ function resolveHeartbeatRunPrompt(params: {
   const hasExecCompletion = pendingEvents.some(isExecCompletionEvent);
   const hasCronEvents = cronEvents.length > 0;
 
-  // If tasks are defined, build a batched prompt with due tasks
+  // 若定义了任务，构建含到期任务的批处理提示
   if (params.preflight.tasks && params.preflight.tasks.length > 0) {
     const tasks = params.preflight.tasks;
     const dueTasks = tasks.filter((task) =>
@@ -670,7 +670,7 @@ ${taskList}
 
 After completing all due tasks, reply HEARTBEAT_OK.`;
 
-      // Preserve HEARTBEAT.md directives (non-task content)
+      // 保留 HEARTBEAT.md 指令（非任务内容）
       if (params.heartbeatFileContent) {
         const directives = params.heartbeatFileContent
           .replace(/^[\s\S]*?^tasks:[\s\S]*?(?=^[^\s]|^$)/m, "")
@@ -681,11 +681,11 @@ After completing all due tasks, reply HEARTBEAT_OK.`;
       }
       return { prompt, hasExecCompletion: false, hasCronEvents: false };
     }
-    // No tasks due - skip this heartbeat to avoid wasteful API calls
+    // 无到期任务 — 跳过此次心跳以避免浪费 API 调用
     return { prompt: null, hasExecCompletion: false, hasCronEvents: false };
   }
 
-  // Fallback to original behavior
+  // 回退到原始行为
   const basePrompt = hasExecCompletion
     ? buildExecEventPrompt({ deliverToUser: params.canRelayToUser })
     : hasCronEvents
@@ -732,7 +732,7 @@ export async function runHeartbeatOnce(opts: {
     return { status: "skipped", reason: "requests-in-flight" };
   }
 
-  // Preflight centralizes trigger classification, event inspection, and HEARTBEAT.md gating.
+  // 预检集中处理触发器分类、事件检查和 HEARTBEAT.md 门控。
   const preflight = await resolveHeartbeatPreflight({
     cfg,
     agentId,
@@ -750,9 +750,9 @@ export async function runHeartbeatOnce(opts: {
   }
   const { entry, sessionKey, storePath, suppressOriginatingContext } = preflight.session;
 
-  // Check the resolved session lane — if it is busy, skip to avoid interrupting
-  // an active streaming turn.  The wake-layer retry (heartbeat-wake.ts) will
-  // re-schedule this wake automatically.  See #14396 (closed without merge).
+  // 检查解析的会话通道 — 若忙碌则跳过，以避免中断
+  // 活跃的流式轮次。唤醒层重试（heartbeat-wake.ts）会
+  // 自动重新调度此唤醒。参见 #14396（已关闭未合并）。
   const sessionLaneKey = resolveEmbeddedSessionLane(sessionKey);
   const sessionLaneSize = (opts.deps?.getQueueSize ?? getQueueSize)(sessionLaneKey);
   if (sessionLaneSize > 0) {
@@ -766,20 +766,19 @@ export async function runHeartbeatOnce(opts: {
 
   const previousUpdatedAt = entry?.updatedAt;
 
-  // When isolatedSession is enabled, create a fresh session via the same
-  // pattern as cron sessionTarget: "isolated". This gives the heartbeat
-  // a new session ID (empty transcript) each run, avoiding the cost of
-  // sending the full conversation history (~100K tokens) to the LLM.
-  // Delivery routing still uses the main session entry (lastChannel, lastTo).
+  // 当 isolatedSession 启用时，通过与 cron sessionTarget: "isolated"
+  // 相同的模式创建全新会话。这使心跳每次运行获得新会话 ID
+  // （空会话记录），避免发送完整对话历史（~100K 令牌）给 LLM。
+  // 投递路由仍使用主会话条目（lastChannel, lastTo）。
   const useIsolatedSession = heartbeat?.isolatedSession === true;
   const delivery = resolveHeartbeatDeliveryTarget({
     cfg,
     entry,
     heartbeat,
-    // Isolated heartbeat runs drain system events from their dedicated
-    // `:heartbeat` session, not from the base session we peek during preflight.
-    // Reusing base-session turnSource routing here can pin later isolated runs
-    // to stale channels/threads because that base-session event context remains queued.
+    // 隔离心跳运行从其专用的 `:heartbeat` 会话排空系统事件，
+    // 而非预检期间查看的基础会话。
+    // 在此复用基础会话的 turnSource 路由可能导致后续隔离运行
+    // 被固定到过期通道/线程，因为该基础会话事件上下文仍在队列中。
     turnSource: useIsolatedSession ? undefined : preflight.turnSourceDeliveryContext,
   });
   const heartbeatAccountId = heartbeat?.accountId?.trim();

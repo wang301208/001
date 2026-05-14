@@ -68,7 +68,7 @@ const isOAuthProvider = (provider: string): provider is OAuthProvider =>
 const resolveOAuthProvider = (provider: string): OAuthProvider | null =>
   isOAuthProvider(provider) ? provider : null;
 
-/** Bearer-token auth modes that are interchangeable (oauth tokens and raw tokens). */
+/** 可互换的 Bearer 令牌认证模式（oauth 令牌和原始令牌）。 */
 const BEARER_AUTH_MODES = new Set(["oauth", "token"]);
 
 const isCompatibleModeType = (mode: string | undefined, type: string | undefined): boolean => {
@@ -78,7 +78,7 @@ const isCompatibleModeType = (mode: string | undefined, type: string | undefined
   if (mode === type) {
     return true;
   }
-  // Both token and oauth represent bearer-token auth paths — allow bidirectional compat.
+  // token 和 oauth 都表示 bearer 令牌认证路径 — 允许双向兼容。
   return BEARER_AUTH_MODES.has(mode) && BEARER_AUTH_MODES.has(type);
 };
 

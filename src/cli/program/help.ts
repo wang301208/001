@@ -19,33 +19,33 @@ const ROOT_COMMANDS_WITH_SUBCOMMANDS = new Set([
   ...getSubCliCommandsWithSubcommands(),
 ]);
 const ROOT_COMMANDS_HINT =
-  "Hint: commands suffixed with * have subcommands. Run <command> --help for details.";
+  "提示：带 * 后缀的命令有子命令。运行 <command> --help 查看详情。";
 
 const EXAMPLES = [
-  ["zhushou --tui", "Open the zhushou terminal UI."],
-  ["zhushou models --help", "Show detailed help for the models command."],
+  ["zhushou --tui", "打开 zhushou 终端 UI。"],
+  ["zhushou models --help", "显示 models 命令的详细帮助。"],
   [
     "zhushou channels login --verbose",
-    "Link personal WhatsApp Web and show QR + connection logs.",
+    "关联个人 WhatsApp Web 并显示 QR 码 + 连接日志。",
   ],
   [
     'zhushou message send --target +15555550123 --message "Hi" --json',
-    "Send via your web session and print JSON result.",
+    "通过 Web 会话发送并输出 JSON 结果。",
   ],
-  ["zhushou gateway --port 18789", "Run the WebSocket network adapter locally."],
+  ["zhushou gateway --port 18789", "在本地运行 WebSocket 网络适配器。"],
   [
     "zhushou --dev gateway",
-    "Run a dev network adapter (isolated state/config) on ws://127.0.0.1:19001.",
+    "运行开发网络适配器（隔离状态/配置），地址 ws://127.0.0.1:19001。",
   ],
-  ["zhushou gateway --force", "Kill anything bound to the default adapter port, then start it."],
-  ["zhushou gateway ...", "Network adapter control via WebSocket."],
+  ["zhushou gateway --force", "终止占用默认适配器端口的进程，然后启动。"],
+  ["zhushou gateway ...", "通过 WebSocket 控制网络适配器。"],
   [
     'zhushou agent --to +15555550123 --message "Run summary" --deliver',
-    "Talk directly to the agent using the Gateway; optionally send the WhatsApp reply.",
+    "通过网关直接与代理对话；可选发送 WhatsApp 回复。",
   ],
   [
     'zhushou message send --channel telegram --target @mychat --message "Hi"',
-    "Send via your Telegram bot.",
+    "通过 Telegram 机器人发送。",
   ],
 ] as const;
 
@@ -56,29 +56,29 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     .version(ctx.programVersion)
     .option(
       "--container <name>",
-      "Run the CLI inside a running Podman/Docker container named <name> (default: env ZHUSHOU_CONTAINER)",
+      "在运行中的 Podman/Docker 容器 <name> 内运行 CLI（默认：环境变量 ZHUSHOU_CONTAINER）",
     )
     .option(
       "--dev",
-      "Dev profile: isolate state under ~/.zhushou-dev, default gateway port 19001, and shift derived ports (browser/canvas)",
+      "开发配置：在 ~/.zhushou-dev 下隔离状态，默认网关端口 19001，并偏移衍生端口（浏览器/画布）",
     )
     .option(
       "--profile <name>",
-      "Use a named profile (isolates ZHUSHOU_STATE_DIR/ZHUSHOU_CONFIG_PATH under ~/.zhushou-<name>)",
+      "使用命名配置（在 ~/.zhushou-<name> 下隔离 ZHUSHOU_STATE_DIR/ZHUSHOU_CONFIG_PATH）",
     )
     .option(
       "--log-level <level>",
-      `Global log level override for file + console (${CLI_LOG_LEVEL_VALUES})`,
+      `全局日志级别覆盖（文件 + 控制台，${CLI_LOG_LEVEL_VALUES}）`,
       parseCliLogLevelOption,
     );
 
-  program.option("--tui", "Open the terminal UI from the root command", false);
-  program.option("--no-color", "Disable ANSI colors", false);
-  program.helpOption("-h, --help", "Display help for command");
-  program.helpCommand("help [command]", "Display help for command");
+  program.option("--tui", "从根命令打开终端 UI", false);
+  program.option("--no-color", "禁用 ANSI 颜色", false);
+  program.helpOption("-h, --help", "显示命令帮助");
+  program.helpCommand("help [command]", "显示命令帮助");
 
   program.configureHelp({
-    // sort options and subcommands alphabetically
+    // 按字母顺序排列选项和子命令
     sortSubcommands: true,
     sortOptions: true,
     optionTerm: (option) => theme.option(option.flags),
@@ -145,6 +145,6 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
       return "";
     }
     const docs = formatDocsLink("/cli", "docs.zhushou.ai/cli");
-    return `\n${theme.heading("Examples:")}\n${fmtExamples}\n\n${theme.muted("Docs:")} ${docs}\n`;
+    return `\n${theme.heading("示例：")}\n${fmtExamples}\n\n${theme.muted("文档：")} ${docs}\n`;
   });
 }

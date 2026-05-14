@@ -9,8 +9,8 @@ export type HeartbeatTask = {
   prompt: string;
 };
 
-// Default heartbeat prompt (used when config.agents.defaults.heartbeat.prompt is unset).
-// Keep it tight and avoid encouraging the model to invent/rehash "open loops" from prior chat context.
+// 默认心跳提示（当 config.agents.defaults.heartbeat.prompt 未设置时使用）。
+// 保持精简，避免鼓励模型编造/复述先前聊天上下文中的"开放循环"。
 export const HEARTBEAT_PROMPT =
   "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.";
 export const DEFAULT_HEARTBEAT_EVERY = "30m";

@@ -809,9 +809,9 @@ export function createCommandHandlers(context: CommandHandlerContext) {
       const items = result.sessions.map((session) => {
         const title = session.derivedTitle ?? session.displayName;
         const formattedKey = formatSessionKey(session.key);
-        // Avoid redundant "title (key)" when title matches key
+        // 标题与键匹配时避免冗余的 "title (key)"
         const label = title && title !== formattedKey ? `${title} (${formattedKey})` : formattedKey;
-        // Build description: time + message preview
+        // 构建描述：时间 + 消息预览
         const timePart = session.updatedAt
           ? formatRelativeTimestamp(session.updatedAt, { dateFallback: true, fallback: "" })
           : "";
@@ -1748,15 +1748,15 @@ export function createCommandHandlers(context: CommandHandlerContext) {
         break;
       case "new":
         try {
-          // Clear token counts immediately to avoid stale display (#1523)
+          // 立即清除令牌计数以避免过期显示 (#1523)
           state.sessionInfo.inputTokens = null;
           state.sessionInfo.outputTokens = null;
           state.sessionInfo.totalTokens = null;
           tui.requestRender();
 
-          // Generate unique session key to isolate this TUI client (#39217)
-          // This ensures /new creates a fresh session that doesn't broadcast
-          // to other connected TUI clients sharing the original session key.
+          // 生成唯一会话键以隔离此 TUI 客户端 (#39217)
+          // 这确保 /new 创建的新会话不会广播
+          // 到共享原始会话键的其他已连接 TUI 客户端。
           const uniqueKey = `tui-${randomUUID()}`;
           await setSession(uniqueKey);
           chatLog.addSystem(`新会话: ${uniqueKey}`);
@@ -1766,7 +1766,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
         break;
       case "reset":
         try {
-          // Clear token counts immediately to avoid stale display (#1523)
+          // 立即清除令牌计数以避免过期显示 (#1523)
           state.sessionInfo.inputTokens = null;
           state.sessionInfo.outputTokens = null;
           state.sessionInfo.totalTokens = null;

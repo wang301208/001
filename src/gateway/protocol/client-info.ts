@@ -18,7 +18,7 @@ export const GATEWAY_CLIENT_IDS = {
 
 export type GatewayClientId = (typeof GATEWAY_CLIENT_IDS)[keyof typeof GATEWAY_CLIENT_IDS];
 
-// Back-compat naming (internal): these values are IDs, not display names.
+// 向后兼容命名（内部）：这些值是 ID，不是显示名称。
 export const GATEWAY_CLIENT_NAMES = GATEWAY_CLIENT_IDS;
 export type GatewayClientName = GatewayClientId;
 

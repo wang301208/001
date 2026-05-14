@@ -1,5 +1,5 @@
-// Aggregate workspace contract for memory runtime/helper seams.
-// Keep focused subpaths preferred for new code.
+// 内存运行时/辅助接缝的聚合工作区合约。
+// 新代码应优先使用聚焦的子路径。
 
 export * from "./runtime-core.js";
 export * from "./runtime-cli.js";

@@ -2,7 +2,7 @@
   "name": "@zhushou/amazon-bedrock-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Amazon Bedrock provider plugin",
+  "description": "助手 Amazon Bedrock 提供者插件",
   "type": "module",
   "dependencies": {
     "@aws-sdk/client-bedrock": "3.1028.0",

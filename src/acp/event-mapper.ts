@@ -88,7 +88,7 @@ function escapeInlineControlChars(value: string): string {
       continue;
     }
 
-    // Keep escaped control bytes readable and stable in logs/prompts.
+    // 保持转义控制字节在日志/提示中可读且稳定。
     escaped +=
       codePoint <= 0xff
         ? `\\x${codePoint.toString(16).padStart(2, "0")}`
@@ -98,7 +98,7 @@ function escapeInlineControlChars(value: string): string {
 }
 
 function escapeResourceTitle(value: string): string {
-  // Keep title content, but escape characters that can break the resource-link annotation shape.
+  // 保留标题内容，但转义可能破坏 resource-link 注解格式的字符。
   return escapeInlineControlChars(value).replace(/[()[\]]/g, (char) => `\\${char}`);
 }
 
@@ -244,7 +244,7 @@ function collectToolLocations(
 
 export function extractTextFromPrompt(prompt: ContentBlock[], maxBytes?: number): string {
   const parts: string[] = [];
-  // Track accumulated byte count per block to catch oversized prompts before full concatenation
+  // 逐块跟踪累计字节数，以在完整拼接前捕获过大提示
   let totalBytes = 0;
   for (const block of prompt) {
     let blockText: string | undefined;
@@ -261,7 +261,7 @@ export function extractTextFromPrompt(prompt: ContentBlock[], maxBytes?: number)
       blockText = uri ? `[Resource link${title}] ${uri}` : `[Resource link${title}]`;
     }
     if (blockText !== undefined) {
-      // Guard: reject before allocating the full concatenated string
+      // 守卫：在分配完整拼接字符串之前拒绝
       if (maxBytes !== undefined) {
         const separatorBytes = parts.length > 0 ? 1 : 0; // "\n" added by join() between blocks
         totalBytes += separatorBytes + Buffer.byteLength(blockText, "utf-8");
@@ -307,8 +307,8 @@ export function formatToolTitle(
     const safe = raw.length > 100 ? `${raw.slice(0, 100)}...` : raw;
     return `${key}: ${safe}`;
   });
-  // Sanitize at the source so session updates and permission requests never
-  // inherit raw control bytes from untrusted tool arguments.
+  // 在源头清理，使会话更新和权限请求永不
+  // 继承来自不可信工具参数的原始控制字节。
   return escapeInlineControlChars(`${base}: ${parts.join(", ")}`);
 }
 

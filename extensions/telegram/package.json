@@ -2,7 +2,7 @@
   "name": "@zhushou/telegram",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Telegram channel plugin",
+  "description": "助手 Telegram 渠道插件",
   "type": "module",
   "dependencies": {
     "@grammyjs/runner": "^2.0.3",

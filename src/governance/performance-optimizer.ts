@@ -13,7 +13,7 @@ const log = createSubsystemLogger('performance-optimizer');
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
-  ttl: number; // Time to live in milliseconds
+  ttl: number; // 存活时间（毫秒）
 }
 
 export class CacheManager {

@@ -2,7 +2,7 @@
   "name": "@zhushou/microsoft-foundry",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Microsoft Foundry provider plugin",
+  "description": "助手 Microsoft Foundry 提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

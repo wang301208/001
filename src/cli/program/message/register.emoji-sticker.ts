@@ -3,10 +3,10 @@ import { collectOption } from "../helpers.js";
 import type { MessageCliHelpers } from "./helpers.js";
 
 export function registerMessageEmojiCommands(message: Command, helpers: MessageCliHelpers) {
-  const emoji = message.command("emoji").description("Emoji actions");
+  const emoji = message.command("emoji").description("表情操作");
 
   helpers
-    .withMessageBase(emoji.command("list").description("List emojis"))
+    .withMessageBase(emoji.command("list").description("列出表情"))
     .option("--guild-id <id>", "Guild id (Discord)")
     .action(async (opts) => {
       await helpers.runMessageAction("emoji-list", opts);
@@ -16,7 +16,7 @@ export function registerMessageEmojiCommands(message: Command, helpers: MessageC
     .withMessageBase(
       emoji
         .command("upload")
-        .description("Upload an emoji")
+        .description("上传表情")
         .requiredOption("--guild-id <id>", "Guild id"),
     )
     .requiredOption("--emoji-name <name>", "Emoji name")
@@ -28,11 +28,11 @@ export function registerMessageEmojiCommands(message: Command, helpers: MessageC
 }
 
 export function registerMessageStickerCommands(message: Command, helpers: MessageCliHelpers) {
-  const sticker = message.command("sticker").description("Sticker actions");
+  const sticker = message.command("sticker").description("贴纸操作");
 
   helpers
     .withMessageBase(
-      helpers.withRequiredMessageTarget(sticker.command("send").description("Send stickers")),
+      helpers.withRequiredMessageTarget(sticker.command("send").description("发送贴纸")),
     )
     .requiredOption("--sticker-id <id>", "Sticker id (repeat)", collectOption)
     .option("-m, --message <text>", "Optional message body")
@@ -44,7 +44,7 @@ export function registerMessageStickerCommands(message: Command, helpers: Messag
     .withMessageBase(
       sticker
         .command("upload")
-        .description("Upload a sticker")
+        .description("上传贴纸")
         .requiredOption("--guild-id <id>", "Guild id"),
     )
     .requiredOption("--sticker-name <name>", "Sticker name")

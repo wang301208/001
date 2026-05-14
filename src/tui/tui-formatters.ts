@@ -83,8 +83,8 @@ function isCopySensitiveToken(token: string): boolean {
     return true;
   }
 
-  // Preserve long credential-like tokens (hex/base62/etc.) to avoid introducing
-  // visible spaces that users may copy back into secrets.
+  // 保留长的凭证类令牌（hex/base62/等），以避免引入
+  // 用户可能复制回密钥中的可见空格。
   if (candidate.length >= TOKENISH_MIN_LENGTH && /[a-z]/i.test(candidate) && /\d/.test(candidate)) {
     return true;
   }
@@ -92,7 +92,7 @@ function isCopySensitiveToken(token: string): boolean {
 }
 
 function normalizeLongTokenForDisplay(token: string): string {
-  // Preserve copy-sensitive tokens exactly (paths/urls/file-like names).
+  // 精确保留复制敏感的令牌（路径/URL/文件名类）。
   if (isCopySensitiveToken(token)) {
     return token;
   }

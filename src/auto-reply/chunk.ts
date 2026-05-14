@@ -1,6 +1,6 @@
-// Utilities for splitting outbound text into platform-sized chunks without
-// unintentionally breaking on newlines. Using [\s\S] keeps newlines inside
-// the chunk so messages are only split when they truly exceed the limit.
+// 将出站文本拆分为平台大小分块的实用工具，
+// 不会无意中在换行处断开。使用 [\s\S] 保留分块内的换行，
+// 仅在真正超出限制时才拆分消息。
 
 import type { ChannelId } from "../channels/plugins/types.core.js";
 import type { ZhushouConfig } from "../config/types.zhushou.js";

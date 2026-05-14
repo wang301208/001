@@ -78,9 +78,9 @@ export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void
         rejectGatewayReady(new Error(`gateway closed before ready (${code}): ${reason}`));
       }
       agent?.handleGatewayDisconnect(`${code}: ${reason}`);
-      // Resolve only on intentional shutdown (gateway.stop() sets closed
-      // which skips scheduleReconnect, then fires onClose).  Transient
-      // disconnects are followed by automatic reconnect attempts.
+      // 仅在有意关闭时解析（gateway.stop() 设置 closed
+      // 跳过 scheduleReconnect，然后触发 onClose）。瞬态
+      // 断连后会自动尝试重连。
       if (stopped) {
         onClosed();
       }
@@ -94,15 +94,15 @@ export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void
     stopped = true;
     resolveGatewayReady();
     gateway.stop();
-    // If no WebSocket is active (e.g. between reconnect attempts),
-    // gateway.stop() won't trigger onClose, so resolve directly.
+    // 若无活跃 WebSocket（如重连尝试之间），
+    // gateway.stop() 不会触发 onClose，因此直接解析。
     onClosed();
   };
 
   process.once("SIGINT", shutdown);
   process.once("SIGTERM", shutdown);
 
-  // Start gateway first and wait for hello before accepting ACP requests.
+  // 先启动网关并等待 hello，然后再接受 ACP 请求。
   gateway.start();
   await gatewayReady.catch((err) => {
     shutdown();

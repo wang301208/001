@@ -2,10 +2,10 @@ import type { Command } from "commander";
 import type { MessageCliHelpers } from "./helpers.js";
 
 export function registerMessageDiscordAdminCommands(message: Command, helpers: MessageCliHelpers) {
-  const role = message.command("role").description("Role actions");
+  const role = message.command("role").description("角色操作");
   helpers
     .withMessageBase(
-      role.command("info").description("List roles").requiredOption("--guild-id <id>", "Guild id"),
+      role.command("info").description("列出角色").requiredOption("--guild-id <id>", "Guild id"),
     )
     .action(async (opts) => {
       await helpers.runMessageAction("role-info", opts);
@@ -15,7 +15,7 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
     .withMessageBase(
       role
         .command("add")
-        .description("Add role to a member")
+        .description("为成员添加角色")
         .requiredOption("--guild-id <id>", "Guild id")
         .requiredOption("--user-id <id>", "User id")
         .requiredOption("--role-id <id>", "Role id"),
@@ -28,7 +28,7 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
     .withMessageBase(
       role
         .command("remove")
-        .description("Remove role from a member")
+        .description("移除成员角色")
         .requiredOption("--guild-id <id>", "Guild id")
         .requiredOption("--user-id <id>", "User id")
         .requiredOption("--role-id <id>", "Role id"),
@@ -37,10 +37,10 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
       await helpers.runMessageAction("role-remove", opts);
     });
 
-  const channel = message.command("channel").description("Channel actions");
+  const channel = message.command("channel").description("频道操作");
   helpers
     .withMessageBase(
-      helpers.withRequiredMessageTarget(channel.command("info").description("Fetch channel info")),
+      helpers.withRequiredMessageTarget(channel.command("info").description("获取频道信息")),
     )
     .action(async (opts) => {
       await helpers.runMessageAction("channel-info", opts);
@@ -50,19 +50,19 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
     .withMessageBase(
       channel
         .command("list")
-        .description("List channels")
+        .description("列出频道")
         .requiredOption("--guild-id <id>", "Guild id"),
     )
     .action(async (opts) => {
       await helpers.runMessageAction("channel-list", opts);
     });
 
-  const member = message.command("member").description("Member actions");
+  const member = message.command("member").description("成员操作");
   helpers
     .withMessageBase(
       member
         .command("info")
-        .description("Fetch member info")
+        .description("获取成员信息")
         .requiredOption("--user-id <id>", "User id"),
     )
     .option("--guild-id <id>", "Guild id (Discord)")
@@ -70,12 +70,12 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
       await helpers.runMessageAction("member-info", opts);
     });
 
-  const voice = message.command("voice").description("Voice actions");
+  const voice = message.command("voice").description("语音操作");
   helpers
     .withMessageBase(
       voice
         .command("status")
-        .description("Fetch voice status")
+        .description("获取语音状态")
         .requiredOption("--guild-id <id>", "Guild id")
         .requiredOption("--user-id <id>", "User id"),
     )
@@ -83,12 +83,12 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
       await helpers.runMessageAction("voice-status", opts);
     });
 
-  const event = message.command("event").description("Event actions");
+  const event = message.command("event").description("事件操作");
   helpers
     .withMessageBase(
       event
         .command("list")
-        .description("List scheduled events")
+        .description("列出定时事件")
         .requiredOption("--guild-id <id>", "Guild id"),
     )
     .action(async (opts) => {
@@ -99,7 +99,7 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
     .withMessageBase(
       event
         .command("create")
-        .description("Create a scheduled event")
+        .description("创建定时事件")
         .requiredOption("--guild-id <id>", "Guild id")
         .requiredOption("--event-name <name>", "Event name")
         .requiredOption("--start-time <iso>", "Event start time"),
@@ -118,13 +118,13 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
     .withMessageBase(
       message
         .command("timeout")
-        .description("Timeout a member")
+        .description("对成员禁言")
         .requiredOption("--guild-id <id>", "Guild id")
         .requiredOption("--user-id <id>", "User id"),
     )
     .option("--duration-min <n>", "Timeout duration minutes")
     .option("--until <iso>", "Timeout until")
-    .option("--reason <text>", "Moderation reason")
+    .option("--reason <text>", "管理原因")
     .action(async (opts) => {
       await helpers.runMessageAction("timeout", opts);
     });
@@ -133,7 +133,7 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
     .withMessageBase(
       message
         .command("kick")
-        .description("Kick a member")
+        .description("踢出成员")
         .requiredOption("--guild-id <id>", "Guild id")
         .requiredOption("--user-id <id>", "User id"),
     )
@@ -146,12 +146,12 @@ export function registerMessageDiscordAdminCommands(message: Command, helpers: M
     .withMessageBase(
       message
         .command("ban")
-        .description("Ban a member")
+        .description("封禁成员")
         .requiredOption("--guild-id <id>", "Guild id")
         .requiredOption("--user-id <id>", "User id"),
     )
     .option("--reason <text>", "Moderation reason")
-    .option("--delete-days <n>", "Ban delete message days")
+    .option("--delete-days <n>", "封禁删除消息天数")
     .action(async (opts) => {
       await helpers.runMessageAction("ban", opts);
     });

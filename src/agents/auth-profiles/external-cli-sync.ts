@@ -133,7 +133,7 @@ export function readManagedExternalCliCredential(params: {
   return withExternalCliManager(creds, provider.managedBy);
 }
 
-/** Sync external CLI credentials into the store for a given provider. */
+/** 将外部 CLI 凭据同步到存储中指定提供者。 */
 function syncExternalCliCredentialsForProvider(
   store: AuthProfileStore,
   providerConfig: ExternalCliSyncProvider,
@@ -151,7 +151,7 @@ function syncExternalCliCredentialsForProvider(
   if (!shouldReplaceStoredOAuthCredential(existingOAuth, managedCreds)) {
     if (options.log !== false) {
       if (!areOAuthCredentialsEquivalent(existingOAuth, managedCreds) && existingOAuth) {
-        log.debug(`kept newer stored ${provider} credentials over external cli sync`, {
+        log.debug(`保留了更新的已存储 ${provider} 凭据，而非外部 CLI 同步`, {
           profileId,
           storedExpires: new Date(existingOAuth.expires).toISOString(),
           externalExpires: Number.isFinite(managedCreds.expires)
@@ -165,7 +165,7 @@ function syncExternalCliCredentialsForProvider(
 
   store.profiles[profileId] = managedCreds;
   if (options.log !== false) {
-    log.info(`synced ${provider} credentials from external cli`, {
+    log.info(`从外部 CLI 同步了 ${provider} 凭据`, {
       profileId,
       expires: new Date(managedCreds.expires).toISOString(),
       managedBy,
@@ -175,10 +175,10 @@ function syncExternalCliCredentialsForProvider(
 }
 
 /**
- * Sync OAuth credentials from external CLI tools (MiniMax CLI, Codex CLI)
- * into the store.
+ * 将外部 CLI 工具（MiniMax CLI、Codex CLI）的 OAuth 凭据
+ * 同步到存储中。
  *
- * Returns true if any credentials were updated.
+ * 如果有任何凭据被更新则返回 true。
  */
 export function syncExternalCliCredentials(
   store: AuthProfileStore,

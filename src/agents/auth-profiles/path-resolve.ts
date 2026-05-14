@@ -35,26 +35,26 @@ export function resolveAuthStatePathForDisplay(agentDir?: string): string {
 }
 
 /**
- * Resolve the path of the cross-agent, per-profile OAuth refresh coordination
- * lock. The filename hashes `provider\0profileId` so it is filesystem-safe
- * for arbitrary unicode/control-character inputs and always bounded in
- * length. The NUL separator makes it impossible to collide two distinct
- * `(provider, profileId)` pairs by string concatenation.
+ * 解析跨 Agent、每配置文件 OAuth 刷新协调锁的路径。
+ * 文件名对 `provider\0profileId` 进行哈希，使其对任意
+ * unicode/控制字符输入文件系统安全，且长度始终有界。
+ * NUL 分隔符使得两个不同的 `(provider, profileId)` 对
+ * 不可能通过字符串拼接发生碰撞。
  *
- * This lock is the serialization point that prevents the `refresh_token_reused`
- * storm when N agents share one OAuth profile (see issue #26322): every agent
- * that attempts a refresh acquires this same file lock, so only one HTTP
- * refresh is in-flight at a time and peers can adopt the resulting fresh
- * credentials instead of racing against a single-use refresh token.
+ * 此锁是防止当 N 个 Agent 共享一个 OAuth 配置文件时
+ * 出现 `refresh_token_reused` 风暴的序列化点
+ *（参见 issue #26322）：每个尝试刷新的 Agent
+ * 获取此文件锁，因此同一时间只有一个 HTTP 刷新在飞行中，
+ * 同伴可以采用产生的新鲜凭据，而非与一次性刷新令牌竞争。
  *
- * The key intentionally includes `provider` so that two profiles that
- * happen to share a `profileId` across providers (operator-renamed profile,
- * test fixture, etc.) do not needlessly serialize against each other.
+ * 键故意包含 `provider`，使得两个恰好在不同提供者之间
+ * 共享 `profileId` 的配置文件（操作员重命名的配置文件、
+ * 测试固件等）不会不必要地互相序列化。
  */
 export function resolveOAuthRefreshLockPath(provider: string, profileId: string): string {
   const hash = createHash("sha256");
   hash.update(provider, "utf8");
-  hash.update("\u0000", "utf8"); // NUL separator: unambiguous boundary.
+  hash.update("\u0000", "utf8"); // NUL 分隔符：无歧义边界。
   hash.update(profileId, "utf8");
   const safeId = `sha256-${hash.digest("hex")}`;
   return path.join(resolveStateDir(), "locks", "oauth-refresh", safeId);

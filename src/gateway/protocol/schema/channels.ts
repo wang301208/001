@@ -111,8 +111,8 @@ export const ChannelsStatusParamsSchema = Type.Object(
   { additionalProperties: false },
 );
 
-// Channel docking: channels.status is intentionally schema-light so new
-// channels can ship without protocol updates.
+// 渠道对接：channels.status 故意设计为轻量模式，以便新渠道
+// 无需协议更新即可上线。
 export const ChannelAccountSnapshotSchema = Type.Object(
   {
     accountId: NonEmptyString,

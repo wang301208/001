@@ -22,20 +22,20 @@ export type ApiKeyCredential = {
   keyRef?: SecretRef;
   email?: string;
   displayName?: string;
-  /** Optional provider-specific metadata (e.g., account IDs, gateway IDs). */
+  /** 可选的提供者特定元数据（例如账户 ID、网关 ID）。 */
   metadata?: Record<string, string>;
 };
 
 export type TokenCredential = {
   /**
-   * Static bearer-style token (often OAuth access token / PAT).
-   * Not refreshable by 助手 (unlike `type: "oauth"`).
+   * 静态 bearer 风格令牌（通常是 OAuth 访问令牌 / PAT）。
+   * 不可被助手刷新（与 `type: "oauth"` 不同）。
    */
   type: "token";
   provider: string;
   token?: string;
   tokenRef?: SecretRef;
-  /** Optional expiry timestamp (ms since epoch). */
+  /** 可选过期时间戳（自纪元起的毫秒数）。 */
   expires?: number;
   email?: string;
   displayName?: string;
@@ -48,11 +48,11 @@ export type OAuthCredential = OAuthCredentials & {
   email?: string;
   displayName?: string;
   /**
-   * Compatibility/runtime metadata for CLI-managed OAuth entries.
+   * CLI 管理的 OAuth 条目的兼容性/运行时元数据。
    *
-   * Core routing should prefer external-auth overlay contracts over direct
-   * branching on this field. Persisted stores may still carry it while older
-   * CLI sync paths remain supported.
+   * 核心路由应优先使用 external-auth 覆盖合约，
+   * 而非直接基于此字段分支。持久化存储在较旧的
+   * CLI 同步路径仍受支持时可继续携带此字段。
    */
   managedBy?: ExternalOAuthManager;
 };
@@ -71,7 +71,7 @@ export type AuthProfileFailureReason =
   | "session_expired"
   | "unknown";
 
-/** Per-profile usage statistics for round-robin and cooldown tracking */
+/** 每个配置文件的用法统计，用于轮转和冷却跟踪 */
 export type ProfileUsageStats = {
   lastUsed?: number;
   cooldownUntil?: number;
@@ -86,13 +86,13 @@ export type ProfileUsageStats = {
 
 export type AuthProfileState = {
   /**
-   * Optional per-agent preferred profile order overrides.
-   * This lets you lock/override auth rotation for a specific agent without
-   * changing the global config.
+   * 可选的每 Agent 首选配置文件顺序覆盖。
+   * 允许锁定/覆盖特定 Agent 的认证轮转，
+   * 而不更改全局配置。
    */
   order?: Record<string, string[]>;
   lastGood?: Record<string, string>;
-  /** Usage statistics per profile for round-robin rotation */
+  /** 每个配置文件的用法统计，用于轮转轮询 */
   usageStats?: Record<string, ProfileUsageStats>;
 };
 

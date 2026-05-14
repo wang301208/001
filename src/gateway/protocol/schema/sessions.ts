@@ -57,13 +57,13 @@ export const SessionsListParamsSchema = Type.Object(
     includeGlobal: Type.Optional(Type.Boolean()),
     includeUnknown: Type.Optional(Type.Boolean()),
     /**
-     * Read first 8KB of each session transcript to derive title from first user message.
-     * Performs a file read per session - use `limit` to bound result set on large stores.
+     * 读取每个会话转录的前 8KB，从首条用户消息推导标题。
+     * 每个会话执行一次文件读取 - 对大型存储请使用 `limit` 限定结果集。
      */
     includeDerivedTitles: Type.Optional(Type.Boolean()),
     /**
-     * Read last 16KB of each session transcript to extract most recent message preview.
-     * Performs a file read per session - use `limit` to bound result set on large stores.
+     * 读取每个会话转录的最后 16KB，提取最近的消息预览。
+     * 每个会话执行一次文件读取 - 对大型存储请使用 `limit` 限定结果集。
      */
     includeLastMessage: Type.Optional(Type.Boolean()),
     label: Type.Optional(SessionLabelString),
@@ -157,7 +157,7 @@ export const SessionsPatchParamsSchema = Type.Object(
         Type.Literal("off"),
         Type.Literal("tokens"),
         Type.Literal("full"),
-        // Backward compat with older clients/stores.
+        // 向后兼容旧客户端/存储。
         Type.Literal("on"),
         Type.Null(),
       ]),
@@ -202,7 +202,7 @@ export const SessionsDeleteParamsSchema = Type.Object(
   {
     key: NonEmptyString,
     deleteTranscript: Type.Optional(Type.Boolean()),
-    // Internal control: when false, still unbind thread bindings but skip hook emission.
+    // 内部控制：为 false 时，仍解绑线程绑定但跳过钩子触发。
     emitLifecycleHooks: Type.Optional(Type.Boolean()),
   },
   { additionalProperties: false },
@@ -302,21 +302,21 @@ export const SessionsCompactionRestoreResultSchema = Type.Object(
 
 export const SessionsUsageParamsSchema = Type.Object(
   {
-    /** Specific session key to analyze; if omitted returns all sessions. */
+    /** 要分析的特定会话键；省略则返回所有会话。 */
     key: Type.Optional(NonEmptyString),
-    /** Start date for range filter (YYYY-MM-DD). */
+    /** 范围过滤的起始日期（YYYY-MM-DD）。 */
     startDate: Type.Optional(Type.String({ pattern: "^\\d{4}-\\d{2}-\\d{2}$" })),
-    /** End date for range filter (YYYY-MM-DD). */
+    /** 范围过滤的结束日期（YYYY-MM-DD）。 */
     endDate: Type.Optional(Type.String({ pattern: "^\\d{4}-\\d{2}-\\d{2}$" })),
-    /** How start/end dates should be interpreted. Defaults to UTC when omitted. */
+    /** 起止日期的解读方式。省略时默认为 UTC。 */
     mode: Type.Optional(
       Type.Union([Type.Literal("utc"), Type.Literal("gateway"), Type.Literal("specific")]),
     ),
-    /** UTC offset to use when mode is `specific` (for example, UTC-4 or UTC+5:30). */
+    /** 当 mode 为 `specific` 时使用的 UTC 偏移量（例如 UTC-4 或 UTC+5:30）。 */
     utcOffset: Type.Optional(Type.String({ pattern: "^UTC[+-]\\d{1,2}(?::[0-5]\\d)?$" })),
-    /** Maximum sessions to return (default 50). */
+    /** 最大返回会话数（默认 50）。 */
     limit: Type.Optional(Type.Integer({ minimum: 1 })),
-    /** Include context weight breakdown (systemPromptReport). */
+    /** 包含上下文权重分解（systemPromptReport）。 */
     includeContextWeight: Type.Optional(Type.Boolean()),
   },
   { additionalProperties: false },

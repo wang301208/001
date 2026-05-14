@@ -51,7 +51,7 @@ function isCopySensitiveToken(word: string): boolean {
   if (word.includes("/") || word.includes("\\")) {
     return true;
   }
-  // Preserve common file-like tokens (for example administrators_authorized_keys).
+  // 保留常见类文件标记（例如 administrators_authorized_keys）。
   return word.includes("_") && FILE_LIKE_RE.test(word);
 }
 

@@ -1,4 +1,4 @@
-// Real workspace contract for QMD/session/query helpers used by the memory engine.
+// 内存引擎使用的 QMD/会话/查询辅助的实际工作区合约。
 
 export { extractKeywords, isQueryStopWordToken } from "./host/query-expansion.js";
 export {

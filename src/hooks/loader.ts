@@ -86,7 +86,7 @@ export async function loadInternalHooks(
 ): Promise<number> {
   resetLoadedInternalHooks();
 
-  // Hooks are on by default; only skip when explicitly disabled.
+  // 钩子默认启用；仅在显式禁用时跳过。
   if (cfg.hooks?.internal?.enabled === false) {
     return 0;
   }

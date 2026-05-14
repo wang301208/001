@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/discord",
   "version": "2026.4.16",
-  "description": "助手 Discord channel plugin",
+  "description": "助手 Discord 渠道插件",
   "type": "module",
   "dependencies": {
     "@buape/carbon": "0.15.0",

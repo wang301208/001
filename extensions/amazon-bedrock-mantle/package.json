@@ -2,7 +2,7 @@
   "name": "@zhushou/amazon-bedrock-mantle-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Amazon Bedrock Mantle (OpenAI-compatible) provider plugin",
+  "description": "助手 Amazon Bedrock Mantle（OpenAI 兼容）提供者插件",
   "type": "module",
   "dependencies": {
     "@aws/bedrock-token-generator": "^1.1.0"

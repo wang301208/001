@@ -10,6 +10,6 @@ export type OutboundDeliveryResult = {
   timestamp?: number;
   toJid?: string;
   pollId?: string;
-  // Channel docking: stash channel-specific fields here to avoid core type churn.
+  // 渠道对接：将渠道特定字段暂存于此，以避免核心类型变动。
   meta?: Record<string, unknown>;
 };

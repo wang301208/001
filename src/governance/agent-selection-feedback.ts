@@ -41,12 +41,12 @@ export function buildUnknownAgentIdMessage(params: {
   const charterOnlyAgents = knownAgents.filter((id) => id !== defaultId && !configured.has(id));
 
   const parts = [
-    `Unknown agent id "${rawAgentId}".`,
-    `Known agents: ${knownAgents.length > 0 ? formatLimitedList(knownAgents) : "none"}.`,
-    `Default: ${defaultId}.`,
+    `未知代理 ID "${rawAgentId}"。`,
+    `已知代理: ${knownAgents.length > 0 ? formatLimitedList(knownAgents) : "无"}。`,
+    `默认: ${defaultId}。`,
   ];
   if (charterOnlyAgents.length > 0) {
-    parts.push(`Charter-only: ${formatLimitedList(charterOnlyAgents, 4)}.`);
+    parts.push(`仅章程定义: ${formatLimitedList(charterOnlyAgents, 4)}。`);
   }
   if (params.inspectHint) {
     parts.push(params.inspectHint);
@@ -72,20 +72,20 @@ export function buildAgentGovernanceSelectionHint(params: {
       .filter((value): value is string => Boolean(value))
       .join(" / ");
     if (charterLabel) {
-      details.push(`charter ${charterLabel}`);
+      details.push(`章程 ${charterLabel}`);
     }
     const restrictions: string[] = [];
     if (governance.charterToolDeny.length > 0) {
-      restrictions.push(`deny ${formatLimitedList(governance.charterToolDeny, 4)}`);
+      restrictions.push(`拒绝 ${formatLimitedList(governance.charterToolDeny, 4)}`);
     }
     if (governance.charterRequireAgentId) {
-      restrictions.push("explicit subagent ids");
+      restrictions.push("显式子代理 ID");
     }
     if (governance.charterExecutionContract) {
-      restrictions.push(`execution=${governance.charterExecutionContract}`);
+      restrictions.push(`执行合约=${governance.charterExecutionContract}`);
     }
     if (governance.charterElevatedLocked) {
-      restrictions.push("elevated locked");
+      restrictions.push("提权已锁定");
     }
     if (restrictions.length > 0) {
       details.push(restrictions.join(", "));
@@ -93,14 +93,14 @@ export function buildAgentGovernanceSelectionHint(params: {
   }
   if (governance.freezeActive) {
     const freezeParts = [
-      `freeze active${governance.freezeReasonCode ? ` (${governance.freezeReasonCode})` : ""}`,
+      `冻结激活${governance.freezeReasonCode ? ` (${governance.freezeReasonCode})` : ""}`,
     ];
     if (governance.freezeDeny.length > 0) {
-      freezeParts.push(`deny ${formatLimitedList(governance.freezeDeny, 4)}`);
+      freezeParts.push(`拒绝 ${formatLimitedList(governance.freezeDeny, 4)}`);
     }
     details.push(freezeParts.join(", "));
   }
   return details.length > 0
-    ? `Governance for "${params.agentId}": ${details.join("; ")}`
+    ? `"${params.agentId}" 的治理: ${details.join("; ")}`
     : undefined;
 }

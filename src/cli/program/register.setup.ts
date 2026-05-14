@@ -10,21 +10,21 @@ import { hasExplicitOptions } from "../command-options.js";
 export function registerSetupCommand(program: Command) {
   program
     .command("setup")
-    .description("Initialize the active zhushou config and agent workspace")
+    .description("初始化活动的 zhushou 配置和代理工作空间")
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/setup", "docs.zhushou.ai/cli/setup")}\n`,
+        `\n${theme.muted("文档：")} ${formatDocsLink("/cli/setup", "docs.zhushou.ai/cli/setup")}\n`,
     )
     .option(
       "--workspace <dir>",
-      "Agent workspace directory (default: ~/.zhushou/workspace; stored as agents.defaults.workspace)",
+      "代理工作空间目录（默认：~/.zhushou/workspace；存储为 agents.defaults.workspace）",
     )
-    .option("--wizard", "Run interactive onboarding", false)
-    .option("--non-interactive", "Run onboarding without prompts", false)
-    .option("--mode <mode>", "Onboard mode: local|remote")
-    .option("--remote-url <url>", "Remote Gateway WebSocket URL")
-    .option("--remote-token <token>", "Remote Gateway token (optional)")
+    .option("--wizard", "运行交互式引导", false)
+    .option("--non-interactive", "无提示运行引导", false)
+    .option("--mode <mode>", "引导模式：local|remote")
+    .option("--remote-url <url>", "远程网关 WebSocket URL")
+    .option("--remote-token <token>", "远程网关令牌（可选）")
     .action(async (opts, command) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         const hasWizardFlags = hasExplicitOptions(command, [

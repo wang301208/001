@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/twitch",
   "version": "2026.4.16",
-  "description": "助手 Twitch channel plugin",
+  "description": "助手 Twitch 渠道插件",
   "type": "module",
   "dependencies": {
     "@twurple/api": "^8.1.3",

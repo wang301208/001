@@ -134,9 +134,9 @@ export async function updateAuthProfileStoreWithLock(params: {
 
   try {
     return await withFileLock(authPath, AUTH_STORE_LOCK_OPTIONS, async () => {
-      // Locked writers must reload from disk, not from any runtime snapshot.
-      // Otherwise a live gateway can overwrite fresher CLI/config-auth writes
-      // with stale in-memory auth state during usage/cooldown updates.
+      // 加锁写入器必须从磁盘重新加载，而非从任何运行时快照。
+      // 否则活跃的网关可能在 usage/cooldown 更新期间
+      // 用过时的内存内认证状态覆盖更新的 CLI/config-auth 写入。
       const store = loadAuthProfileStoreForAgent(params.agentDir);
       const shouldSave = params.updater(store);
       if (shouldSave) {
@@ -175,7 +175,7 @@ function shouldSyncExternalCliCredentials(options?: { syncExternalCli?: boolean 
 export function loadAuthProfileStore(): AuthProfileStore {
   const asStore = loadPersistedAuthProfileStore();
   if (asStore) {
-    // Sync from external CLI tools on every load.
+    // 每次加载时从外部 CLI 工具同步。
     syncExternalCliCredentialsTimed(asStore);
     return overlayExternalAuthProfiles(asStore);
   }
@@ -216,8 +216,8 @@ function loadAuthProfileStoreForAgent(
   }
   const asStore = loadPersistedAuthProfileStore(agentDir);
   if (asStore) {
-    // Runtime secret activation must remain read-only:
-    // sync external CLI credentials in-memory, but never persist while readOnly.
+    // 运行时密钥激活必须保持只读：
+    // 在内存中同步外部 CLI 凭据，但在 readOnly 时不持久化。
     if (shouldSyncExternalCliCredentials(options)) {
       syncExternalCliCredentialsTimed(asStore, { log: !readOnly });
     }
@@ -232,13 +232,13 @@ function loadAuthProfileStoreForAgent(
     return asStore;
   }
 
-  // Fallback: inherit auth-profiles from main agent if subagent has none
+  // 回退：如果子 Agent 没有认证配置文件，则从主 Agent 继承
   if (agentDir && !readOnly) {
     const mainStore = loadPersistedAuthProfileStore();
     if (mainStore && Object.keys(mainStore.profiles).length > 0) {
-      // Clone only secret-bearing profiles to subagent directory for auth inheritance.
+      // 仅克隆包含密钥的配置文件到子 Agent 目录，用于认证继承。
       saveJsonFile(authPath, buildPersistedAuthProfileSecretsStore(mainStore));
-      log.info("inherited auth-profiles from main agent", { agentDir });
+      log.info("从主 Agent 继承了认证配置文件", { agentDir });
       const inherited = { version: mainStore.version, profiles: { ...mainStore.profiles } };
       writeCachedAuthProfileStore({
         authPath,
@@ -260,7 +260,7 @@ function loadAuthProfileStoreForAgent(
   }
 
   const mergedOAuth = mergeOAuthFileIntoStore(store);
-  // Keep external CLI credentials visible in runtime even during read-only loads.
+  // 保持外部 CLI 凭据在运行时可见，即使在只读加载期间。
   if (shouldSyncExternalCliCredentials(options)) {
     syncExternalCliCredentialsTimed(store, { log: !readOnly });
   }
@@ -270,16 +270,16 @@ function loadAuthProfileStoreForAgent(
     saveAuthProfileStore(store, agentDir);
   }
 
-  // PR #368: legacy auth.json could get re-migrated from other agent dirs,
-  // overwriting fresh OAuth creds with stale tokens (fixes #363). Delete only
-  // after we've successfully written auth-profiles.json.
+  // PR #368：旧版 auth.json 可能从其他 Agent 目录重新迁移，
+  // 用过时的令牌覆盖新的 OAuth 凭据（修复 #363）。
+  // 仅在成功写入 auth-profiles.json 后删除。
   if (shouldWrite && legacy !== null) {
     const legacyPath = resolveLegacyAuthStorePath(agentDir);
     try {
       fs.unlinkSync(legacyPath);
     } catch (err) {
       if ((err as NodeJS.ErrnoException)?.code !== "ENOENT") {
-        log.warn("failed to delete legacy auth.json after migration", {
+        log.warn("迁移后删除旧版 auth.json 失败", {
           err,
           legacyPath,
         });

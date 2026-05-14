@@ -47,7 +47,7 @@ function collectTypeOAuthSecretRefViolations(params: {
     return;
   }
   const reason =
-    'SecretRef is not allowed for type="oauth" auth profiles (OAuth credentials are runtime-mutable).';
+    'type="oauth" 认证配置文件不允许使用 SecretRef（OAuth 凭据在运行时可变）。';
   const record = params.credential as Record<string, unknown>;
   for (const field of ["access", "refresh", "token", "tokenRef", "key", "keyRef"] as const) {
     if (coerceSecretRef(record[field], params.defaults) === null) {
@@ -68,8 +68,8 @@ function collectOAuthModeSecretRefViolations(params: {
     return;
   }
   const reason =
-    `SecretRef is not allowed when auth.profiles.${params.profileId}.mode is "oauth" ` +
-    "(OAuth credentials are runtime-mutable).";
+    `当 auth.profiles.${params.profileId}.mode 为 "oauth" 时不允许使用 SecretRef` +
+    "（OAuth 凭据在运行时可变）。";
   if (params.credential.type === "api_key") {
     if (
       hasSecretRefInput({
@@ -135,7 +135,7 @@ export function assertNoOAuthSecretRefPolicyViolations(params: {
     return;
   }
   const lines = [
-    `${params.context ?? "auth-profiles"} policy validation failed: OAuth + SecretRef is not supported.`,
+    `${params.context ?? "auth-profiles"} 策略验证失败：不支持 OAuth + SecretRef 组合。`,
     ...violations.map((violation) => `- ${violation.path}: ${violation.reason}`),
   ];
   throw new Error(lines.join("\n"));

@@ -40,8 +40,8 @@ async function registerSubCliWithPluginCommands(
   }
 }
 
-// Note for humans and agents:
-// If you update the list of commands, also check whether they have subcommands
+// 给人类和代理的备注：
+// 如果你更新命令列表，也请检查它们是否有子命令
 // and set the flag accordingly.
 const entrySpecs: readonly CommandGroupDescriptorSpec<SubCliRegistrar>[] = [
   ...defineImportedProgramCommandGroupSpecs([
@@ -248,7 +248,7 @@ const entrySpecs: readonly CommandGroupDescriptorSpec<SubCliRegistrar>[] = [
     commandNames: ["sys"],
     register: async (program) => {
       const mod = await import("../../commands/system-control.js");
-      mod.registerSystemControlCommands(program, {} as any); // RuntimeEnv mock or pass real one if available in context
+      mod.registerSystemControlCommands(program, {} as any); // RuntimeEnv 模拟或在上下文可用时传入真实值
     },
   },
 ];

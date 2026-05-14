@@ -2,7 +2,7 @@
   "name": "@zhushou/memory-wiki",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 persistent wiki plugin",
+  "description": "助手 持久化维基插件",
   "type": "module",
   "dependencies": {
     "yaml": "^2.8.3"

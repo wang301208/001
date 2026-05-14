@@ -1,12 +1,12 @@
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 
 /**
- * Channel-agnostic status reaction controller.
- * Provides a unified interface for displaying agent status via message reactions.
+ * 渠道无关的状态反应控制器。
+ * 提供统一接口，通过消息反应显示代理状态。
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Types
+// 类型
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type StatusReactionAdapter = {
@@ -51,7 +51,7 @@ export type StatusReactionController = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Constants
+// 常量
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const DEFAULT_EMOJIS: Required<StatusReactionEmojis> = {
@@ -94,7 +94,7 @@ export const WEB_TOOL_TOKENS: string[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Functions
+// 函数
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**

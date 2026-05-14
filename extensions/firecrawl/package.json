@@ -2,7 +2,7 @@
   "name": "@zhushou/firecrawl-plugin",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Firecrawl plugin",
+  "description": "助手 Firecrawl 爬虫插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

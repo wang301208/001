@@ -2,7 +2,7 @@
   "name": "@zhushou/searxng-plugin",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 SearXNG plugin",
+  "description": "助手 SearXNG 搜索插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

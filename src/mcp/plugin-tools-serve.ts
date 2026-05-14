@@ -1,10 +1,10 @@
 /**
- * Standalone MCP server that exposes 助手 plugin-registered tools
- * (e.g. memory-lancedb's memory_recall, memory_store, memory_forget)
- * so ACP sessions running Claude Code can use them.
+ * 独立 MCP 服务器，暴露助手插件注册的工具
+ * （如 memory-lancedb 的 memory_recall、memory_store、memory_forget）
+ * 以便运行 Claude Code 的 ACP 会话可以使用它们。
  *
- * Run via: node --import tsx src/mcp/plugin-tools-serve.ts
- * Or: bun src/mcp/plugin-tools-serve.ts
+ * 运行方式：node --import tsx src/mcp/plugin-tools-serve.ts
+ * 或：bun src/mcp/plugin-tools-serve.ts
  */
 import { pathToFileURL } from "node:url";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -27,7 +27,7 @@ function resolveJsonSchemaForTool(tool: AnyAgentTool): Record<string, unknown> {
   if (params && typeof params === "object" && "type" in params) {
     return params as Record<string, unknown>;
   }
-  // Fallback: accept any object
+  // 回退：接受任意对象
   return { type: "object", properties: {} };
 }
 
@@ -49,8 +49,8 @@ export function createPluginToolsMcpServer(
     if (isToolWrappedWithBeforeToolCallHook(tool)) {
       return tool;
     }
-    // The ACPX MCP bridge should enforce the same pre-execution hook boundary
-    // as the agent and HTTP tool execution paths.
+    // ACPX MCP 桥接应强制与 Agent 和 HTTP 工具执行路径
+    // 相同的预执行钩子边界。
     return wrapToolWithBeforeToolCallHook(tool);
   });
 
@@ -99,7 +99,7 @@ export function createPluginToolsMcpServer(
 }
 
 export async function servePluginToolsMcp(): Promise<void> {
-  // MCP stdio requires stdout to stay protocol-only.
+  // MCP stdio 要求 stdout 仅保留协议内容。
   routeLogsToStderr();
 
   const config = loadConfig();

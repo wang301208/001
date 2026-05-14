@@ -24,29 +24,29 @@ import { registerMessageThreadCommands } from "./message/register.thread.js";
 export function registerMessageCommands(program: Command, ctx: ProgramContext) {
   const message = program
     .command("message")
-    .description("Send, read, and manage messages and channel actions")
+    .description("发送、读取和管理消息及频道操作")
     .addHelpText(
       "after",
       () =>
         `
-${theme.heading("Examples:")}
+${theme.heading("示例：")}
 ${formatHelpExamples([
-  ['zhushou message send --target +15555550123 --message "Hi"', "Send a text message."],
+  ['zhushou message send --target +15555550123 --message "Hi"', "发送文本消息。"],
   [
     'zhushou message send --target +15555550123 --message "Hi" --media photo.jpg',
-    "Send a message with media.",
+    "发送带媒体的消息。",
   ],
   [
     'zhushou message poll --channel discord --target channel:123 --poll-question "Snack?" --poll-option Pizza --poll-option Sushi',
-    "Create a Discord poll.",
+    "创建 Discord 投票。",
   ],
   [
     'zhushou message react --channel discord --target 123 --message-id 456 --emoji "✅"',
-    "React to a message.",
+    "对消息添加反应。",
   ],
 ])}
 
-${theme.muted("Docs:")} ${formatDocsLink("/cli/message", "docs.zhushou.ai/cli/message")}`,
+${theme.muted("文档：")} ${formatDocsLink("/cli/message", "docs.zhushou.ai/cli/message")}`,
     )
     .action(() => {
       message.help({ error: true });

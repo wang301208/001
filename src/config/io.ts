@@ -101,7 +101,7 @@ export {
   setRuntimeConfigSnapshotRefreshHandlerState as setRuntimeConfigSnapshotRefreshHandler,
 };
 
-// Re-export for backwards compatibility
+// 向后兼容的重导出
 export { CircularIncludeError, ConfigIncludeError } from "./includes.js";
 export { MissingEnvVarError } from "./env-substitution.js";
 export { resolveShellEnvExpectedKeys } from "./shell-env-expected-keys.js";
@@ -137,28 +137,28 @@ type ConfigHealthState = {
 export type ParseConfigJson5Result = { ok: true; parsed: unknown } | { ok: false; error: string };
 export type ConfigWriteOptions = {
   /**
-   * Read-time env snapshot used to validate `${VAR}` restoration decisions.
-   * If omitted, write falls back to current process env.
+   * 读取时的环境变量快照，用于验证 `${VAR}` 还原决策。
+   * 若省略，写入回退到当前进程环境。
    */
   envSnapshotForRestore?: Record<string, string | undefined>;
   /**
-   * Optional safety check: only use envSnapshotForRestore when writing the
-   * same config file path that produced the snapshot.
+   * 可选安全检查：仅在写入产生快照的同一配置文件路径时
+   * 使用 envSnapshotForRestore。
    */
   expectedConfigPath?: string;
   /**
-   * Paths that must be explicitly removed from the persisted file payload,
-   * even if schema/default normalization reintroduces them.
+   * 必须从持久化文件载荷中显式移除的路径，
+   * 即使模式/默认规范化会重新引入它们。
    */
   unsetPaths?: string[][];
   /**
-   * Internal fast path for callers that already hold a fresh config snapshot.
-   * Avoids rereading the full config just to prepare an immediate write.
+   * 内部快速路径，供已持有新鲜配置快照的调用者使用。
+   * 避免为准备即时写入而重新读取完整配置。
    */
   baseSnapshot?: ConfigFileSnapshot;
   /**
-   * Internal one-shot CLI fast path. When no runtime snapshot is active, skip
-   * the post-write runtime snapshot refresh/reload tail entirely.
+   * 内部一次性 CLI 快速路径。当无运行时快照处于活动状态时，
+   * 完全跳过写入后的运行时快照刷新/重载尾部。
    */
   skipRuntimeSnapshotRefresh?: boolean;
 };
@@ -206,7 +206,7 @@ async function tightenStateDirPermissionsIfNeeded(params: {
     }
     await params.fsModule.promises.chmod(configDir, 0o700);
   } catch {
-    // Best-effort hardening only; callers still need the config write to proceed.
+    // 尽力加固；调用者仍需继续配置写入。
   }
 }
 
@@ -368,7 +368,7 @@ async function writeConfigHealthState(
       mode: 0o600,
     });
   } catch {
-    // best-effort
+    // 尽力而为
   }
 }
 
@@ -381,7 +381,7 @@ function writeConfigHealthStateSync(deps: Required<ConfigIoDeps>, state: ConfigH
       mode: 0o600,
     });
   } catch {
-    // best-effort
+    // 尽力而为
   }
 }
 
@@ -898,8 +898,8 @@ function normalizeDeps(overrides: ConfigIoDeps = {}): Required<ConfigIoDeps> {
 }
 
 function maybeLoadDotEnvForConfig(env: NodeJS.ProcessEnv): void {
-  // Only hydrate dotenv for the real process env. Callers using injected env
-  // objects (tests/diagnostics) should stay isolated.
+  // 仅为真实进程环境加载 dotenv。使用注入 env 对象的
+  // 调用者（测试/诊断）应保持隔离。
   if (env !== process.env) {
     return;
   }
@@ -950,19 +950,19 @@ function resolveConfigForRead(
   resolvedIncludes: unknown,
   env: NodeJS.ProcessEnv,
 ): ConfigReadResolution {
-  // Apply config.env to process.env BEFORE substitution so ${VAR} can reference config-defined vars.
+  // 在替换前将 config.env 应用到 process.env，以便 ${VAR} 可引用配置定义的变量。
   if (resolvedIncludes && typeof resolvedIncludes === "object" && "env" in resolvedIncludes) {
     applyConfigEnvVars(resolvedIncludes as ZhushouConfig, env);
   }
 
-  // Collect missing env var references as warnings instead of throwing,
-  // so non-critical config sections with unset vars don't crash the gateway.
+  // 将缺失的环境变量引用收集为警告而非抛出异常，
+  // 以免非关键配置段中未设置的变量导致网关崩溃。
   const envWarnings: EnvSubstitutionWarning[] = [];
   return {
     resolvedConfigRaw: resolveConfigEnvVars(resolvedIncludes, env, {
       onMissing: (w) => envWarnings.push(w),
     }),
-    // Capture env snapshot after substitution for write-time ${VAR} restoration.
+    // 替换后捕获环境变量快照，用于写入时 ${VAR} 还原。
     envSnapshotForRestore: { ...env } as Record<string, string | undefined>,
     envWarnings,
   };
@@ -1207,7 +1207,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       }
       const error = err as { code?: string };
       if (error?.code === "INVALID_CONFIG") {
-        // Fail closed so invalid configs cannot silently fall back to permissive defaults.
+        // 失败关闭，使无效配置不能静默回退到宽松默认值。
         throw err;
       }
       deps.logger.error(`Failed to read config at ${configPath}`, err);
@@ -1286,7 +1286,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
             exists: true,
             raw: effectiveRaw,
             parsed: effectiveParsed,
-            // Keep the recovered root file payload here when read healing kicked in.
+            // 读取修复生效时，保留恢复的根文件载荷。
             sourceConfig: coerceConfig(effectiveParsed),
             valid: false,
             runtimeConfig: coerceConfig(effectiveParsed),
@@ -1300,9 +1300,9 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 
       const readResolution = resolveConfigForRead(resolved, deps.env);
 
-      // Convert missing env var references to config warnings instead of fatal errors.
-      // This allows the gateway to start in degraded mode when non-critical config
-      // sections reference unset env vars (e.g. optional provider API keys).
+      // 将缺失的环境变量引用转为配置警告而非致命错误。
+      // 这允许网关在降级模式下启动，当非关键配置段
+      // 引用未设置的环境变量时（如可选的提供方 API 密钥）。
       const envVarWarnings = readResolution.envWarnings.map((w) => ({
         path: w.configPath,
         message: `Missing env var "${w.varName}" - feature using this value will be unavailable`,
@@ -1338,8 +1338,8 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
           exists: true,
           raw: effectiveRaw,
           parsed: effectiveParsed,
-          // Use resolvedConfigRaw (after $include and ${ENV} substitution but BEFORE runtime defaults)
-          // for config set/unset operations (issue #6070)
+          // 使用 resolvedConfigRaw（在 $include 和 ${ENV} 替换后，但在运行时默认值之前）
+          // 进行配置 set/unset 操作（issue #6070）
           sourceConfig: coerceConfig(effectiveConfigRaw),
           valid: true,
           runtimeConfig: snapshotConfig,
@@ -1354,8 +1354,8 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       const nodeErr = err as NodeJS.ErrnoException;
       let message: string;
       if (nodeErr?.code === "EACCES") {
-        // Permission denied - common in Docker/container deployments where the
-        // config file is owned by root but the gateway runs as a non-root user.
+        // 权限拒绝 — 常见于 Docker/容器部署中，配置文件
+        // 归 root 所有但网关以非 root 用户运行。
         const uid = process.getuid?.();
         const uidHint = typeof uid === "number" ? String(uid) : "$(id -u)";
         message = [
@@ -1506,28 +1506,28 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       deps.logger.warn(`Config warnings:\n${details}`);
     }
 
-    // Restore ${VAR} env var references that were resolved during config loading.
-    // Read the current file (pre-substitution) and restore any references whose
-    // resolved values match the incoming config - so we don't overwrite
-    // "${ANTHROPIC_API_KEY}" with "sk-ant-..." when the caller didn't change it.
+    // 还原在配置加载期间解析的 ${VAR} 环境变量引用。
+    // 读取当前文件（替换前）并还原所有解析值
+    // 与传入配置匹配的引用 — 以免在调用者未更改时
+    // 用 "sk-ant-..." 覆盖 "${ANTHROPIC_API_KEY}"。
     //
-    // We use only the root file's parsed content (no $include resolution) to avoid
-    // pulling values from included files into the root config on write-back.
-    // Use persistCandidate (the merge-patched value before validation) rather than
-    // validated.config, because plugin/channel AJV validation may inject schema
-    // defaults (e.g., enrichGroupParticipantsFromContacts) that should not be
-    // persisted to disk (issue #56772).
-    // Apply legacy web-search normalization so that migration results are still
-    // persisted even though we bypass validated.config.
+    // 仅使用根文件的解析内容（无 $include 解析），以避免
+    // 将被包含文件的值拉入根配置的回写中。
+    // 使用 persistCandidate（验证前的合并补丁值）而非
+    // validated.config，因为插件/通道 AJV 验证可能注入
+    // 模式默认值（如 enrichGroupParticipantsFromContacts），这些
+    // 不应持久化到磁盘（issue #56772）。
+    // 应用旧版 web-search 规范化，以便迁移结果仍然
+    // 被持久化，即使我们绕过了 validated.config。
     let cfgToWrite = persistCandidate as ZhushouConfig;
     try {
       if (deps.fs.existsSync(configPath)) {
         const currentRaw = await deps.fs.promises.readFile(configPath, "utf-8");
         const parsedRes = parseConfigJson5(currentRaw, deps.json5);
         if (parsedRes.ok) {
-          // Use env snapshot from when config was loaded (if available) to avoid
-          // TOCTOU issues where env changes between load and write. Falls back to
-          // live env if no snapshot exists (e.g., first write before any load).
+          // 使用配置加载时的环境变量快照（如可用），以避免
+          // 加载与写入之间环境变量变化的 TOCTOU 问题。若
+          // 无快照则回退到实时环境变量（如首次写入前未加载）。
           const envForRestore = options.envSnapshotForRestore ?? deps.env;
           cfgToWrite = restoreEnvVarRefs(
             cfgToWrite,
@@ -1537,7 +1537,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         }
       }
     } catch {
-      // If reading the current file fails, write cfg as-is (no env restoration)
+      // 如果读取当前文件失败，原样写入 cfg（不还原环境变量）
     }
 
     const dir = path.dirname(configPath);
@@ -1565,8 +1565,8 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         }
       }
     }
-    // Do NOT apply runtime defaults when writing - user config should only contain
-    // explicitly set values. Runtime defaults are applied when loading (issue #6070).
+    // 写入时不要应用运行时默认值 — 用户配置应仅包含
+    // 显式设置的值。运行时默认值在加载时应用（issue #6070）。
     const stampedOutputConfig = stampConfigVersion(outputConfig);
     const json = JSON.stringify(stampedOutputConfig, null, 2).trimEnd().concat("\n");
     const nextHash = hashConfigRaw(json);
@@ -1612,7 +1612,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       if (suspiciousReasons.length === 0) {
         return;
       }
-      // Tests often write minimal configs (missing meta, etc); keep output quiet unless requested.
+      // 测试常写入最小配置（缺 meta 等）；除非请求，否则保持输出静默。
       const isVitest = deps.env.VITEST === "true";
       const shouldLogInVitest = deps.env.ZHUSHOU_TEST_CONFIG_WRITE_ANOMALY_LOG === "1";
       if (isVitest && !shouldLogInVitest) {
@@ -1674,7 +1674,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         await deps.fs.promises.rename(tmp, configPath);
       } catch (err) {
         const code = (err as { code?: string }).code;
-        // Windows doesn't reliably support atomic replace via rename when dest exists.
+        // Windows 不支持在目标存在时通过 rename 进行原子替换。
         if (code === "EPERM" || code === "EEXIST") {
           await deps.fs.promises.copyFile(tmp, configPath);
           await deps.fs.promises.chmod(configPath, 0o600).catch(() => {
@@ -1722,14 +1722,14 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
   };
 }
 
-// NOTE: These wrappers intentionally do *not* cache the resolved config path at
-// module scope. `ZHUSHOU_CONFIG_PATH` (and friends) are expected to work even
-// when set after the module has been imported (tests, one-off scripts, etc.).
+// 注意：这些封装函数故意不在模块作用域缓存解析的配置路径。
+// `ZHUSHOU_CONFIG_PATH`（及相关变量）预期在模块导入后设置仍可工作
+// （测试、一次性脚本等）。
 const AUTO_OWNER_DISPLAY_SECRET_BY_PATH = new Map<string, string>();
 const AUTO_OWNER_DISPLAY_SECRET_PERSIST_IN_FLIGHT = new Set<string>();
 const AUTO_OWNER_DISPLAY_SECRET_PERSIST_WARNED = new Set<string>();
 export function clearConfigCache(): void {
-  // Compat shim: runtime snapshot is the only in-process cache now.
+  // 兼容垫片：运行时快照现在是唯一的进程内缓存。
 }
 
 export function registerConfigWriteListener(
@@ -1776,10 +1776,10 @@ export function projectConfigOntoRuntimeSourceSnapshot(config: ZhushouConfig): Z
   if (config === runtimeConfigSnapshot) {
     return runtimeConfigSourceSnapshot;
   }
-  // This projection expects callers to pass config objects derived from the
-  // active runtime snapshot (for example shallow/deep clones with targeted edits).
-  // For structurally unrelated configs, skip projection to avoid accidental
-  // merge-patch deletions or reintroducing resolved values into source refs.
+  // 此投影预期调用者传入从活动运行时快照派生的配置对象
+  // （如带定向编辑的浅/深拷贝）。
+  // 对于结构不相关的配置，跳过投影以避免意外的
+  // 合并补丁删除或将解析值重新引入源引用。
   if (
     !isCompatibleTopLevelRuntimeProjectionShape({
       runtimeSnapshot: runtimeConfigSnapshot,
@@ -1796,9 +1796,9 @@ export function projectConfigOntoRuntimeSourceSnapshot(config: ZhushouConfig): Z
 }
 
 export function loadConfig(): ZhushouConfig {
-  // First successful load becomes the process snapshot. Long-lived runtimes
-  // should swap this snapshot via explicit reload/watcher paths instead of
-  // reparsing zhushou.json on hot code paths.
+  // 首次成功加载成为进程快照。长期运行时应
+  // 通过显式重载/观察器路径交换此快照，而非
+  // 在热代码路径上重新解析 zhushou.json。
   return loadPinnedRuntimeConfig(() => createConfigIO().loadConfig());
 }
 

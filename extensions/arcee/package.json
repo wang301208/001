@@ -2,7 +2,7 @@
   "name": "@zhushou/arcee-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Arcee provider plugin",
+  "description": "助手 Arcee 提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

@@ -35,7 +35,7 @@ export type TaskFlowRegistryObserverEvent =
     };
 
 export type TaskFlowRegistryObservers = {
-  // Observers are incremental/best-effort only. Snapshot persistence belongs to TaskFlowRegistryStore.
+  // 观察者仅增量/尽力而为。快照持久化属于 TaskFlowRegistryStore。
   onEvent?: (event: TaskFlowRegistryObserverEvent) => void;
 };
 

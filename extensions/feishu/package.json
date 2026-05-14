@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/feishu",
   "version": "2026.4.16",
-  "description": "助手 Feishu/Lark channel plugin (community maintained by @m1heng)",
+  "description": "助手飞书/Lark 渠道插件（社区维护 @m1heng）",
   "type": "module",
   "dependencies": {
     "@larksuiteoapi/node-sdk": "^1.60.0",

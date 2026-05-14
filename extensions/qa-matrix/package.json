@@ -2,7 +2,7 @@
   "name": "@zhushou/qa-matrix",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Matrix QA runner plugin",
+  "description": "助手 Matrix QA 运行器插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/matrix": "workspace:*",

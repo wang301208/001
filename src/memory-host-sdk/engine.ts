@@ -1,5 +1,5 @@
-// Aggregate workspace contract for the memory engine surface.
-// Keep focused subpaths preferred for new code.
+// 内存引擎表面的聚合工作区合约。
+// 新代码应优先使用聚焦的子路径。
 
 export * from "./engine-foundation.js";
 export * from "./engine-storage.js";

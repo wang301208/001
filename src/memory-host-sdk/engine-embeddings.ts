@@ -1,4 +1,4 @@
-// Real workspace contract for memory embedding providers and batch helpers.
+// 内存嵌入提供者和批量辅助的实际工作区合约。
 
 export {
   getMemoryEmbeddingProvider,

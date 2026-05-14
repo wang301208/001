@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/synology-chat",
   "version": "2026.4.16",
-  "description": "Synology Chat channel plugin for 助手",
+  "description": "Synology Chat 渠道插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

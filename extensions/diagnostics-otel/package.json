@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/diagnostics-otel",
   "version": "2026.4.16",
-  "description": "助手 diagnostics OpenTelemetry exporter",
+  "description": "助手 诊断 OpenTelemetry 导出器",
   "type": "module",
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",

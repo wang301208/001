@@ -6,7 +6,7 @@ export function registerMessagePermissionsCommand(message: Command, helpers: Mes
   helpers
     .withMessageBase(
       helpers.withRequiredMessageTarget(
-        message.command("permissions").description("Fetch channel permissions"),
+        message.command("permissions").description("获取频道权限"),
       ),
     )
     .action(async (opts) => {
@@ -16,7 +16,7 @@ export function registerMessagePermissionsCommand(message: Command, helpers: Mes
 
 export function registerMessageSearchCommand(message: Command, helpers: MessageCliHelpers) {
   helpers
-    .withMessageBase(message.command("search").description("Search Discord messages"))
+    .withMessageBase(message.command("search").description("搜索 Discord 消息"))
     .requiredOption("--guild-id <id>", "Guild id")
     .requiredOption("--query <text>", "Search query")
     .option("--channel-id <id>", "Channel id")

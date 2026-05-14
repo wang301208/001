@@ -96,7 +96,7 @@ function cronIdOrJobIdParams(extraFields: Record<string, TSchema>) {
 
 const CronRunLogJobIdSchema = Type.String({
   minLength: 1,
-  // Prevent path traversal via separators in cron.runs id/jobId.
+  // 防止通过 cron.runs 的 id/jobId 中的分隔符进行路径遍历。
   pattern: "^[^/\\\\]+$",
 });
 

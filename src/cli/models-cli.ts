@@ -287,7 +287,7 @@ export function registerModelsCli(program: Command) {
     });
   });
 
-  const auth = models.command("auth").description("Manage model auth profiles");
+  const auth = models.command("auth").description("管理模型认证配置文件");
   auth.option("--agent <id>", "Agent id for auth order get/set/clear");
   auth.action(() => {
     auth.help();
@@ -295,7 +295,7 @@ export function registerModelsCli(program: Command) {
 
   auth
     .command("add")
-    .description("Interactive auth helper (provider auth or paste token)")
+    .description("交互式认证助手（提供者认证或粘贴令牌）")
     .action(async () => {
       await runModelsCommand(async () => {
         await modelsAuthAddCommand({}, defaultRuntime);
@@ -304,7 +304,7 @@ export function registerModelsCli(program: Command) {
 
   auth
     .command("login")
-    .description("Run a provider plugin auth flow (OAuth/API key)")
+    .description("运行提供者插件认证流程（OAuth/API 密钥）")
     .option("--provider <id>", "Provider id registered by a plugin")
     .option("--method <id>", "Provider auth method id")
     .option("--set-default", "Apply the provider's default model recommendation", false)
@@ -323,7 +323,7 @@ export function registerModelsCli(program: Command) {
 
   auth
     .command("setup-token")
-    .description("Run a provider CLI to create/sync a token (TTY required)")
+    .description("运行提供者 CLI 创建/同步令牌（需要 TTY）")
     .option("--provider <name>", "Provider id")
     .option("--yes", "Skip confirmation", false)
     .action(async (opts) => {
@@ -340,7 +340,7 @@ export function registerModelsCli(program: Command) {
 
   auth
     .command("paste-token")
-    .description("Paste a token into auth-profiles.json and update config")
+    .description("将令牌粘贴到 auth-profiles.json 并更新配置")
     .requiredOption("--provider <name>", "Provider id (e.g. anthropic)")
     .option("--profile-id <id>", "Auth profile id (default: <provider>:manual)")
     .option(
@@ -362,7 +362,7 @@ export function registerModelsCli(program: Command) {
 
   auth
     .command("login-github-copilot")
-    .description("Login to GitHub Copilot via GitHub device flow (TTY required)")
+    .description("通过 GitHub 设备流登录 GitHub Copilot（需要 TTY）")
     .option("--yes", "Overwrite existing profile without prompting", false)
     .action(async (opts) => {
       await runModelsCommand(async () => {
@@ -377,11 +377,11 @@ export function registerModelsCli(program: Command) {
       });
     });
 
-  const order = auth.command("order").description("Manage per-agent auth profile order overrides");
+  const order = auth.command("order").description("管理每 Agent 认证配置文件顺序覆盖");
 
   order
     .command("get")
-    .description("Show per-agent auth order override (from auth-state.json)")
+    .description("显示每 Agent 认证顺序覆盖（来自 auth-state.json）")
     .requiredOption("--provider <name>", "Provider id (e.g. anthropic)")
     .option("--agent <id>", "Agent id (default: configured default agent)")
     .option("--json", "Output JSON", false)
@@ -402,7 +402,7 @@ export function registerModelsCli(program: Command) {
 
   order
     .command("set")
-    .description("Set per-agent auth order override (writes auth-state.json)")
+    .description("设置每 Agent 认证顺序覆盖（写入 auth-state.json）")
     .requiredOption("--provider <name>", "Provider id (e.g. anthropic)")
     .option("--agent <id>", "Agent id (default: configured default agent)")
     .argument("<profileIds...>", "Auth profile ids (e.g. anthropic:default)")
@@ -423,7 +423,7 @@ export function registerModelsCli(program: Command) {
 
   order
     .command("clear")
-    .description("Clear per-agent auth order override (fall back to config/round-robin)")
+    .description("清除每 Agent 认证顺序覆盖（回退到配置/轮转轮询）")
     .requiredOption("--provider <name>", "Provider id (e.g. anthropic)")
     .option("--agent <id>", "Agent id (default: configured default agent)")
     .action(async (opts, command) => {

@@ -8,9 +8,9 @@ type SessionInteractionEntry = Pick<SessionEntry, "spawnedBy" | "parentSessionKe
 export function resolveAcpSessionInteractionMode(
   entry?: SessionInteractionEntry | null,
 ): AcpSessionInteractionMode {
-  // Parent-owned oneshot ACP sessions are background work delegated from another session.
-  // They should report back through the parent task notifier instead of speaking directly
-  // on the user-facing channel themselves.
+  // 父拥有的单次 ACP 会话是从另一个会话委派的后台工作。
+  // 它们应通过父任务通知器回报，而非直接在面向
+  // 用户的通道上发言。
   if (entry?.acp?.mode !== "oneshot") {
     return "interactive";
   }

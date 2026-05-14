@@ -157,7 +157,7 @@ export function createRuntimeChannel(): PluginRuntime["channel"] {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         log.error(
-          `runtime context watcher failed during ${event.type} ` +
+          `运行时上下文观察器在 ${event.type} 期间失败 ` +
             `channel=${event.key.channelId} capability=${event.key.capability}` +
             (event.key.accountId ? ` account=${event.key.accountId}` : "") +
             `: ${message}`,
@@ -187,7 +187,7 @@ export function createRuntimeChannel(): PluginRuntime["channel"] {
       withReplyDispatcher,
       finalizeInboundContext,
       formatAgentEnvelope,
-      /** @deprecated Prefer `BodyForAgent` + structured user-context blocks (do not build plaintext envelopes for prompts). */
+      /** @deprecated 优先使用 `BodyForAgent` + 结构化用户上下文块（不要为提示构建纯文本信封）。 */
       formatInboundEnvelope,
       resolveEnvelopeFormatOptions,
     },

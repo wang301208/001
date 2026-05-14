@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/mattermost",
   "version": "2026.4.16",
-  "description": "助手 Mattermost channel plugin",
+  "description": "助手 Mattermost 渠道插件",
   "type": "module",
   "dependencies": {
     "@sinclair/typebox": "0.34.49",

@@ -155,7 +155,7 @@ export type ProviderAuthOptionBag = {
   [key: string]: unknown;
 };
 
-/** Logger passed into plugin registration, services, and CLI surfaces. */
+/** 传递到插件注册、服务和 CLI 界面的日志器。 */
 export type PluginLogger = {
   debug?: (message: string) => void;
   info: (message: string) => void;
@@ -196,11 +196,11 @@ export type PluginConfigValidation =
   | { ok: false; errors: string[] };
 
 /**
- * Config schema contract accepted by plugin manifests and runtime registration.
+ * 插件清单和运行时注册接受的配置模式合约。
  *
- * Plugins can provide a Zod-like parser, a lightweight `validate(...)`
- * function, or both. `uiHints` and `jsonSchema` are optional extras for docs,
- * forms, and config UIs.
+ * 插件可以提供类 Zod 解析器、轻量级 `validate(...)`
+ * 函数，或两者兼有。`uiHints` 和 `jsonSchema` 是用于文档、
+ * 表单和配置 UI 的可选附加项。
  */
 export type ZhushouPluginConfigSchema = {
   safeParse?: (value: unknown) => {
@@ -218,22 +218,22 @@ export type ZhushouPluginConfigSchema = {
 
 export type ProviderAuthKind = "oauth" | "api_key" | "token" | "device_code" | "custom";
 
-/** Standard result payload returned by provider auth methods. */
+/** 提供者认证方法返回的标准结果载荷。 */
 export type ProviderAuthResult = {
   profiles: Array<{ profileId: string; credential: AuthProfileCredential }>;
   /**
-   * Optional config patch to merge after credentials are written.
+   * 凭据写入后要合并的可选配置补丁。
    *
-   * Use this for provider-owned onboarding defaults such as
-   * `models.providers.<id>` entries, default aliases, or agent model helpers.
-   * The caller still persists auth-profile bindings separately.
+   * 用于提供者拥有的引导默认值，如
+   * `models.providers.<id>` 条目、默认别名或 Agent 模型助手。
+   * 调用者仍单独持久化认证配置绑定。
    */
   configPatch?: Partial<ZhushouConfig>;
   defaultModel?: string;
   notes?: string[];
 };
 
-/** Interactive auth context passed to provider login/setup methods. */
+/** 传递给提供者登录/安装方法的交互式认证上下文。 */
 export type ProviderAuthContext = {
   config: ZhushouConfig;
   env?: NodeJS.ProcessEnv;
@@ -242,29 +242,29 @@ export type ProviderAuthContext = {
   prompter: WizardPrompter;
   runtime: RuntimeEnv;
   /**
-   * Optional onboarding CLI options that triggered this auth flow.
+   * 触发此认证流程的可选引导 CLI 选项。
    *
-   * Present for setup/configure/auth-choice flows so provider methods can
-   * honor preseeded flags like `--openai-api-key` or generic
-   * `--token/--token-provider` pairs. Direct `models auth login` usually
-   * leaves this undefined.
+   * 在 setup/configure/auth-choice 流程中存在，使提供者方法可以
+   * 遵守预设标志如 `--openai-api-key` 或通用
+   * `--token/--token-provider` 对。直接的 `models auth login`
+   * 通常将此保留为 undefined。
    */
   opts?: ProviderAuthOptionBag;
   /**
-   * Onboarding secret persistence preference.
+   * 引导密钥持久化偏好。
    *
-   * Interactive wizard flows set this when the caller explicitly requested
-   * plaintext or env/file/exec ref storage. Ad-hoc `models auth login` flows
-   * usually leave it undefined.
+   * 当调用者显式请求明文或 env/file/exec 引用存储时，
+   * 交互式向导流程设置此选项。临时 `models auth login` 流程
+   * 通常将其保留为 undefined。
    */
   secretInputMode?: SecretInputMode;
   /**
-   * Whether the provider auth flow should offer the onboarding secret-storage
-   * mode picker when `secretInputMode` is unset.
+   * 当 `secretInputMode` 未设置时，提供者认证流程是否应
+   * 提供引导密钥存储模式选择器。
    *
-   * This is true for onboarding/configure flows and false for direct
-   * `models auth` commands, which should keep a tighter, provider-owned prompt
-   * surface.
+   * 对 onboarding/configure 流程为 true，对直接的
+   * `models auth` 命令为 false，后者应保持更紧凑的、
+   * 由提供者控制的提示界面。
    */
   allowSecretRefPrompt?: boolean;
   isRemote: boolean;

@@ -5,7 +5,7 @@ export function registerMessagePinCommands(message: Command, helpers: MessageCli
   const pins = [
     helpers
       .withMessageBase(
-        helpers.withRequiredMessageTarget(message.command("pin").description("Pin a message")),
+        helpers.withRequiredMessageTarget(message.command("pin").description("置顶消息")),
       )
       .requiredOption("--message-id <id>", "Message id")
       .action(async (opts) => {
@@ -13,12 +13,12 @@ export function registerMessagePinCommands(message: Command, helpers: MessageCli
       }),
     helpers
       .withMessageBase(
-        helpers.withRequiredMessageTarget(message.command("unpin").description("Unpin a message")),
+        helpers.withRequiredMessageTarget(message.command("unpin").description("取消置顶消息")),
       )
-      .requiredOption("--message-id <id>", "Message id (or pinned message resource id for MSTeams)")
+      .requiredOption("--message-id <id>", "消息 ID（或 MSTeams 的置顶消息资源 ID）")
       .option(
         "--pinned-message-id <id>",
-        "Pinned message resource id (MSTeams: from pin or list-pins, not the chat message id)",
+        "置顶消息资源 ID（MSTeams：来自置顶或列出置顶，非聊天消息 ID）",
       )
       .action(async (opts) => {
         await helpers.runMessageAction("unpin", opts);
@@ -26,7 +26,7 @@ export function registerMessagePinCommands(message: Command, helpers: MessageCli
     helpers
       .withMessageBase(
         helpers.withRequiredMessageTarget(
-          message.command("pins").description("List pinned messages"),
+          message.command("pins").description("列出置顶消息"),
         ),
       )
       .option("--limit <n>", "Result limit")

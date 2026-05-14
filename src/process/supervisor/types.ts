@@ -75,7 +75,7 @@ type SpawnBaseInput = {
   timeoutMs?: number;
   noOutputTimeoutMs?: number;
   /**
-   * When false, stdout/stderr are streamed via callbacks only and not retained in RunExit payload.
+   * 为 false 时，stdout/stderr 仅通过回调流式传输，不在 RunExit 负载中保留。
    */
   captureOutput?: boolean;
   onStdout?: (chunk: string) => void;

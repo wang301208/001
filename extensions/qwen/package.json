@@ -2,7 +2,7 @@
   "name": "@zhushou/qwen-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Qwen Cloud provider plugin",
+  "description": "助手 通义千问云提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

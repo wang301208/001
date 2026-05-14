@@ -2,7 +2,7 @@
   "name": "@zhushou/vercel-ai-gateway-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Vercel AI Gateway provider plugin",
+  "description": "助手 Vercel AI 网关提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

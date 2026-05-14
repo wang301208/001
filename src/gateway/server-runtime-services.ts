@@ -1678,7 +1678,7 @@ export function startGatewayRuntimeServices(params: {
   channelHealthMonitor: ChannelHealthMonitor | null;
   stopModelPricingRefresh: () => void;
 } {
-  // Keep scheduled work inert until post-attach sidecars finish.
+  // 保持调度工作休眠，直到附加后伴生服务完成。
   const channelHealthMonitor = startGatewayChannelHealthMonitor({
     cfg: params.cfgAtStart,
     channelManager: params.channelManager,
@@ -1695,8 +1695,8 @@ export function startGatewayRuntimeServices(params: {
 }
 
 /**
- * Activate cron scheduler, heartbeat runner, and pending delivery recovery
- * after gateway sidecars are fully started and chat.history is available.
+ * 在网关伴生服务完全启动且 chat.history 可用后，
+ * 激活定时调度器、心跳运行器和待投递恢复。
  */
 export function activateGatewayScheduledServices(params: {
   minimalTestGateway: boolean;

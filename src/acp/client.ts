@@ -276,7 +276,7 @@ export function resolveAcpClientSpawnInvocation(
 }
 
 function resolveSelfEntryPath(): string | null {
-  // Prefer a path relative to the built module location (dist/acp/client.js -> dist/entry.js).
+  // 优先使用相对于构建模块位置的路径（dist/acp/client.js -> dist/entry.js）。
   try {
     const here = fileURLToPath(import.meta.url);
     const candidate = path.resolve(path.dirname(here), "..", "entry.js");

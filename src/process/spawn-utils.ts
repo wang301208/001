@@ -93,7 +93,7 @@ async function spawnAndWaitForSpawn(
     };
     child.once("error", onError);
     child.once("spawn", onSpawn);
-    // Ensure mocked spawns that never emit "spawn" don't stall.
+    // 确保不触发 "spawn" 事件的模拟 spawn 不会卡住。
     process.nextTick(() => {
       if (typeof child.pid === "number") {
         finishResolve();

@@ -1,36 +1,36 @@
-// Shared tool-risk constants.
-// Keep these centralized so gateway HTTP restrictions and security audits don't drift.
+// 共享的工具风险常量。
+// 保持集中管理，以免网关 HTTP 限制和安全审计发生漂移。
 
 /**
- * Tools denied via Gateway HTTP `POST /tools/invoke` by default.
- * These are high-risk because they enable session orchestration, control-plane actions,
- * or interactive flows that don't make sense over a non-interactive HTTP surface.
+ * 通过网关 HTTP `POST /tools/invoke` 默认拒绝的工具。
+ * 这些工具属于高风险，因为它们支持会话编排、控制面操作，
+ * 或在非交互式 HTTP 接口上无意义的交互流程。
  */
 export const DEFAULT_GATEWAY_HTTP_TOOL_DENY = [
-  // Direct command execution — immediate RCE surface
+  // 直接命令执行 — 即时远程代码执行面
   "exec",
-  // Arbitrary child process creation — immediate RCE surface
+  // 任意子进程创建 — 即时远程代码执行面
   "spawn",
-  // Shell command execution — immediate RCE surface
+  // Shell 命令执行 — 即时远程代码执行面
   "shell",
-  // Arbitrary file mutation on the host
+  // 宿主机上的任意文件修改
   "fs_write",
-  // Arbitrary file deletion on the host
+  // 宿主机上的任意文件删除
   "fs_delete",
-  // Arbitrary file move/rename on the host
+  // 宿主机上的任意文件移动/重命名
   "fs_move",
-  // Patch application can rewrite arbitrary files
+  // 补丁应用可重写任意文件
   "apply_patch",
-  // Session orchestration — spawning agents remotely is RCE
+  // 会话编排 — 远程生成代理即远程代码执行
   "sessions_spawn",
-  // Cross-session injection — message injection across sessions
+  // 跨会话注入 — 跨会话消息注入
   "sessions_send",
-  // Persistent automation control plane — can create/update/remove scheduled runs
+  // 持久自动化控制面 — 可创建/更新/移除定时运行
   "cron",
-  // Gateway control plane — prevents gateway reconfiguration via HTTP
+  // 网关控制面 — 阻止通过 HTTP 重新配置网关
   "gateway",
-  // Node command relay can reach system.run on paired hosts
+  // 节点命令中继可触达配对主机的 system.run
   "nodes",
-  // Interactive setup — requires terminal QR scan, hangs on HTTP
+  // 交互式设置 — 需要终端二维码扫描，在 HTTP 上会挂起
   "whatsapp_login",
 ] as const;

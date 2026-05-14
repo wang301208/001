@@ -94,7 +94,7 @@ export async function agentViaGatewayCommand(opts: AgentCliOpts, runtime: Runtim
     throw new Error("Message (--message) is required");
   }
   if (!opts.to && !opts.sessionId && !opts.agent) {
-    throw new Error("Pass --to <E.164>, --session-id, or --agent to choose a session");
+    throw new Error("请传递 --to <E.164>、--session-id 或 --agent 来选择会话");
   }
 
   const cfg = loadConfig();

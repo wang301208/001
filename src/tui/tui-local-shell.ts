@@ -118,8 +118,8 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
 
   const runLocalShellLine = async (line: string) => {
     const cmd = line.slice(1);
-    // NOTE: A lone '!' is handled by the submit handler as a normal message.
-    // Keep this guard anyway in case this is called directly.
+    // 注意：单独的 '!' 由提交处理器作为普通消息处理。
+    // 仍保留此守卫以防直接调用。
     if (cmd === "") {
       return;
     }
@@ -147,8 +147,8 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
 
     await new Promise<void>((resolve) => {
       const child = spawnCommand(redirection.command, {
-        // Intentionally a shell: this is an operator-only local TUI feature (prefixed with `!`)
-        // and is gated behind an explicit in-session approval prompt.
+        // 故意使用 shell：这是操作员专属的本地 TUI 功能（以 `!` 为前缀）
+        // 且由显式的会话内审批提示门控。
         shell: true,
         cwd,
         env: { ...env, ZHUSHOU_SHELL: "tui-local" },

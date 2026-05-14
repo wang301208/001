@@ -2,7 +2,7 @@
   "name": "@zhushou/copilot-proxy",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Copilot Proxy provider plugin",
+  "description": "助手 Copilot 代理提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

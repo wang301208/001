@@ -67,7 +67,7 @@ function resolveVerbose(opts: { verbose?: boolean; debug?: boolean }): boolean {
 function parseTimeoutMs(timeout: unknown): number | null | undefined {
   const parsed = parsePositiveIntOrUndefined(timeout);
   if (timeout !== undefined && parsed === undefined) {
-    defaultRuntime.error("--timeout must be a positive integer (milliseconds)");
+    defaultRuntime.error("--timeout 必须为正整数（毫秒）");
     defaultRuntime.exit(1);
     return null;
   }
@@ -92,33 +92,33 @@ async function runWithVerboseAndTimeout(
 export function registerStatusHealthSessionsCommands(program: Command) {
   program
     .command("status")
-    .description("Show channel health and recent session recipients")
-    .option("--json", "Output JSON instead of text", false)
-    .option("--all", "Full diagnosis (read-only, pasteable)", false)
-    .option("--usage", "Show model provider usage/quota snapshots", false)
-    .option("--deep", "Probe channels (WhatsApp Web + Telegram + Discord + Slack + Signal)", false)
-    .option("--timeout <ms>", "Probe timeout in milliseconds", "10000")
-    .option("--verbose", "Verbose logging", false)
-    .option("--debug", "Alias for --verbose", false)
+    .description("显示频道健康状态和最近的会话接收者")
+    .option("--json", "输出 JSON 而非文本", false)
+    .option("--all", "完整诊断（只读，可粘贴）", false)
+    .option("--usage", "显示模型提供商用量/配额快照", false)
+    .option("--deep", "探测频道（WhatsApp Web + Telegram + Discord + Slack + Signal）", false)
+    .option("--timeout <ms>", "探测超时（毫秒）", "10000")
+    .option("--verbose", "详细日志", false)
+    .option("--debug", "--verbose 的别名", false)
     .addHelpText(
       "after",
       () =>
-        `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["zhushou status", "Show channel health + session summary."],
-          ["zhushou status --all", "Full diagnosis (read-only)."],
-          ["zhushou status --json", "Machine-readable output."],
-          ["zhushou status --usage", "Show model provider usage/quota snapshots."],
+        `\n${theme.heading("示例：")}\n${formatHelpExamples([
+          ["zhushou status", "显示频道健康 + 会话摘要。"],
+          ["zhushou status --all", "完整诊断（只读）。"],
+          ["zhushou status --json", "机器可读输出。"],
+          ["zhushou status --usage", "显示模型提供商用量/配额快照。"],
           [
             "zhushou status --deep",
-            "Run channel probes (WA + Telegram + Discord + Slack + Signal).",
+            "运行频道探测（WA + Telegram + Discord + Slack + Signal）。",
           ],
-          ["zhushou status --deep --timeout 5000", "Tighten probe timeout."],
+          ["zhushou status --deep --timeout 5000", "缩短探测超时。"],
         ])}`,
     )
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/status", "docs.zhushou.ai/cli/status")}\n`,
+        `\n${theme.muted("文档：")} ${formatDocsLink("/cli/status", "docs.zhushou.ai/cli/status")}\n`,
     )
     .action(async (opts) => {
       await runWithVerboseAndTimeout(opts, async ({ verbose, timeoutMs }) => {
@@ -138,15 +138,15 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   program
     .command("health")
-    .description("Fetch health from the running gateway")
-    .option("--json", "Output JSON instead of text", false)
-    .option("--timeout <ms>", "Connection timeout in milliseconds", "10000")
-    .option("--verbose", "Verbose logging", false)
-    .option("--debug", "Alias for --verbose", false)
+    .description("从运行中的网关获取健康状态")
+    .option("--json", "输出 JSON 而非文本", false)
+    .option("--timeout <ms>", "连接超时（毫秒）", "10000")
+    .option("--verbose", "详细日志", false)
+    .option("--debug", "--verbose 的别名", false)
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/health", "docs.zhushou.ai/cli/health")}\n`,
+        `\n${theme.muted("文档：")} ${formatDocsLink("/cli/health", "docs.zhushou.ai/cli/health")}\n`,
     )
     .action(async (opts) => {
       await runWithVerboseAndTimeout(opts, async ({ verbose, timeoutMs }) => {
@@ -163,31 +163,31 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   const sessionsCmd = program
     .command("sessions")
-    .description("List stored conversation sessions")
-    .option("--json", "Output as JSON", false)
-    .option("--verbose", "Verbose logging", false)
-    .option("--store <path>", "Path to session store (default: resolved from config)")
-    .option("--agent <id>", "Agent id to inspect (default: configured default agent)")
-    .option("--all-agents", "Aggregate sessions across all configured agents", false)
-    .option("--active <minutes>", "Only show sessions updated within the past N minutes")
+    .description("列出已存储的对话会话")
+    .option("--json", "输出 JSON", false)
+    .option("--verbose", "详细日志", false)
+    .option("--store <path>", "会话存储路径（默认：从配置解析）")
+    .option("--agent <id>", "要检查的代理 ID（默认：配置的默认代理）")
+    .option("--all-agents", "聚合所有已配置代理的会话", false)
+    .option("--active <minutes>", "仅显示在过去 N 分钟内更新的会话")
     .addHelpText(
       "after",
       () =>
-        `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["zhushou sessions", "List all sessions."],
-          ["zhushou sessions --agent work", "List sessions for one agent."],
-          ["zhushou sessions --all-agents", "Aggregate sessions across agents."],
-          ["zhushou sessions --active 120", "Only last 2 hours."],
-          ["zhushou sessions --json", "Machine-readable output."],
-          ["zhushou sessions --store ./tmp/sessions.json", "Use a specific session store."],
+        `\n${theme.heading("示例：")}\n${formatHelpExamples([
+          ["zhushou sessions", "列出所有会话。"],
+          ["zhushou sessions --agent work", "列出一个代理的会话。"],
+          ["zhushou sessions --all-agents", "聚合所有代理的会话。"],
+          ["zhushou sessions --active 120", "仅显示最近 2 小时。"],
+          ["zhushou sessions --json", "机器可读输出。"],
+          ["zhushou sessions --store ./tmp/sessions.json", "使用指定的会话存储。"],
         ])}\n\n${theme.muted(
-          "Shows token usage per session when the agent reports it; set agents.defaults.contextTokens to cap the window and show %.",
+          "当代理报告时会显示每个会话的令牌用量；设置 agents.defaults.contextTokens 以限制窗口并显示百分比。",
         )}`,
     )
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/sessions", "docs.zhushou.ai/cli/sessions")}\n`,
+        `\n${theme.muted("文档：")} ${formatDocsLink("/cli/sessions", "docs.zhushou.ai/cli/sessions")}\n`,
     )
     .action(async (opts) => {
       setVerbose(Boolean(opts.verbose));
@@ -206,34 +206,34 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   sessionsCmd
     .command("cleanup")
-    .description("Run session-store maintenance now")
-    .option("--store <path>", "Path to session store (default: resolved from config)")
-    .option("--agent <id>", "Agent id to maintain (default: configured default agent)")
-    .option("--all-agents", "Run maintenance across all configured agents", false)
-    .option("--dry-run", "Preview maintenance actions without writing", false)
-    .option("--enforce", "Apply maintenance even when configured mode is warn", false)
+    .description("立即运行会话存储维护")
+    .option("--store <path>", "会话存储路径（默认：从配置解析）")
+    .option("--agent <id>", "要维护的代理 ID（默认：配置的默认代理）")
+    .option("--all-agents", "对所有已配置代理运行维护", false)
+    .option("--dry-run", "预览维护操作但不写入", false)
+    .option("--enforce", "即使配置模式为 warn 也应用维护", false)
     .option(
       "--fix-missing",
-      "Remove store entries whose transcript files are missing (bypasses age/count retention)",
+      "移除转录文件缺失的存储条目（绕过年龄/计数保留）",
       false,
     )
-    .option("--active-key <key>", "Protect this session key from budget-eviction")
-    .option("--json", "Output JSON", false)
+    .option("--active-key <key>", "保护此会话密钥不被预算驱逐")
+    .option("--json", "输出 JSON", false)
     .addHelpText(
       "after",
       () =>
-        `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["zhushou sessions cleanup --dry-run", "Preview stale/cap cleanup."],
+        `\n${theme.heading("示例：")}\n${formatHelpExamples([
+          ["zhushou sessions cleanup --dry-run", "预览过期/超限清理。"],
           [
             "zhushou sessions cleanup --dry-run --fix-missing",
-            "Also preview pruning entries with missing transcript files.",
+            "同时预览修剪缺失转录文件的条目。",
           ],
-          ["zhushou sessions cleanup --enforce", "Apply maintenance now."],
-          ["zhushou sessions cleanup --agent work --dry-run", "Preview one agent store."],
-          ["zhushou sessions cleanup --all-agents --dry-run", "Preview all agent stores."],
+          ["zhushou sessions cleanup --enforce", "立即应用维护。"],
+          ["zhushou sessions cleanup --agent work --dry-run", "预览一个代理存储。"],
+          ["zhushou sessions cleanup --all-agents --dry-run", "预览所有代理存储。"],
           [
             "zhushou sessions cleanup --enforce --store ./tmp/sessions.json",
-            "Use a specific store.",
+            "使用指定的存储。",
           ],
         ])}`,
     )
@@ -265,12 +265,12 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   const tasksCmd = program
     .command("tasks")
-    .description("Inspect durable background tasks and TaskFlow state")
-    .option("--json", "Output as JSON", false)
-    .option("--runtime <name>", "Filter by kind (subagent, acp, cron, cli)")
+    .description("检查持久化后台任务和 TaskFlow 状态")
+    .option("--json", "输出 JSON", false)
+    .option("--runtime <name>", "按类型筛选（subagent、acp、cron、cli）")
     .option(
       "--status <name>",
-      "Filter by status (queued, running, succeeded, failed, timed_out, cancelled, lost)",
+      "按状态筛选（queued、running、succeeded、failed、timed_out、cancelled、lost）",
     )
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
@@ -288,8 +288,8 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   tasksCmd
     .command("list")
-    .description("List tracked background tasks")
-    .option("--json", "Output as JSON", false)
+    .description("列出已追踪的后台任务")
+    .option("--json", "输出 JSON", false)
     .option("--runtime <name>", "Filter by kind (subagent, acp, cron, cli)")
     .option(
       "--status <name>",
@@ -317,9 +317,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   tasksCmd
     .command("audit")
-    .description("Show stale or broken background tasks and TaskFlows")
-    .option("--json", "Output as JSON", false)
-    .option("--severity <level>", "Filter by severity (warn, error)")
+    .description("显示过期或异常的后台任务和 TaskFlow")
+    .option("--json", "输出 JSON", false)
+    .option("--severity <level>", "按严重程度筛选（warn、error）")
     .option(
       "--code <name>",
       "Filter by finding code (stale_queued, stale_running, lost, delivery_failed, missing_cleanup, inconsistent_timestamps, restore_failed, stale_waiting, stale_blocked, cancel_stuck, missing_linked_tasks, blocked_task_missing)",
@@ -355,9 +355,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   tasksCmd
     .command("maintenance")
-    .description("Preview or apply tasks and TaskFlow maintenance")
-    .option("--json", "Output as JSON", false)
-    .option("--apply", "Apply reconciliation, cleanup stamping, and pruning", false)
+    .description("预览或应用任务和 TaskFlow 维护")
+    .option("--json", "输出 JSON", false)
+    .option("--apply", "应用对账、清理标记和修剪", false)
     .action(async (opts, command) => {
       const parentOpts = command.parent?.opts() as { json?: boolean } | undefined;
       await runCommandWithRuntime(defaultRuntime, async () => {
@@ -373,9 +373,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   tasksCmd
     .command("show")
-    .description("Show one background task by task id, run id, or session key")
-    .argument("<lookup>", "Task id, run id, or session key")
-    .option("--json", "Output as JSON", false)
+    .description("按任务 ID、运行 ID 或会话密钥显示一个后台任务")
+    .argument("<lookup>", "任务 ID、运行 ID 或会话密钥")
+    .option("--json", "输出 JSON", false)
     .action(async (lookup, opts, command) => {
       const parentOpts = command.parent?.opts() as { json?: boolean } | undefined;
       await runCommandWithRuntime(defaultRuntime, async () => {
@@ -391,9 +391,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   tasksCmd
     .command("notify")
-    .description("Set task notify policy")
+    .description("设置任务通知策略")
     .argument("<lookup>", "Task id, run id, or session key")
-    .argument("<notify>", "Notify policy (done_only, state_changes, silent)")
+    .argument("<notify>", "通知策略（done_only、state_changes、silent）")
     .action(async (lookup, notify) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         await tasksNotifyCommand(
@@ -408,7 +408,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   tasksCmd
     .command("cancel")
-    .description("Cancel a running background task")
+    .description("取消运行中的后台任务")
     .argument("<lookup>", "Task id, run id, or session key")
     .action(async (lookup) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
@@ -423,15 +423,15 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   const tasksFlowCmd = tasksCmd
     .command("flow")
-    .description("Inspect durable TaskFlow state under tasks");
+    .description("检查任务下的持久化 TaskFlow 状态");
 
   tasksFlowCmd
     .command("list")
-    .description("List tracked TaskFlows")
-    .option("--json", "Output as JSON", false)
+    .description("列出已追踪的 TaskFlow")
+    .option("--json", "输出 JSON", false)
     .option(
       "--status <name>",
-      "Filter by status (queued, running, waiting, blocked, succeeded, failed, cancelled, lost)",
+      "按状态筛选（queued、running、waiting、blocked、succeeded、failed、cancelled、lost）",
     )
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
@@ -447,9 +447,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   tasksFlowCmd
     .command("show")
-    .description("Show one TaskFlow by flow id or owner key")
-    .argument("<lookup>", "Flow id or owner key")
-    .option("--json", "Output as JSON", false)
+    .description("按流 ID 或所有者密钥显示一个 TaskFlow")
+    .argument("<lookup>", "流 ID 或所有者密钥")
+    .option("--json", "输出 JSON", false)
     .action(async (lookup, opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         await flowsShowCommand(
@@ -464,7 +464,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   tasksFlowCmd
     .command("cancel")
-    .description("Cancel a running TaskFlow")
+    .description("取消运行中的 TaskFlow")
     .argument("<lookup>", "Flow id or owner key")
     .action(async (lookup) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
@@ -479,8 +479,8 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   const governanceCmd = program
     .command("governance")
-    .description("Inspect organizational charter and governance control-plane state")
-    .option("--json", "Output as JSON", false)
+    .description("检查组织章程和治理控制面状态")
+    .option("--json", "输出 JSON", false)
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         await governanceOverviewCommand(
@@ -495,8 +495,8 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   governanceCmd
     .command("overview")
-    .description("Show governance charter status, freeze posture, and findings")
-    .option("--json", "Output as JSON", false)
+    .description("显示治理章程状态、冻结姿态和发现")
+    .option("--json", "输出 JSON", false)
     .action(async (opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -515,9 +515,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   governanceCmd
     .command("agent")
-    .description("Show one agent's charter role and effective governance contract")
-    .argument("<agentId>", "Agent id")
-    .option("--json", "Output as JSON", false)
+    .description("显示代理的章程角色和有效治理契约")
+    .argument("<agentId>", "代理 ID")
+    .option("--json", "输出 JSON", false)
     .action(async (agentId, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -537,9 +537,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   governanceCmd
     .command("team")
-    .description("Show one team's charter blueprint and resolved member governance posture")
-    .argument("<teamId>", "Team id")
-    .option("--json", "Output as JSON", false)
+    .description("显示团队的章程蓝图和已解析的成员治理姿态")
+    .argument("<teamId>", "团队 ID")
+    .option("--json", "输出 JSON", false)
     .action(async (teamId, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -559,10 +559,10 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   governanceCmd
     .command("capabilities")
-    .description("Show the governed governance capability inventory")
-    .argument("[agentIds...]", "Agent ids to scope the inventory to")
-    .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
-    .option("--json", "Output as JSON", false)
+    .description("显示受治理的能力清单")
+    .argument("[agentIds...]", "限定清单范围的代理 ID")
+    .option("--workspace <dir>", "要检查的工作空间范围（可重复）", collectOption, [])
+    .option("--json", "输出 JSON", false)
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -583,10 +583,10 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   governanceCmd
     .command("asset-registry")
-    .description("Show the governed capability asset registry and registry drift")
-    .argument("[agentIds...]", "Agent ids to scope the registry comparison to")
+    .description("显示受治理的能力资产注册表和注册表漂移")
+    .argument("[agentIds...]", "限定注册表比较范围的代理 ID")
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -607,11 +607,11 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   governanceCmd
     .command("genesis-plan")
-    .description("Plan governance genesis-team work from governed capability gaps")
-    .argument("[agentIds...]", "Agent ids to focus the genesis plan on")
-    .option("--team-id <id>", "Genesis team id to plan for")
+    .description("从受治理的能力缺口规划治理创始团队工作")
+    .argument("[agentIds...]", "创始计划聚焦的代理 ID")
+    .option("--team-id <id>", "要规划的创始团队 ID")
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -633,14 +633,14 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   const governanceProposalsCmd = governanceCmd
     .command("proposals")
-    .description("Inspect and mutate the governance proposal ledger")
-    .option("--json", "Output as JSON", false)
-    .option("--status <status>", "Filter by status (pending, approved, rejected, applied)")
-    .option("--limit <n>", "Maximum proposals to return")
+    .description("检查和变更治理提案账本")
+    .option("--json", "输出 JSON", false)
+    .option("--status <status>", "按状态筛选（pending、approved、rejected、applied）")
+    .option("--limit <n>", "最多返回的提案数")
     .action(async (opts, command) => {
       const limit = parsePositiveIntOrUndefined(opts.limit);
       if (opts.limit !== undefined && limit === undefined) {
-        defaultRuntime.error("--limit must be a positive integer");
+        defaultRuntime.error("--limit 必须为正整数");
         defaultRuntime.exit(1);
         return;
       }
@@ -664,8 +664,8 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   governanceProposalsCmd
     .command("list")
-    .description("List governance proposals with optional status filtering")
-    .option("--json", "Output as JSON", false)
+    .description("列出治理提案（可选状态筛选）")
+    .option("--json", "输出 JSON", false)
     .option("--status <status>", "Filter by status (pending, approved, rejected, applied)")
     .option("--limit <n>", "Maximum proposals to return")
     .action(async (opts, command) => {
@@ -706,13 +706,13 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   governanceProposalsCmd
     .command("synthesize")
-    .description("Synthesize pending governance proposals from deterministic charter findings")
+    .description("从确定性章程发现合成待处理的治理提案")
     .argument(
       "[agentIds...]",
       "Governance agent ids (defaults to founder, strategist, and librarian)",
     )
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -750,7 +750,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--decided-by <id>", "Reviewer id recorded on auto-approved proposals")
     .option("--note <text>", "Decision note recorded on auto-approved proposals")
     .option("--applied-by <id>", "Actor id recorded on auto-applied proposals")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -789,7 +789,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--created-by-session <key>", "Actor session key recorded in the proposal")
     .option("--ops-json <json>", "Inline JSON array or object with an operations field")
     .option("--ops-file <path>", "Path to a JSON file containing operations")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -820,11 +820,11 @@ export function registerStatusHealthSessionsCommands(program: Command) {
   governanceProposalsCmd
     .command("review")
     .description("Approve or reject a governance proposal")
-    .argument("<proposalId>", "Proposal id")
+    .argument("<proposalId>", "提案 ID")
     .requiredOption("--decision <decision>", "Decision (approve, reject)")
     .option("--decided-by <id>", "Reviewer id (default: cli)")
     .option("--note <text>", "Decision note")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (proposalId, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -859,8 +859,8 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--limit <n>", "Maximum proposals to review")
     .option("--decided-by <id>", "Reviewer id (default: cli)")
     .option("--note <text>", "Decision note")
-    .option("--fail-fast", "Stop on first batch error", false)
-    .option("--json", "Output as JSON", false)
+    .option("--fail-fast", "首批错误时停止", false)
+    .option("--json", "输出 JSON", false)
     .action(async (proposalIds, opts, command) => {
       const limit = parsePositiveIntOrUndefined(opts.limit);
       if (opts.limit !== undefined && limit === undefined) {
@@ -905,9 +905,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
   governanceProposalsCmd
     .command("apply")
     .description("Apply an approved governance proposal to governance/charter")
-    .argument("<proposalId>", "Proposal id")
+    .argument("<proposalId>", "提案 ID")
     .option("--applied-by <id>", "Actor id recorded in the apply audit (default: cli)")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (proposalId, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -938,8 +938,8 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--status <status>", "Filter by status (pending, approved, rejected, applied)")
     .option("--limit <n>", "Maximum proposals to apply")
     .option("--applied-by <id>", "Actor id recorded in the apply audit (default: cli)")
-    .option("--fail-fast", "Stop on first batch error", false)
-    .option("--json", "Output as JSON", false)
+    .option("--fail-fast", "首批错误时停止", false)
+    .option("--json", "输出 JSON", false)
     .action(async (proposalIds, opts, command) => {
       const limit = parsePositiveIntOrUndefined(opts.limit);
       if (opts.limit !== undefined && limit === undefined) {
@@ -982,9 +982,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
   governanceProposalsCmd
     .command("revert")
     .description("Revert a previously applied governance proposal")
-    .argument("<proposalId>", "Proposal id")
+    .argument("<proposalId>", "提案 ID")
     .option("--reverted-by <id>", "Actor id recorded in the revert audit (default: cli)")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (proposalId, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -1015,8 +1015,8 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--status <status>", "Filter by status (pending, approved, rejected, applied)")
     .option("--limit <n>", "Maximum proposals to revert")
     .option("--reverted-by <id>", "Actor id recorded in the revert audit (default: cli)")
-    .option("--fail-fast", "Stop on first batch error", false)
-    .option("--json", "Output as JSON", false)
+    .option("--fail-fast", "首批错误时停止", false)
+    .option("--json", "输出 JSON", false)
     .action(async (proposalIds, opts, command) => {
       const limit = parsePositiveIntOrUndefined(opts.limit);
       if (opts.limit !== undefined && limit === undefined) {
@@ -1059,7 +1059,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
   const autonomyCmd = program
     .command("autonomy")
     .description("Inspect and launch managed autonomy profiles")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
@@ -1077,7 +1077,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
   autonomyCmd
     .command("list")
     .description("List available autonomy profiles")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1102,7 +1102,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .description("Show fleet-wide autonomy loop and flow convergence status")
     .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1129,7 +1129,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .description("Show the governed autonomy capability inventory")
     .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1157,7 +1157,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
     .option("--team-id <id>", "Genesis team id to plan for")
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1185,7 +1185,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .description("Heal fleet-wide autonomy loops and managed flow continuity")
     .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
     .option("--workspace <dir>", "Workspace scope to operate on (repeatable)", collectOption, [])
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1221,7 +1221,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--no-capabilities", "Skip capability inventory refresh")
     .option("--no-genesis", "Skip genesis plan refresh")
     .option("--no-history", "Do not persist supervisor heal history")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1266,7 +1266,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--no-capabilities", "Skip capability inventory refresh")
     .option("--no-genesis", "Skip genesis plan refresh")
     .option("--no-history", "Do not persist bootstrap heal history")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1316,7 +1316,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--no-capabilities", "Skip capability inventory refresh")
     .option("--no-genesis", "Skip genesis plan refresh")
     .option("--no-history", "Do not persist activation heal history")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1359,7 +1359,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--no-capabilities", "Skip capability inventory refresh")
     .option("--no-genesis", "Skip genesis plan refresh")
     .option("--no-history", "Do not persist architecture readiness heal history")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1400,7 +1400,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--limit <n>", "Maximum number of events to return")
     .option("--mode <mode>", "Filter by mode (heal, reconcile)")
     .option("--source <source>", "Filter by source (manual, startup, supervisor)")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const limit = parsePositiveIntOrUndefined(opts.limit);
@@ -1433,10 +1433,10 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   autonomyCmd
     .command("governance")
-    .description("Synthesize pending governance proposals from deterministic charter findings")
+    .description("从确定性章程发现合成待处理的治理提案")
     .argument("[agentIds...]", "Autonomy profile ids (defaults to founder and strategist)")
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1460,7 +1460,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   autonomyCmd
     .command("governance-reconcile")
-    .description("Reconcile deterministic governance proposals through the autonomy runtime")
+    .description("通过自治运行时对账确定性治理提案")
     .argument(
       "[agentIds...]",
       "Autonomy profile ids (defaults to founder, strategist, and librarian)",
@@ -1468,7 +1468,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--workspace <dir>", "Workspace scope to inspect (repeatable)", collectOption, [])
     .option("--mode <mode>", "Reconcile mode (apply_safe, force_apply_all)")
     .option("--note <text>", "Decision note recorded on auto-approved proposals")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1494,9 +1494,9 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   autonomyCmd
     .command("show")
-    .description("Show one autonomy profile")
-    .argument("<agentId>", "Autonomy profile id")
-    .option("--json", "Output as JSON", false)
+    .description("显示一个自治配置")
+    .argument("<agentId>", "自治配置 ID")
+    .option("--json", "输出 JSON", false)
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
     .action(async (agentId, opts, command) => {
       const parentOpts = command.parent?.opts() as
@@ -1519,8 +1519,8 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   autonomyCmd
     .command("start")
-    .description("Start a managed autonomy flow")
-    .argument("<agentId>", "Autonomy profile id")
+    .description("启动托管自治流")
+    .argument("<agentId>", "自治配置 ID")
     .option("--goal <text>", "Override the flow goal")
     .option("--controller-id <id>", "Override the autonomy controller id")
     .option("--current-step <step>", "Override the current flow step")
@@ -1538,7 +1538,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
     .option("--seed-label <text>", "Override the seed task label")
     .option("--seed-body <text>", "Override the seed task body")
     .option("--no-seed-task", "Disable automatic seed task creation")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentId, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -1571,11 +1571,11 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   autonomyCmd
     .command("cancel")
-    .description("Cancel a managed autonomy flow")
-    .argument("<agentId>", "Autonomy profile id")
+    .description("取消托管自治流")
+    .argument("<agentId>", "自治配置 ID")
     .option("--flow-id <id>", "Cancel a specific managed flow instead of the latest one")
     .option("--session-key <key>", "Override the owner session key for the managed flow")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentId, opts, command) => {
       const parentOpts = command.parent?.opts() as
         | {
@@ -1598,18 +1598,18 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   const autonomyReplayCmd = autonomyCmd
     .command("replay")
-    .description("Inspect and submit managed sandbox replay evidence");
+    .description("检查和提交托管沙箱回放证据");
 
   autonomyReplayCmd
     .command("submit")
-    .description("Submit sandbox replay evidence for a managed autonomy flow")
-    .argument("<agentId>", "Autonomy profile id")
+    .description("为托管自治流提交沙箱回放证据")
+    .argument("<agentId>", "自治配置 ID")
     .option("--flow-id <id>", "Target a specific managed flow instead of the latest one")
     .requiredOption("--replay <verdict>", "Replay verdict (pass, fail)")
     .requiredOption("--qa <verdict>", "QA verdict (pass, fail)")
     .option("--audit <verdict>", "Audit verdict (pass, fail)")
     .option("--session-key <key>", "Override the owner session key for the managed flow")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentId, opts, command) => {
       const parseVerdict = (value: unknown, flag: string): boolean | null => {
         if (value === "pass") {
@@ -1659,14 +1659,14 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   const autonomyLoopCmd = autonomyCmd
     .command("loop")
-    .description("Inspect and control scheduled autonomy loops");
+    .description("检查和控制定时自治循环");
 
   autonomyLoopCmd
     .command("show")
-    .description("Show the scheduled autonomy loop for one profile")
-    .argument("<agentId>", "Autonomy profile id")
+    .description("显示一个配置的定时自治循环")
+    .argument("<agentId>", "自治配置 ID")
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentId, opts, command) => {
       const parentOpts = command.parent?.parent?.opts() as
         | {
@@ -1688,8 +1688,8 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   autonomyLoopCmd
     .command("enable")
-    .description("Enable or update the scheduled autonomy loop for one profile")
-    .argument("<agentId>", "Autonomy profile id")
+    .description("启用或更新一个配置的定时自治循环")
+    .argument("<agentId>", "自治配置 ID")
     .option("--every-ms <ms>", "Loop interval in milliseconds")
     .option(
       "--workspace <dir>",
@@ -1698,7 +1698,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
       [],
     )
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentId, opts, command) => {
       const parentOpts = command.parent?.parent?.opts() as
         | {
@@ -1722,7 +1722,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   autonomyLoopCmd
     .command("reconcile")
-    .description("Reconcile scheduled autonomy loops against the governed profile set")
+    .description("对照受治理的配置集对账定时自治循环")
     .argument("[agentIds...]", "Autonomy profile ids (defaults to all managed profiles)")
     .option(
       "--workspace <dir>",
@@ -1731,7 +1731,7 @@ export function registerStatusHealthSessionsCommands(program: Command) {
       [],
     )
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentIds, opts, command) => {
       const parentOpts = command.parent?.parent?.opts() as
         | {
@@ -1754,11 +1754,11 @@ export function registerStatusHealthSessionsCommands(program: Command) {
 
   autonomyLoopCmd
     .command("disable")
-    .description("Disable the scheduled autonomy loop for one profile")
-    .argument("<agentId>", "Autonomy profile id")
+    .description("禁用一个配置的定时自治循环")
+    .argument("<agentId>", "自治配置 ID")
     .option("--job-id <id>", "Disable a specific loop job instead of all managed loop jobs")
     .option("--session-key <key>", "Override the owner session key for autonomy operations")
-    .option("--json", "Output as JSON", false)
+    .option("--json", "输出 JSON", false)
     .action(async (agentId, opts, command) => {
       const parentOpts = command.parent?.parent?.opts() as
         | {

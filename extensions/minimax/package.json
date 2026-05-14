@@ -2,7 +2,7 @@
   "name": "@zhushou/minimax-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 MiniMax provider and OAuth plugin",
+  "description": "助手 MiniMax 提供者和 OAuth 插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

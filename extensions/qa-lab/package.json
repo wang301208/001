@@ -2,7 +2,7 @@
   "name": "@zhushou/qa-lab",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 QA lab plugin with private debugger UI and scenario runner",
+  "description": "助手 QA 实验室插件（私有调试器 UI 和场景运行器）",
   "type": "module",
   "dependencies": {
     "@copilotkit/aimock": "1.13.0",

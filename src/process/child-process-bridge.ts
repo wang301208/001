@@ -29,7 +29,7 @@ export function attachChildProcessBridge(
       process.on(signal, listener);
       listeners.set(signal, listener);
     } catch {
-      // Unsupported signal on this platform.
+      // 此平台不支持的信号。
     }
   }
 

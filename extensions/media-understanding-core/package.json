@@ -2,7 +2,7 @@
   "name": "@zhushou/media-understanding-core",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 media understanding runtime package",
+  "description": "助手 媒体理解运行时包",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

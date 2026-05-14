@@ -1,4 +1,4 @@
-// Focused runtime contract for memory CLI/UI helpers.
+// 内存 CLI/UI 辅助的聚焦运行时合约。
 
 export { formatErrorMessage, withManager } from "../cli/cli-utils.js";
 export { formatHelpExamples } from "../cli/help-format.js";

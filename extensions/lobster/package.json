@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/lobster",
   "version": "2026.4.16",
-  "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
+  "description": "Lobster 工作流工具插件（类型化管道 + 可恢复审批）",
   "type": "module",
   "dependencies": {
     "@zhushou/lobster-runtime": "workspace:*",

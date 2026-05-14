@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/whatsapp",
   "version": "2026.4.16",
-  "description": "助手 WhatsApp channel plugin",
+  "description": "助手 WhatsApp 渠道插件",
   "type": "module",
   "dependencies": {
     "@whiskeysockets/baileys": "7.0.0-rc.9",

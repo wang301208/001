@@ -180,7 +180,7 @@ export function stripRedundantSubsystemPrefixForConsole(
     return message;
   }
 
-  // Common duplication: "[discord] discord: ..." (when a message manually includes the subsystem tag).
+  // 常见重复："[discord] discord: ..."（当消息手动包含子系统标签时）。
   if (message.startsWith("[")) {
     const closeIdx = message.indexOf("]");
     if (closeIdx > 1) {

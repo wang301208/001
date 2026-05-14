@@ -2,7 +2,7 @@
   "name": "@zhushou/browser-plugin",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 browser tool plugin",
+  "description": "助手 浏览器工具插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

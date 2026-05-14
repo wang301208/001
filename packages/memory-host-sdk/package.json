@@ -2,6 +2,7 @@
   "name": "@zhushou/memory-host-sdk",
   "version": "0.0.0-private",
   "private": true,
+  "description": "助手内存宿主 SDK",
   "type": "module",
   "exports": {
     "./runtime": "./src/runtime.ts",

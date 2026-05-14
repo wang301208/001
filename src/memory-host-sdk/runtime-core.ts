@@ -1,4 +1,4 @@
-// Focused runtime contract for memory plugin config/state/helpers.
+// 内存插件配置/状态/辅助的聚焦运行时合约。
 
 export type { AnyAgentTool } from "../agents/tools/common.js";
 export { resolveCronStyleNow } from "../agents/current-time.js";

@@ -103,7 +103,7 @@ export async function resolveSessionAuthProfileOverride(params: {
     current = undefined;
   }
 
-  // Explicit user picks should survive provider rotation order changes.
+  // 显式用户选择应在提供者轮转顺序变更后保留。
   if (current && order.length > 0 && !order.includes(current) && source !== "user") {
     await clearSessionAuthProfileOverride({ sessionEntry, sessionStore, sessionKey, storePath });
     current = undefined;

@@ -12,8 +12,7 @@ type LegacyCliDeps = {
 
 type LibraryExports = typeof import("./library.js");
 
-// These bindings are populated only for library consumers. The CLI entry stays
-// on the lean path and must not read them while running as main.
+// 这些绑定仅对库消费者填充。CLI 入口保持精简路径，作为主模块运行时不得读取它们。
 export let applyTemplate: LibraryExports["applyTemplate"];
 export let createDefaultDeps: LibraryExports["createDefaultDeps"];
 export let deriveSessionKey: LibraryExports["deriveSessionKey"];
@@ -43,7 +42,7 @@ async function loadLegacyCliDeps(): Promise<LegacyCliDeps> {
   return { installGaxiosFetchCompat, runCli };
 }
 
-// Legacy direct file entrypoint only. Package root exports now live in library.ts.
+// 仅用于旧版直接文件入口。包根导出现在位于 library.ts。
 export async function runLegacyCliEntry(
   argv: string[] = process.argv,
   deps?: LegacyCliDeps,
@@ -85,18 +84,18 @@ if (!isMain) {
 if (isMain) {
   const { restoreTerminalState } = await import("./terminal/restore.js");
 
-  // Global error handlers to prevent silent crashes from unhandled rejections/exceptions.
-  // These log the error and exit gracefully instead of crashing without trace.
+  // 全局错误处理器，防止未处理的拒绝/异常导致静默崩溃。
+  // 这些处理器记录错误并优雅退出，而非无迹可寻地崩溃。
   installUnhandledRejectionHandler();
 
   process.on("uncaughtException", (error) => {
-    console.error("[zhushou] Uncaught exception:", formatUncaughtError(error));
+    console.error("[zhushou] 未捕获的异常：", formatUncaughtError(error));
     restoreTerminalState("uncaught exception", { resumeStdinIfPaused: false });
     process.exit(1);
   });
 
   void runLegacyCliEntry(process.argv).catch((err) => {
-    console.error("[zhushou] CLI failed:", formatUncaughtError(err));
+    console.error("[zhushou] CLI 失败：", formatUncaughtError(err));
     restoreTerminalState("legacy cli failure", { resumeStdinIfPaused: false });
     process.exit(1);
   });

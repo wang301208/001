@@ -2,7 +2,7 @@
   "name": "@zhushou/groq-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Groq media-understanding provider",
+  "description": "助手 Groq 媒体理解提供者",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

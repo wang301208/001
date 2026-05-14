@@ -4,8 +4,8 @@ import { normalizeProviderId } from "../provider-id.js";
 import type { AuthProfileStore } from "./types.js";
 
 /**
- * Migration hints for deprecated/removed OAuth providers.
- * Users with stale credentials should be guided to migrate.
+ * 已弃用/已移除 OAuth 提供者的迁移提示。
+ * 拥有过时凭据的用户应被引导迁移。
  */
 const DEPRECATED_PROVIDER_MIGRATION_HINTS: Record<string, string> = {
   "qwen-portal":
@@ -20,7 +20,7 @@ export async function formatAuthDoctorHint(params: {
 }): Promise<string> {
   const normalizedProvider = normalizeProviderId(params.provider);
 
-  // Check for deprecated provider migration hints first
+  // 首先检查已弃用提供者的迁移提示
   const migrationHint = DEPRECATED_PROVIDER_MIGRATION_HINTS[normalizedProvider];
   if (migrationHint) {
     return migrationHint;

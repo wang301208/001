@@ -2,7 +2,7 @@
   "name": "@zhushou/qqbot",
   "version": "2026.4.16",
   "private": false,
-  "description": "助手 QQ Bot channel plugin",
+  "description": "助手 QQ 机器人渠道插件",
   "type": "module",
   "dependencies": {
     "mpg123-decoder": "^1.0.3",

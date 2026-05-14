@@ -2,7 +2,7 @@
   "name": "@zhushou/slack",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Slack channel plugin",
+  "description": "助手 Slack 渠道插件",
   "type": "module",
   "dependencies": {
     "@slack/bolt": "^4.7.0",

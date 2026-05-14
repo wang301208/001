@@ -27,7 +27,7 @@ export function resolveAcpDispatchPolicyState(
   if (!isAcpEnabledByPolicy(cfg)) {
     return "acp_disabled";
   }
-  // ACP dispatch is enabled unless explicitly disabled.
+  // ACP 调度默认启用，除非显式禁用。
   if (cfg.acp?.dispatch?.enabled === false) {
     return "dispatch_disabled";
   }

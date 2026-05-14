@@ -31,23 +31,23 @@ import type { ToolsConfig } from "./types.tools.js";
 
 export type ZhushouConfig = {
   meta?: {
-    /** Last 助手 version that wrote this config. */
+    /** 上次写入此配置的助手版本。 */
     lastTouchedVersion?: string;
-    /** ISO timestamp when this config was last written. */
+    /** 此配置上次被写入的 ISO 时间戳。 */
     lastTouchedAt?: string;
   };
   auth?: AuthConfig;
   acp?: AcpConfig;
   env?: {
-    /** Opt-in: import missing secrets from a login shell environment (exec `$SHELL -l -c 'env -0'`). */
+    /** 可选：从登录 shell 环境导入缺失的密钥（执行 `$SHELL -l -c 'env -0'`）。 */
     shellEnv?: {
       enabled?: boolean;
-      /** Timeout for the login shell exec (ms). Default: 15000. */
+      /** 登录 shell 执行超时（毫秒）。默认：15000。 */
       timeoutMs?: number;
     };
-    /** Inline env vars to apply when not already present in the process env. */
+    /** 内联环境变量，仅在进程环境中尚未存在时应用。 */
     vars?: Record<string, string>;
-    /** Sugar: allow env vars directly under env (string values only). */
+    /** 语法糖：允许在 env 下直接放置环境变量（仅限字符串值）。 */
     [key: string]:
       | string
       | Record<string, string>
@@ -65,30 +65,30 @@ export type ZhushouConfig = {
   logging?: LoggingConfig;
   cli?: CliConfig;
   update?: {
-    /** Update channel for git + npm installs ("stable", "beta", or "dev"). */
+    /** 更新通道，适用于 git + npm 安装（"stable"、"beta" 或 "dev"）。 */
     channel?: "stable" | "beta" | "dev";
-    /** Check for updates on gateway start (npm installs only). */
+    /** 网关启动时检查更新（仅 npm 安装）。 */
     checkOnStart?: boolean;
-    /** Core auto-update policy for package installs. */
+    /** 核心自动更新策略，适用于包安装。 */
     auto?: {
-      /** Enable background auto-update checks and apply logic. Default: false. */
+      /** 启用后台自动更新检查和应用逻辑。默认：false。 */
       enabled?: boolean;
-      /** Stable channel minimum delay before auto-apply. Default: 6. */
+      /** 稳定通道自动应用前的最小延迟。默认：6。 */
       stableDelayHours?: number;
-      /** Additional stable-channel jitter window. Default: 12. */
+      /** 稳定通道额外的抖动窗口。默认：12。 */
       stableJitterHours?: number;
-      /** Beta channel check cadence. Default: 1 hour. */
+      /** Beta 通道检查间隔。默认：1 小时。 */
       betaCheckIntervalHours?: number;
     };
   };
   browser?: BrowserConfig;
   ui?: {
-    /** Accent color for 助手 UI chrome (hex). */
+    /** 助手 UI 装饰的强调色（十六进制）。 */
     seamColor?: string;
     zhushou?: {
-      /** Zhushou display name for UI surfaces. */
+      /** 助手在 UI 界面上的显示名称。 */
       name?: string;
-      /** Zhushou avatar (emoji, short text, or image URL/data URI). */
+      /** 助手头像（emoji、短文本或图片 URL/data URI）。 */
       avatar?: string;
     };
   };
@@ -103,9 +103,9 @@ export type ZhushouConfig = {
   broadcast?: BroadcastConfig;
   audio?: AudioConfig;
   media?: {
-    /** Preserve original uploaded filenames when storing inbound media. */
+    /** 存储入站媒体时保留原始上传文件名。 */
     preserveFilenames?: boolean;
-    /** Optional retention window for persisted inbound media cleanup. */
+    /** 持久化入站媒体清理的可选保留窗口。 */
     ttlHours?: number;
   };
   messages?: MessagesConfig;
@@ -152,18 +152,18 @@ export type ConfigFileSnapshot = {
   raw: string | null;
   parsed: unknown;
   /**
-   * Config authored on disk after $include resolution and ${ENV} substitution,
-   * but BEFORE runtime defaults are applied.
+   * 磁盘上经过 $include 解析和 ${ENV} 替换后的配置，
+   * 但尚未应用运行时默认值。
    */
   sourceConfig: ResolvedSourceConfig;
   /**
-   * Config after $include resolution and ${ENV} substitution, but BEFORE runtime
-   * defaults are applied. Use this for config set/unset operations to avoid
-   * leaking runtime defaults into the written config file.
+   * 经过 $include 解析和 ${ENV} 替换后的配置，但尚未应用运行时
+   * 默认值。用于 config set/unset 操作，避免将运行时默认值
+   * 泄漏到写入的配置文件中。
    */
   resolved: ResolvedSourceConfig;
   valid: boolean;
-  /** Runtime-shaped config used by in-process readers. */
+  /** 进程内读取器使用的运行时形态配置。 */
   runtimeConfig: RuntimeConfig;
   /** @deprecated Prefer runtimeConfig. */
   config: RuntimeConfig;

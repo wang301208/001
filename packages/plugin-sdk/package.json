@@ -2,6 +2,7 @@
   "name": "@zhushou/plugin-sdk",
   "version": "0.0.0-private",
   "private": true,
+  "description": "助手插件开发 SDK",
   "type": "module",
   "exports": {
     "./account-id": {

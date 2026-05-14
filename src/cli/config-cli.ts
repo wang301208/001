@@ -1374,7 +1374,7 @@ export function registerConfigCli(program: Command) {
 
   cmd
     .command("get")
-    .description("Get a config value by dot path")
+    .description("通过点路径获取配置值")
     .argument("<path>", "Config path (dot or bracket notation)")
     .option("--json", "Output JSON", false)
     .action(async (path: string, opts) => {
@@ -1461,7 +1461,7 @@ export function registerConfigCli(program: Command) {
 
   cmd
     .command("unset")
-    .description("Remove a config value by dot path")
+    .description("通过点路径移除配置值")
     .argument("<path>", "Config path (dot or bracket notation)")
     .action(async (path: string) => {
       await runConfigUnset({ path });
@@ -1469,21 +1469,21 @@ export function registerConfigCli(program: Command) {
 
   cmd
     .command("file")
-    .description("Print the active config file path")
+    .description("打印活跃配置文件路径")
     .action(async () => {
       await runConfigFile({});
     });
 
   cmd
     .command("schema")
-    .description("Print the JSON schema for zhushou.json")
+    .description("打印 zhushou.json 的 JSON 模式")
     .action(async () => {
       await runConfigSchema({});
     });
 
   cmd
     .command("validate")
-    .description("Validate the current config against the schema without starting the gateway")
+    .description("对照模式验证当前配置，不启动网关")
     .option("--json", "Output validation result as JSON", false)
     .action(async (opts) => {
       await runConfigValidate({ json: Boolean(opts.json) });
@@ -1491,11 +1491,11 @@ export function registerConfigCli(program: Command) {
 
   const snapshots = cmd
     .command("snapshots")
-    .description("List or restore configuration snapshots created by setup/configure wizards");
+    .description("列出或恢复由安装/配置向导创建的配置快照");
 
   snapshots
     .command("list")
-    .description("List available configuration snapshots")
+    .description("列出可用的配置快照")
     .option("--json", "Output JSON", false)
     .action(async (opts) => {
       await runConfigSnapshotsList({ json: Boolean(opts.json) });
@@ -1503,7 +1503,7 @@ export function registerConfigCli(program: Command) {
 
   snapshots
     .command("rollback")
-    .description("Restore a configuration snapshot by timestamp")
+    .description("按时间戳恢复配置快照")
     .argument("<timestamp>", "Snapshot timestamp from `zhushou config snapshots list`")
     .action(async (timestamp: string) => {
       await runConfigSnapshotsRollback({ timestamp });

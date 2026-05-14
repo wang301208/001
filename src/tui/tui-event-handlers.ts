@@ -231,12 +231,12 @@ export function createEventHandlers(context: EventHandlerContext) {
     const isLocalRun = isLocalRunId?.(runId) ?? false;
     if (isLocalRun) {
       forgetLocalRunId?.(runId);
-      // Local runs with displayable output do not need a history reload.
+      // 有可显示输出的本地运行不需要历史重载。
       if (!opts?.allowLocalWithoutDisplayableFinal) {
         return;
       }
-      // Defer the reload if a newer run is active so we preserve the pending
-      // user message, then flush once that active run finishes.
+      // 若有更新的运行活跃则推迟重载，以保留待处理的
+      // 用户消息，待该活跃运行完成后再刷新。
       if (state.activeChatRunId && state.activeChatRunId !== runId) {
         pendingHistoryRefresh = true;
         return;
@@ -386,9 +386,9 @@ export function createEventHandlers(context: EventHandlerContext) {
     }
     const evt = payload as AgentEvent;
     syncSessionKey();
-    // Agent events (tool streaming, lifecycle) are emitted per-run. Filter against the
-    // active chat run id, not the session id. Tool results can arrive after the chat
-    // final event, so accept finalized runs for tool updates.
+    // Agent 事件（工具流式传输、生命周期）按运行发出。按
+    // 活跃聊天运行 ID 而非会话 ID 过滤。工具结果可能在聊天
+    // 最终事件之后到达，因此接受已完成的运行的工具更新。
     const isActiveRun = evt.runId === state.activeChatRunId;
     const isKnownRun = isActiveRun || sessionRuns.has(evt.runId) || finalizedRuns.has(evt.runId);
     if (!isKnownRun) {

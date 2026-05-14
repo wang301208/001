@@ -26,8 +26,8 @@ export type WizardLegacyIssue = {
 };
 
 /**
- * Legacy keys that are no longer recognized by the wizard.
- * Configs containing these keys must be migrated before the wizard can proceed.
+ * 向导不再识别的旧版键。
+ * 包含这些键的配置必须在向导继续之前迁移。
  */
 const LEGACY_FIELD_PATHS: ReadonlyArray<{ path: string; replacement?: string; message: string }> = [
   {
@@ -119,7 +119,7 @@ const LEGACY_WEB_SEARCH_PROVIDER_KEYS = new Set([
   "grok",
 ]);
 
-/** Conflicts: pairs of settings that cannot coexist. */
+/** 冲突：不能共存的设置对。 */
 const CONFLICT_RULES: ReadonlyArray<{
   code: string;
   check: (cfg: ZhushouConfig) => boolean;
@@ -169,7 +169,7 @@ const CONFLICT_RULES: ReadonlyArray<{
   },
 ];
 
-/** Required fields that must be present for a functional config. */
+/** 必须存在以保证配置功能的必填字段。 */
 const REQUIRED_FIELD_CHECKS: ReadonlyArray<{
   code: string;
   check: (cfg: ZhushouConfig) => boolean;
@@ -319,9 +319,9 @@ function hasAnyExternalLegacyIssue(legacyIssues: readonly WizardLegacyIssue[] = 
 }
 
 /**
- * Validate a config against the current project schema.
- * Returns errors for legacy fields, conflicts between settings, and missing required values.
- * Warnings are non-blocking issues worth surfacing to the user.
+ * 根据当前项目模式验证配置。
+ * 返回旧版字段错误、设置间冲突和缺失必填值。
+ * 警告是非阻塞问题，但值得向用户展示。
  */
 export function validateWizardConfig(
   config: ZhushouConfig,
@@ -360,7 +360,7 @@ export function validateWizardConfig(
 }
 
 /**
- * Convenience: detect only conflicts between the given config's settings.
+ * 便捷方法：仅检测给定配置设置之间的冲突。
  */
 export function detectConfigConflicts(config: ZhushouConfig): ConfigConflict[] {
   return CONFLICT_RULES.filter((rule) => rule.check(config)).map((rule) => ({
@@ -371,7 +371,7 @@ export function detectConfigConflicts(config: ZhushouConfig): ConfigConflict[] {
 }
 
 /**
- * Return true if the config contains any legacy (no longer supported) fields.
+ * 当配置包含任何旧版（不再支持）字段时返回 true。
  */
 export function hasLegacyFields(
   config: ZhushouConfig,
@@ -403,7 +403,7 @@ export function validationResultToWizardIssues(
 }
 
 /**
- * Format a ValidationResult as a human-readable multi-line string for display in wizard notes.
+ * 将 ValidationResult 格式化为人类可读的多行字符串，用于向导备注显示。
  */
 export function formatValidationResult(result: ValidationResult): string {
   const lines: string[] = [];

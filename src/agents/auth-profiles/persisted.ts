@@ -86,7 +86,7 @@ function warnRejectedCredentialEntries(source: string, rejected: RejectedCredent
     },
     {} as Partial<Record<CredentialRejectReason, number>>,
   );
-  log.warn("ignored invalid auth profile entries during store load", {
+  log.warn("加载存储时忽略了无效的认证配置文件条目", {
     source,
     dropped: rejected.length,
     reasons,

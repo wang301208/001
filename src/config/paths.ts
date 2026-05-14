@@ -4,11 +4,11 @@ import { resolveHomeRelativePath, resolveRequiredHomeDir } from "../infra/home-d
 import type { ZhushouConfig } from "./types.js";
 
 /**
- * Nix mode detection: When ZHUSHOU_NIX_MODE=1, the gateway is running under Nix.
- * In this mode:
- * - No auto-install flows should be attempted
- * - Missing dependencies should produce actionable Nix-specific error messages
- * - Config is managed externally (read-only from Nix perspective)
+ * Nix 模式检测：当 ZHUSHOU_NIX_MODE=1 时，网关运行在 Nix 环境下。
+ * 在此模式下：
+ * - 不应尝试自动安装流程
+ * - 缺失依赖应产生可操作的 Nix 专用错误消息
+ * - 配置由外部管理（从 Nix 视角为只读）
  */
 export function resolveIsNixMode(env: NodeJS.ProcessEnv = process.env): boolean {
   return env.ZHUSHOU_NIX_MODE === "1";
@@ -23,7 +23,7 @@ function resolveDefaultHomeDir(): string {
   return resolveRequiredHomeDir(process.env, os.homedir);
 }
 
-/** Build a homedir thunk that respects ZHUSHOU_HOME for the given env. */
+/** 构建一个尊重 ZHUSHOU_HOME 环境变量的 homedir 延迟求值函数。 */
 function envHomedir(env: NodeJS.ProcessEnv): () => string {
   return () => resolveRequiredHomeDir(env, os.homedir);
 }
@@ -46,9 +46,9 @@ export function resolveNewStateDir(homedir: () => string = resolveDefaultHomeDir
 }
 
 /**
- * State directory for mutable data (sessions, logs, caches).
- * Can be overridden via ZHUSHOU_STATE_DIR.
- * Default: ~/.zhushou
+ * 可变数据（会话、日志、缓存）的状态目录。
+ * 可通过 ZHUSHOU_STATE_DIR 覆盖。
+ * 默认：~/.zhushou
  */
 export function resolveStateDir(
   env: NodeJS.ProcessEnv = process.env,
@@ -73,9 +73,9 @@ function resolveUserPath(
 export const STATE_DIR = resolveStateDir();
 
 /**
- * Config file path (JSON or JSON5).
- * Can be overridden via ZHUSHOU_CONFIG_PATH.
- * Default: ~/.wang301208/zhushou.json (or $ZHUSHOU_STATE_DIR/zhushou.json)
+ * 配置文件路径（JSON 或 JSON5）。
+ * 可通过 ZHUSHOU_CONFIG_PATH 覆盖。
+ * 默认：~/.wang301208/zhushou.json（或 $ZHUSHOU_STATE_DIR/zhushou.json）
  */
 export function resolveCanonicalConfigPath(
   env: NodeJS.ProcessEnv = process.env,
@@ -89,8 +89,8 @@ export function resolveCanonicalConfigPath(
 }
 
 /**
- * Resolve the active config path by preferring existing config candidates
- * before falling back to the canonical path.
+ * 解析活跃配置路径，优先选择已存在的配置候选项，
+ * 然后回退到规范路径。
  */
 export function resolveConfigPathCandidate(
   env: NodeJS.ProcessEnv = process.env,
@@ -100,7 +100,7 @@ export function resolveConfigPathCandidate(
 }
 
 /**
- * Active config path (prefers existing config files).
+ * 活跃配置路径（优先选择已存在的配置文件）。
  */
 export function resolveConfigPath(
   env: NodeJS.ProcessEnv = process.env,
@@ -119,8 +119,8 @@ export function resolveConfigPath(
 export const CONFIG_PATH = resolveConfigPathCandidate();
 
 /**
- * Resolve default config path candidates across default locations.
- * Order: explicit config path → state-dir-derived paths → new default.
+ * 解析默认配置路径候选项，跨默认位置搜索。
+ * 顺序：显式配置路径 → 状态目录派生路径 → 新默认值。
  */
 export function resolveDefaultConfigCandidates(
   env: NodeJS.ProcessEnv = process.env,
@@ -146,8 +146,8 @@ export function resolveDefaultConfigCandidates(
 export const DEFAULT_GATEWAY_PORT = 3000;
 
 /**
- * Gateway lock directory (ephemeral).
- * Default: os.tmpdir()/zhushou-<uid> (uid suffix when available).
+ * 网关锁目录（临时性）。
+ * 默认：os.tmpdir()/zhushou-<uid>（可用时附加 uid 后缀）。
  */
 export function resolveGatewayLockDir(tmpdir: () => string = os.tmpdir): string {
   const base = tmpdir();
@@ -159,11 +159,11 @@ export function resolveGatewayLockDir(tmpdir: () => string = os.tmpdir): string 
 const OAUTH_FILENAME = "oauth.json";
 
 /**
- * OAuth credentials storage directory.
+ * OAuth 凭据存储目录。
  *
- * Precedence:
- * - `ZHUSHOU_OAUTH_DIR` (explicit override)
- * - `$*_STATE_DIR/credentials` (canonical server/default)
+ * 优先级：
+ * - `ZHUSHOU_OAUTH_DIR`（显式覆盖）
+ * - `$*_STATE_DIR/credentials`（规范服务器/默认）
  */
 export function resolveOAuthDir(
   env: NodeJS.ProcessEnv = process.env,
@@ -193,8 +193,8 @@ function parseGatewayPortEnvValue(raw: string | undefined): number | null {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
   }
 
-  // Docker Compose publish strings can leak into host CLI env loading via repo `.env`,
-  // for example `127.0.0.1:18789` or `[::1]:18789`. Accept only explicit host:port forms.
+  // Docker Compose publish 字符串可能通过仓库 `.env` 文件泄漏到宿主 CLI 环境变量加载中，
+  // 例如 `127.0.0.1:18789` 或 `[::1]:18789`。仅接受显式的 host:port 形式。
   const bracketedIpv6Match = trimmed.match(/^\[[^\]]+\]:(\d+)$/);
   if (bracketedIpv6Match?.[1]) {
     const parsed = Number.parseInt(bracketedIpv6Match[1], 10);

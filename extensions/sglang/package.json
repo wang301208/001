@@ -2,7 +2,7 @@
   "name": "@zhushou/sglang-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 SGLang provider plugin",
+  "description": "助手 SGLang 提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

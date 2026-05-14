@@ -2,7 +2,7 @@
   "name": "@zhushou/elevenlabs-speech",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 ElevenLabs speech plugin",
+  "description": "助手 ElevenLabs 语音插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

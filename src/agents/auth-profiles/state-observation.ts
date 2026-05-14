@@ -18,8 +18,8 @@ export function logAuthProfileFailureStateChange(params: {
     params.reason === "billing" || params.reason === "auth_permanent" ? "disabled" : "cooldown";
   const previousCooldownUntil = params.previous?.cooldownUntil;
   const previousDisabledUntil = params.previous?.disabledUntil;
-  // Active cooldown/disable windows are intentionally immutable; log whether this
-  // update reused the existing window instead of extending it.
+  // 活跃的冷却/禁用窗口是不可变的；记录此次更新
+  // 是否复用了现有窗口而非扩展它。
   const windowReused =
     windowType === "disabled"
       ? typeof previousDisabledUntil === "number" &&
@@ -34,7 +34,7 @@ export function logAuthProfileFailureStateChange(params: {
   const safeRunId = sanitizeForConsole(params.runId) ?? "-";
   const safeProvider = sanitizeForConsole(params.provider) ?? "-";
 
-  observationLog.warn("auth profile failure state updated", {
+  observationLog.warn("认证配置文件故障状态已更新", {
     event: "auth_profile_failure_state_updated",
     tags: ["error_handling", "auth_profiles", windowType],
     runId: params.runId,
@@ -53,7 +53,7 @@ export function logAuthProfileFailureStateChange(params: {
     disabledReason: params.next.disabledReason,
     failureCounts: params.next.failureCounts,
     consoleMessage:
-      `auth profile failure state updated: runId=${safeRunId} profile=${safeProfileId} provider=${safeProvider} ` +
-      `reason=${params.reason} window=${windowType} reused=${String(windowReused)}`,
+      `认证配置文件故障状态已更新: runId=${safeRunId} profile=${safeProfileId} provider=${safeProvider} ` +
+      `原因=${params.reason} 窗口=${windowType} 复用=${String(windowReused)}`,
   });
 }

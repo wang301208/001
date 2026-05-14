@@ -2,7 +2,7 @@
   "name": "@zhushou/openshell-sandbox",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 OpenShell sandbox backend",
+  "description": "助手 OpenShell 沙盒后端",
   "type": "module",
   "dependencies": {
     "openshell": "0.1.0"

@@ -62,7 +62,7 @@ function normalizeAuditLimit(limit: number | undefined): number {
   }
   const normalized = Math.floor(limit);
   if (!Number.isFinite(normalized) || normalized <= 0) {
-    throw new Error("Audit stream limit must be a positive integer.");
+    throw new Error("审计流限制必须为正整数。");
   }
   return Math.min(normalized, MAX_AUDIT_LIMIT);
 }

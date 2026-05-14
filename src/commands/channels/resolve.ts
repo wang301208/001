@@ -124,7 +124,7 @@ export async function channelsResolveCommand(opts: ChannelsResolveOptions, runti
   });
   const entries = (opts.entries ?? []).map((entry) => entry.trim()).filter(Boolean);
   if (entries.length === 0) {
-    throw new Error("At least one entry is required.");
+    throw new Error("至少需要一个条目。");
   }
 
   const explicitChannel = opts.channel?.trim();

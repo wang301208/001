@@ -2,7 +2,7 @@
   "name": "@zhushou/voyage-provider",
   "version": "2026.4.15-beta.1",
   "private": true,
-  "description": "助手 Voyage embedding provider plugin",
+  "description": "助手 Voyage 嵌入提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

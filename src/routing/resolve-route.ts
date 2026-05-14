@@ -738,7 +738,7 @@ export function resolveAgentRoute(input: ResolveAgentRouteInput): ResolvedAgentR
       );
     }
   }
-  // Thread parent inheritance: if peer (thread) didn't match, check parent peer binding
+  // 线程父级继承：如果对等方（线程）未匹配，检查父对等方绑定
   const baseScope = {
     guildId,
     teamId,

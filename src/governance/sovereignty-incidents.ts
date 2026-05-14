@@ -171,13 +171,13 @@ function normalizeGovernanceSovereigntyIncidentCandidate(
   const title = normalizeOptionalString(candidate.title);
   const summary = normalizeOptionalString(candidate.summary);
   if (!key || !title || !summary) {
-    throw new Error("Governance sovereignty incident candidate requires key, title, and summary.");
+    throw new Error("治理主权事件候选项需要 key、title 和 summary。");
   }
   if (!isGovernanceSovereigntyIncidentSeverity(candidate.severity)) {
-    throw new Error(`Unsupported governance sovereignty incident severity: ${String(candidate.severity)}`);
+    throw new Error(`不支持的治理主权事件严重级别: ${String(candidate.severity)}`);
   }
   if (!isGovernanceSovereigntyIncidentSource(candidate.source)) {
-    throw new Error(`Unsupported governance sovereignty incident source: ${String(candidate.source)}`);
+    throw new Error(`不支持的治理主权事件来源: ${String(candidate.source)}`);
   }
   const reasonCode = normalizeOptionalString(candidate.reasonCode);
   return {

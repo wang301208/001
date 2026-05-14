@@ -3,9 +3,9 @@ import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { isRecord } from "../utils.js";
 import type { ChannelAccountSnapshot } from "./plugins/types.core.js";
 
-// Read-only status commands project a safe subset of account fields into snapshots
-// so renderers can preserve "configured but unavailable" state without touching
-// strict runtime-only credential helpers.
+// 只读状态命令将账户字段的安全子集投射到快照中，
+// 以便渲染器可以保留"已配置但不可用"状态，而无需触及
+// 严格的仅运行时凭据辅助。
 
 const CREDENTIAL_STATUS_KEYS = [
   "tokenStatus",

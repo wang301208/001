@@ -168,9 +168,9 @@ export const EventFrameSchema = Type.Object(
   { additionalProperties: false },
 );
 
-// Discriminated union of all top-level frames. Using a discriminator makes
-// downstream codegen (quicktype) produce tighter types instead of all-optional
-// blobs.
+// 所有顶层帧的判别联合。使用判别器使
+// 下游代码生成（quicktype）生成更紧凑的类型，而非全可选
+// 的模糊对象。
 export const GatewayFrameSchema = Type.Union(
   [RequestFrameSchema, ResponseFrameSchema, EventFrameSchema],
   { discriminator: "type" },

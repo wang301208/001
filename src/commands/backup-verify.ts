@@ -100,34 +100,34 @@ function parseManifest(raw: string): BackupManifest {
   }
 
   if (!isRecord(parsed)) {
-    throw new Error("Backup manifest must be an object.");
+    throw new Error("备份清单必须为对象。");
   }
   if (parsed.schemaVersion !== 1) {
     throw new Error(`Unsupported backup manifest schemaVersion: ${String(parsed.schemaVersion)}`);
   }
   if (typeof parsed.archiveRoot !== "string" || !parsed.archiveRoot.trim()) {
-    throw new Error("Backup manifest is missing archiveRoot.");
+    throw new Error("备份清单缺少 archiveRoot。");
   }
   if (typeof parsed.createdAt !== "string" || !parsed.createdAt.trim()) {
-    throw new Error("Backup manifest is missing createdAt.");
+    throw new Error("备份清单缺少 createdAt。");
   }
   if (!Array.isArray(parsed.assets)) {
-    throw new Error("Backup manifest is missing assets.");
+    throw new Error("备份清单缺少 assets。");
   }
 
   const assets: BackupManifestAsset[] = [];
   for (const asset of parsed.assets) {
     if (!isRecord(asset)) {
-      throw new Error("Backup manifest contains a non-object asset.");
+      throw new Error("备份清单包含非对象资产。");
     }
     if (typeof asset.kind !== "string" || !asset.kind.trim()) {
-      throw new Error("Backup manifest asset is missing kind.");
+      throw new Error("备份清单资产缺少 kind。");
     }
     if (typeof asset.sourcePath !== "string" || !asset.sourcePath.trim()) {
-      throw new Error("Backup manifest asset is missing sourcePath.");
+      throw new Error("备份清单资产缺少 sourcePath。");
     }
     if (typeof asset.archivePath !== "string" || !asset.archivePath.trim()) {
-      throw new Error("Backup manifest asset is missing archivePath.");
+      throw new Error("备份清单资产缺少 archivePath。");
     }
     assets.push({
       kind: asset.kind,
@@ -279,7 +279,7 @@ export async function backupVerifyCommand(
   const archivePath = resolveUserPath(opts.archive);
   const rawEntries = await listArchiveEntries(archivePath);
   if (rawEntries.length === 0) {
-    throw new Error("Backup archive is empty.");
+    throw new Error("备份归档为空。");
   }
 
   const entries = rawEntries.map((entry) => ({
@@ -298,7 +298,7 @@ export async function backupVerifyCommand(
   }
   const manifestEntryPath = manifestMatches[0]?.raw;
   if (!manifestEntryPath) {
-    throw new Error("Backup archive manifest entry could not be resolved.");
+    throw new Error("无法解析备份归档清单条目。");
   }
 
   const manifestRaw = await extractManifest({ archivePath, manifestEntryPath });

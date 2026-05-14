@@ -62,7 +62,7 @@ function normalizeInstallOptions(entry: HookEntry): HookInstallOption[] {
     return [];
   }
 
-  // For hooks, we just list all install options
+  // 对于钩子，直接列出所有安装选项
   return install.map((spec, index) => {
     const id = (spec.id ?? `${spec.kind}-${index}`).trim();
     const bins = spec.bins ?? [];

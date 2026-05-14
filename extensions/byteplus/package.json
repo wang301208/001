@@ -2,7 +2,7 @@
   "name": "@zhushou/byteplus-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 BytePlus provider plugin",
+  "description": "助手 字节跳动提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

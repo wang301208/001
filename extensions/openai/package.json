@@ -2,7 +2,7 @@
   "name": "@zhushou/openai-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 OpenAI provider plugins",
+  "description": "助手 OpenAI 提供者插件",
   "type": "module",
   "dependencies": {
     "ws": "^8.20.0"

@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/bluebubbles",
   "version": "2026.4.16",
-  "description": "助手 BlueBubbles channel plugin",
+  "description": "助手 BlueBubbles 渠道插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*",

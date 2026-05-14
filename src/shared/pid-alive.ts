@@ -5,8 +5,8 @@ function isValidPid(pid: number): boolean {
 }
 
 /**
- * Check if a process is a zombie on Linux by reading /proc/<pid>/status.
- * Returns false on non-Linux platforms or if the proc file can't be read.
+ * 在 Linux 上通过读取 /proc/<pid>/status 检查进程是否为僵尸进程。
+ * 在非 Linux 平台或无法读取 proc 文件时返回 false。
  */
 function isZombieProcess(pid: number): boolean {
   if (process.platform !== "linux") {
@@ -37,12 +37,12 @@ export function isPidAlive(pid: number): boolean {
 }
 
 /**
- * Read the process start time (field 22 "starttime") from /proc/<pid>/stat.
- * Returns the value in clock ticks since system boot, or null on non-Linux
- * platforms or if the proc file can't be read.
+ * 从 /proc/<pid>/stat 读取进程启动时间（字段 22 "starttime"）。
+ * 返回自系统启动以来的时钟滴答数，在非 Linux 平台或无法
+ * 读取 proc 文件时返回 null。
  *
- * This is used to detect PID recycling: if two readings for the same PID
- * return different starttimes, the PID has been reused by a different process.
+ * 用于检测 PID 回收：如果同一 PID 的两次读取返回不同的
+ * starttime，则该 PID 已被不同进程重用。
  */
 export function getProcessStartTime(pid: number): number | null {
   if (process.platform !== "linux") {
@@ -57,11 +57,11 @@ export function getProcessStartTime(pid: number): number | null {
     if (commEndIndex < 0) {
       return null;
     }
-    // The comm field (field 2) is wrapped in parens and can contain spaces,
-    // so split after the last ")" to get fields 3..N reliably.
+    // comm 字段（字段 2）用括号包裹且可包含空格，
+    // 因此在最后一个 ")" 后拆分以可靠地获取字段 3..N。
     const afterComm = stat.slice(commEndIndex + 1).trimStart();
     const fields = afterComm.split(/\s+/);
-    // field 22 (starttime) = index 19 after the comm-split (field 3 is index 0).
+    // 字段 22（starttime）= comm 拆分后的索引 19（字段 3 为索引 0）。
     const starttime = Number(fields[19]);
     return Number.isInteger(starttime) && starttime >= 0 ? starttime : null;
   } catch {

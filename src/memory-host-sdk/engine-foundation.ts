@@ -1,4 +1,4 @@
-// Real workspace contract for memory engine foundation concerns.
+// 内存引擎基础关注点的实际工作区合约。
 
 export {
   resolveAgentContextLimits,

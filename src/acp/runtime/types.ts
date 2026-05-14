@@ -21,13 +21,13 @@ export type AcpRuntimeHandle = {
   sessionKey: string;
   backend: string;
   runtimeSessionName: string;
-  /** Effective runtime working directory for this ACP session, if exposed by adapter/runtime. */
+  /** 此 ACP 会话的有效运行时工作目录（如适配器/运行时暴露）。 */
   cwd?: string;
-  /** Backend-local record identifier, if exposed by adapter/runtime (for example acpx record id). */
+  /** 后端本地记录标识符（如适配器/运行时暴露，例如 acpx 记录 ID）。 */
   acpxRecordId?: string;
-  /** Backend-level ACP session identifier, if exposed by adapter/runtime. */
+  /** 后端级 ACP 会话标识符（如适配器/运行时暴露）。 */
   backendSessionId?: string;
-  /** Upstream harness session identifier, if exposed by adapter/runtime. */
+  /** 上游框架会话标识符（如适配器/运行时暴露）。 */
   agentSessionId?: string;
 };
 
@@ -57,19 +57,19 @@ export type AcpRuntimeTurnInput = {
 export type AcpRuntimeCapabilities = {
   controls: AcpRuntimeControl[];
   /**
-   * Optional backend-advertised option keys for session/set_config_option.
-   * Empty/undefined means "backend accepts keys, but did not advertise a strict list".
+   * 可选的后端通告选项键，用于 session/set_config_option。
+   * 空/未定义表示"后端接受键，但未通告严格列表"。
    */
   configOptionKeys?: string[];
 };
 
 export type AcpRuntimeStatus = {
   summary?: string;
-  /** Backend-local record identifier, if exposed by adapter/runtime. */
+  /** 后端本地记录标识符（如适配器/运行时暴露）。 */
   acpxRecordId?: string;
-  /** Backend-level ACP session identifier, if known at status time. */
+  /** 后端级 ACP 会话标识符（如状态查询时已知）。 */
   backendSessionId?: string;
-  /** Upstream harness session identifier, if known at status time. */
+  /** 上游框架会话标识符（如状态查询时已知）。 */
   agentSessionId?: string;
   details?: Record<string, unknown>;
 };
@@ -133,8 +133,8 @@ export interface AcpRuntime {
   doctor?(): Promise<AcpRuntimeDoctorReport>;
 
   /**
-   * Prepare the next ensureSession for this session key to start fresh instead
-   * of reopening backend-owned persistent state.
+   * 准备此会话键的下一次 ensureSession 从全新状态开始，
+   * 而非重新打开后端拥有的持久状态。
    */
   prepareFreshSession?(input: { sessionKey: string }): Promise<void>;
 
@@ -144,8 +144,8 @@ export interface AcpRuntime {
     handle: AcpRuntimeHandle;
     reason: string;
     /**
-     * Discard backend-owned persistent session state so the next ensureSession
-     * starts fresh instead of reopening the same conversation.
+     * 丢弃后端拥有的持久会话状态，使下一次 ensureSession
+     * 从全新状态开始，而非重新打开同一对话。
      */
     discardPersistentState?: boolean;
   }): Promise<void>;

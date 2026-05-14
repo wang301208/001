@@ -30,18 +30,18 @@ function shouldForceReadOnlyAuthStore(argv: string[]): boolean {
   return false;
 }
 
-// Guard: only run entry-point logic when this file is the main module.
-// The bundler may import entry.js as a shared dependency when dist/index.js
-// is the actual entry point; without this guard the top-level code below
-// would call runCli a second time, starting a duplicate gateway that fails
-// on the lock / port and crashes the process.
+// 守卫：仅当此文件为主模块时运行入口点逻辑。
+// 打包器可能在 dist/index.js 为实际入口点时将 entry.js 作为共享依赖导入；
+// 没有此守卫，下方的顶级代码
+// 会再次调用 runCli，启动重复的网关，导致端口锁定失败
+// 并崩溃进程。
 if (
   !isMainModule({
     currentFile: fileURLToPath(import.meta.url),
     wrapperEntryPairs: [...ENTRY_WRAPPER_PAIRS],
   })
 ) {
-  // Imported as a dependency — skip all entry-point side effects.
+  // 作为依赖导入 — 跳过所有入口点副作用。
 } else {
   const { installGaxiosFetchCompat } = await import("./infra/gaxios-fetch-compat.js");
 
@@ -54,7 +54,7 @@ if (
     try {
       enableCompileCache();
     } catch {
-      // Best-effort only; never block startup.
+      // 尽力而为；绝不阻塞启动。
     }
   }
 
@@ -90,13 +90,13 @@ if (
 
     child.once("error", (error) => {
       console.error(
-        "[zhushou] Failed to respawn CLI:",
+        "[zhushou] 重新启动 CLI 失败：",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exit(1);
     });
 
-    // Parent must not continue running the CLI.
+    // 父进程不得继续运行 CLI。
     return true;
   }
 
@@ -121,7 +121,7 @@ if (
       })
       .catch((error) => {
         console.error(
-          "[zhushou] Failed to resolve version:",
+          "[zhushou] 解析版本失败：",
           error instanceof Error ? (error.stack ?? error.message) : error,
         );
         process.exitCode = 1;
@@ -140,20 +140,20 @@ if (
 
     const parsed = parseCliProfileArgs(parsedContainer.argv);
     if (!parsed.ok) {
-      // Keep it simple; Commander will handle rich help/errors after we strip flags.
+      // 保持简单；Commander 在我们剥离标志后会处理丰富的帮助/错误。
       console.error(`[zhushou] ${parsed.error}`);
       process.exit(2);
     }
 
     const containerTargetName = resolveCliContainerTarget(process.argv);
     if (containerTargetName && parsed.profile) {
-      console.error("[zhushou] --container cannot be combined with --profile/--dev");
+      console.error("[zhushou] --container 不能与 --profile/--dev 同时使用");
       process.exit(2);
     }
 
     if (parsed.profile) {
       applyCliProfileEnv({ profile: parsed.profile });
-      // Keep Commander and ad-hoc argv checks consistent.
+      // 保持 Commander 和临时 argv 检查一致。
       process.argv = parsed.argv;
     }
 
@@ -187,7 +187,7 @@ export function tryHandleRootHelpFastPath(
     deps.onError ??
     ((error: unknown) => {
       console.error(
-        "[zhushou] Failed to display help:",
+        "[zhushou] 显示帮助失败：",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exitCode = 1;
@@ -218,7 +218,7 @@ function runMainOrRootHelp(argv: string[]): void {
     .then(({ runCli }) => runCli(argv))
     .catch((error) => {
       console.error(
-        "[zhushou] Failed to start CLI:",
+        "[zhushou] 启动 CLI 失败：",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exitCode = 1;

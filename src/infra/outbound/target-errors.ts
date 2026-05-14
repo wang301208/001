@@ -1,5 +1,5 @@
 export function missingTargetMessage(provider: string, hint?: string): string {
-  return `Delivering to ${provider} requires target${formatTargetHint(hint)}`;
+  return `向 ${provider} 发送需要目标${formatTargetHint(hint)}`;
 }
 
 export function missingTargetError(provider: string, hint?: string): Error {
@@ -7,7 +7,7 @@ export function missingTargetError(provider: string, hint?: string): Error {
 }
 
 export function ambiguousTargetMessage(provider: string, raw: string, hint?: string): string {
-  return `Ambiguous target "${raw}" for ${provider}. Provide a unique name or an explicit id.${formatTargetHint(hint, true)}`;
+  return `${provider} 的目标 "${raw}" 不明确。请提供唯一名称或显式 ID。${formatTargetHint(hint, true)}`;
 }
 
 export function ambiguousTargetError(provider: string, raw: string, hint?: string): Error {
@@ -15,7 +15,7 @@ export function ambiguousTargetError(provider: string, raw: string, hint?: strin
 }
 
 export function unknownTargetMessage(provider: string, raw: string, hint?: string): string {
-  return `Unknown target "${raw}" for ${provider}.${formatTargetHint(hint, true)}`;
+  return `${provider} 的未知目标 "${raw}"。${formatTargetHint(hint, true)}`;
 }
 
 export function unknownTargetError(provider: string, raw: string, hint?: string): Error {
@@ -27,5 +27,5 @@ function formatTargetHint(hint?: string, withLabel = false): string {
   if (!normalized) {
     return "";
   }
-  return withLabel ? ` Hint: ${normalized}` : ` ${normalized}`;
+  return withLabel ? ` 提示：${normalized}` : ` ${normalized}`;
 }

@@ -112,6 +112,6 @@ export function shouldPersistExternalAuthProfile(params: {
   return !oauthCredentialMatches(external.credential, params.credential);
 }
 
-// Compat aliases while file/function naming catches up.
+// 兼容别名，待文件/函数命名跟进。
 export const overlayExternalOAuthProfiles = overlayExternalAuthProfiles;
 export const shouldPersistExternalOAuthProfile = shouldPersistExternalAuthProfile;

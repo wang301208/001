@@ -11,15 +11,15 @@ import { runCommandWithRuntime } from "../cli-utils.js";
 export function registerConfigureCommand(program: Command) {
   program
     .command("configure")
-    .description("Interactive configuration for credentials, channels, gateway, and agent defaults")
+    .description("交互式配置凭据、频道、网关和代理默认值")
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/configure", "docs.zhushou.ai/cli/configure")}\n`,
+        `\n${theme.muted("文档：")} ${formatDocsLink("/cli/configure", "docs.zhushou.ai/cli/configure")}\n`,
     )
     .option(
       "--section <section>",
-      `Configuration sections (repeatable). Options: ${CONFIGURE_WIZARD_SECTIONS.join(", ")}`,
+      `配置分区（可重复）。选项：${CONFIGURE_WIZARD_SECTIONS.join(", ")}`,
       (value: string, previous: string[]) => [...previous, value],
       [] as string[],
     )

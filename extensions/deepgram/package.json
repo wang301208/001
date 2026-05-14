@@ -2,7 +2,7 @@
   "name": "@zhushou/deepgram-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Deepgram media-understanding provider",
+  "description": "助手 Deepgram 媒体理解提供者",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

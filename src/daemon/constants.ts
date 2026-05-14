@@ -1,6 +1,6 @@
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
-// Default service labels.
+// 默认服务标签。
 export const GATEWAY_LAUNCH_AGENT_LABEL = "ai.zhushou.gateway";
 export const GATEWAY_SYSTEMD_SERVICE_NAME = "zhushou-gateway";
 export const GATEWAY_WINDOWS_TASK_NAME = "Zhushou Gateway";

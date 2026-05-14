@@ -2,7 +2,7 @@
   "name": "@zhushou/llm-task",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 JSON-only LLM task plugin",
+  "description": "助手 仅 JSON 的 LLM 任务插件",
   "type": "module",
   "dependencies": {
     "@sinclair/typebox": "0.34.49",

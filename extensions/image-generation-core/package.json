@@ -2,7 +2,7 @@
   "name": "@zhushou/image-generation-core",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 image generation runtime package",
+  "description": "助手 图像生成运行时包",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

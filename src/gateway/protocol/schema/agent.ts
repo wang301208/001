@@ -93,11 +93,11 @@ export const SendParamsSchema = Type.Object(
     gifPlayback: Type.Optional(Type.Boolean()),
     channel: Type.Optional(Type.String()),
     accountId: Type.Optional(Type.String()),
-    /** Optional agent id for per-agent media root resolution on gateway sends. */
+    /** 可选的代理 ID，用于网关发送时代理级别的媒体根路径解析。 */
     agentId: Type.Optional(Type.String()),
-    /** Thread id (channel-specific meaning, e.g. Telegram forum topic id). */
+    /** 线程 ID（渠道特定含义，例如 Telegram 论坛主题 ID）。 */
     threadId: Type.Optional(Type.String()),
-    /** Optional session key for mirroring delivered output back into the transcript. */
+    /** 可选的会话键，用于将已交付的输出镜像回转录。 */
     sessionKey: Type.Optional(Type.String()),
     idempotencyKey: NonEmptyString,
   },
@@ -110,14 +110,14 @@ export const PollParamsSchema = Type.Object(
     question: NonEmptyString,
     options: Type.Array(NonEmptyString, { minItems: 2, maxItems: 12 }),
     maxSelections: Type.Optional(Type.Integer({ minimum: 1, maximum: 12 })),
-    /** Poll duration in seconds (channel-specific limits may apply). */
+    /** 投票持续时间（秒），渠道可能有特定限制。 */
     durationSeconds: Type.Optional(Type.Integer({ minimum: 1, maximum: 604_800 })),
     durationHours: Type.Optional(Type.Integer({ minimum: 1 })),
-    /** Send silently (no notification) where supported. */
+    /** 静默发送（无通知），在支持的渠道上生效。 */
     silent: Type.Optional(Type.Boolean()),
-    /** Poll anonymity where supported (e.g. Telegram polls default to anonymous). */
+    /** 投票匿名，在支持的渠道上生效（例如 Telegram 投票默认匿名）。 */
     isAnonymous: Type.Optional(Type.Boolean()),
-    /** Thread id (channel-specific meaning, e.g. Telegram forum topic id). */
+    /** 线程 ID（渠道特定含义，例如 Telegram 论坛主题 ID）。 */
     threadId: Type.Optional(Type.String()),
     channel: Type.Optional(Type.String()),
     accountId: Type.Optional(Type.String()),

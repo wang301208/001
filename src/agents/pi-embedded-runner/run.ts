@@ -985,8 +985,8 @@ export async function runEmbeddedPiAgent(
                   if (isLikelyContextOverflowError(errorText)) {
                     return { text: errorText, source: "promptError" as const };
                   }
-                  // Prompt submission failed with a non-overflow error. Do not
-                  // inspect prior zhushou errors from history for this attempt.
+                  // 提示提交失败，非溢出错误。不检查此尝试
+                  // 历史中的先前助手错误。
                   return null;
                 }
                 if (zhushouErrorText && isLikelyContextOverflowError(zhushouErrorText)) {
@@ -1014,8 +1014,8 @@ export async function runEmbeddedPiAgent(
             );
             const isCompactionFailure = isCompactionFailureError(errorText);
             const hadAttemptLevelCompaction = attemptCompactionCount > 0;
-            // If this attempt already compacted (SDK auto-compaction), avoid immediately
-            // running another explicit compaction for the same overflow trigger.
+            // 如果此尝试已经压缩（SDK 自动压缩），避免针对同一
+            // 溢出触发器立即运行另一次显式压缩。
             if (
               !isCompactionFailure &&
               hadAttemptLevelCompaction &&
@@ -1027,8 +1027,7 @@ export async function runEmbeddedPiAgent(
               );
               continue;
             }
-            // Attempt explicit overflow compaction only when this attempt did not
-            // already auto-compact.
+            // 仅当此尝试尚未自动压缩时，才尝试显式溢出压缩。
             if (
               !isCompactionFailure &&
               !hadAttemptLevelCompaction &&
@@ -1234,12 +1233,12 @@ export async function runEmbeddedPiAgent(
           }
 
           if (promptError && !aborted && promptErrorSource !== "compaction") {
-            // Normalize wrapped errors (e.g. abort-wrapped RESOURCE_EXHAUSTED) into
-            // FailoverError so rate-limit classification works even for nested shapes.
+            // 将包装错误（例如中止包装的 RESOURCE_EXHAUSTED）规范化为
+            // FailoverError，以便即使对嵌套形状，限速分类也能工作。
             //
-            // promptErrorSource === "compaction" means the model call already completed and the
-            // abort happened only while waiting for compaction/retry cleanup. Retrying from here
-            // would replay that completed tool turn as a fresh prompt attempt.
+            // promptErrorSource === "compaction" 表示模型调用已完成，中止
+            // 仅发生在等待压缩/重试清理期间。从此处重试将把已完成
+            // 的工具轮次作为新的提示尝试重放。
             const normalizedPromptFailover = coerceToFailoverError(promptError, {
               provider: activeErrorContext.provider,
               model: activeErrorContext.model,

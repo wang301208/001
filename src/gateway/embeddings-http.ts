@@ -76,16 +76,16 @@ function encodeEmbeddingBase64(embedding: number[]): string {
 
 function validateInputTexts(texts: string[]): string | undefined {
   if (texts.length > MAX_EMBEDDING_INPUTS) {
-    return `Too many inputs (max ${MAX_EMBEDDING_INPUTS}).`;
+    return `输入过多（最多 ${MAX_EMBEDDING_INPUTS} 个）。`;
   }
   let totalChars = 0;
   for (const text of texts) {
     if (text.length > MAX_EMBEDDING_INPUT_CHARS) {
-      return `Input too long (max ${MAX_EMBEDDING_INPUT_CHARS} chars).`;
+      return `输入过长（最多 ${MAX_EMBEDDING_INPUT_CHARS} 字符）。`;
     }
     totalChars += text.length;
     if (totalChars > MAX_EMBEDDING_TOTAL_CHARS) {
-      return `Total input too large (max ${MAX_EMBEDDING_TOTAL_CHARS} chars).`;
+      return `总输入过大（最多 ${MAX_EMBEDDING_TOTAL_CHARS} 字符）。`;
     }
   }
   return undefined;
@@ -155,16 +155,16 @@ async function createConfiguredEmbeddingProvider(params: {
         throw err;
       }
     }
-    throw new Error("No embeddings provider available.");
+    throw new Error("没有可用的嵌入提供商。");
   }
 
   const adapter = getMemoryEmbeddingProvider(params.provider, params.cfg);
   if (!adapter) {
-    throw new Error(`Unknown memory embedding provider: ${params.provider}`);
+    throw new Error(`未知的记忆嵌入提供商：${params.provider}`);
   }
   const provider = await createWithAdapter(adapter);
   if (!provider) {
-    throw new Error(`Memory embedding provider ${params.provider} is unavailable.`);
+    throw new Error(`记忆嵌入提供商 ${params.provider} 不可用。`);
   }
   return provider;
 }
@@ -183,7 +183,7 @@ function resolveEmbeddingsTarget(params: {
   const provider = normalizeLowercaseStringOrEmpty(raw.slice(0, slash));
   const model = raw.slice(slash + 1).trim();
   if (!model) {
-    return { errorMessage: "Unsupported embedding model reference." };
+    return { errorMessage: "不支持的嵌入模型引用。" };
   }
 
   if (params.configuredProvider === "auto") {
@@ -195,13 +195,13 @@ function resolveEmbeddingsTarget(params: {
       return { provider, model };
     }
     return {
-      errorMessage: "This agent does not allow that embedding provider on `/v1/embeddings`.",
+      errorMessage: "此代理不允许在 `/v1/embeddings` 上使用该嵌入提供商。",
     };
   }
 
   if (provider !== params.configuredProvider) {
     return {
-      errorMessage: "This agent does not allow that embedding provider on `/v1/embeddings`.",
+      errorMessage: "此代理不允许在 `/v1/embeddings` 上使用该嵌入提供商。",
     };
   }
 
@@ -234,7 +234,7 @@ export async function handleOpenAiEmbeddingsHttpRequest(
   const requestModel = normalizeOptionalString(payload.model) ?? "";
   if (!requestModel) {
     sendJson(res, 400, {
-      error: { message: "Missing `model`.", type: "invalid_request_error" },
+      error: { message: "缺少 `model`。", type: "invalid_request_error" },
     });
     return true;
   }
@@ -243,7 +243,7 @@ export async function handleOpenAiEmbeddingsHttpRequest(
   if (requestModel !== ZHUSHOU_MODEL_ID && !resolveAgentIdFromModel(requestModel, cfg)) {
     sendJson(res, 400, {
       error: {
-        message: "Invalid `model`. Use `zhushou` or `zhushou/<agentId>`.",
+        message: "无效的 `model`。请使用 `zhushou` 或 `zhushou/<agentId>`。",
         type: "invalid_request_error",
       },
     });
@@ -254,7 +254,7 @@ export async function handleOpenAiEmbeddingsHttpRequest(
   if (!texts) {
     sendJson(res, 400, {
       error: {
-        message: "`input` must be a string or an array of strings.",
+        message: "`input` 必须为字符串或字符串数组。",
         type: "invalid_request_error",
       },
     });
@@ -324,10 +324,10 @@ export async function handleOpenAiEmbeddingsHttpRequest(
       },
     });
   } catch (err) {
-    logWarn(`openai-compat: embeddings request failed: ${formatErrorMessage(err)}`);
+    logWarn(`openai-compat: 嵌入请求失败: ${formatErrorMessage(err)}`);
     sendJson(res, 500, {
       error: {
-        message: "internal error",
+        message: "内部错误",
         type: "api_error",
       },
     });

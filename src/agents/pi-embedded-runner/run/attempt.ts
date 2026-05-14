@@ -312,15 +312,13 @@ export function resolveUnknownToolGuardThreshold(loopDetection?: {
   enabled?: boolean;
   unknownToolThreshold?: number;
 }): number {
-  // The unknown-tool guard is a safety net against the model hallucinating a
-  // tool name or calling a tool that has since been removed from the allowlist
-  // (for example after a `skills.allowBundled` config change). After `threshold`
-  // consecutive unknown-tool attempts the stream wrapper rewrites the zhushou
-  // message content to tell the model to stop, which breaks otherwise-infinite
-  // Tool-not-found loops against the provider. Unlike the genericRepeat /
-  // pingPong / pollNoProgress detectors this guard has no false-positive
-  // surface because the tool is objectively not registered in this run, so it
-  // stays on regardless of `tools.loopDetection.enabled`.
+  // 未知工具守卫是防止模型幻觉工具名称或调用已从允许列表中
+  // 移除的工具（例如在 `skills.allowBundled` 配置变更后）的安全网。
+  // 在 `threshold` 次连续未知工具尝试后，流包装器重写助手
+  // 消息内容以告诉模型停止，从而打破原本会无限循环的
+  // 工具未找到循环。与 genericRepeat / pingPong / pollNoProgress
+  // 检测器不同，此守卫没有误报面，因为工具客观上未在此运行中
+  // 注册，因此无论 `tools.loopDetection.enabled` 如何都保持启用。
   const raw = loopDetection?.unknownToolThreshold;
   if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) {
     return Math.floor(raw);
@@ -532,8 +530,9 @@ export async function runEmbeddedAttempt(
             runId: params.runId,
             agentDir,
             workspaceDir: effectiveWorkspace,
-            // When sandboxing uses a copied workspace (`ro` or `none`), effectiveWorkspace points
-            // at the sandbox copy. Spawned subagents should inherit the real workspace instead.
+            // 当沙箱使用复制的工作区（`ro` 或 `none`）时，
+            // effectiveWorkspace 指向沙箱副本。派生的子 Agent
+            // 应继承真实工作区。
             spawnWorkspaceDir: resolveAttemptSpawnWorkspaceDir({
               sandbox,
               resolvedWorkspace,
@@ -654,10 +653,10 @@ export async function runEmbeddedAttempt(
       config: params.config,
       sessionAgentId,
     });
-    // Track sessions_yield tool invocation (callback pattern, like clientToolCallDetected)
+    // 跟踪 sessions_yield 工具调用（回调模式，类似 clientToolCallDetected）
     let yieldDetected = false;
     let yieldMessage: string | null = null;
-    // Late-binding reference so onYield can abort the session (declared after tool creation)
+    // 后绑定引用，以便 onYield 可以中止会话（在工具创建后声明）
     let abortSessionForYield: (() => void) | null = null;
     let queueYieldInterruptForSession: (() => void) | null = null;
     let yieldAbortSettled: Promise<void> | null = null;
@@ -768,7 +767,7 @@ export async function runEmbeddedAttempt(
       modelApi: params.model.api,
       model: params.model,
     });
-    // Resolve channel-specific message actions for system prompt
+    // 解析通道特定的消息动作，用于系统提示
     const channelActions = runtimeChannel
       ? listChannelSupportedActions(
           buildEmbeddedMessageActionDiscoveryInput({
@@ -820,7 +819,7 @@ export async function runEmbeddedAttempt(
     const isDefaultAgent = sessionAgentId === defaultAgentId;
     const promptMode = resolvePromptModeForSession(params.sessionKey);
 
-    // When toolsAllow is set, use minimal prompt and strip skills catalog
+    // 当 toolsAllow 被设置时，使用最小提示并移除技能目录
     const effectivePromptMode = params.toolsAllow?.length ? ("minimal" as const) : promptMode;
     const effectiveSkillsPrompt = params.toolsAllow?.length ? undefined : skillsPrompt;
     const docsPath = await resolveZhushouDocsPath({
@@ -1038,8 +1037,8 @@ export async function runEmbeddedAttempt(
       const projectedTaskStatusExplanation = continuationAudit.explanation;
       const taskContinuityHint = buildAttemptTaskContinuityHint(continuationState);
 
-      // Sets compaction/pruning runtime state and returns extension factories
-      // that must be passed to the resource loader for the safeguard to be active.
+      // 设置压缩/修剪运行时状态，并返回必须传递给
+      // 资源加载器的扩展工厂，以使保障生效。
       const extensionFactories = buildEmbeddedExtensionFactories({
         cfg: params.config,
         sessionManager,
@@ -1052,8 +1051,8 @@ export async function runEmbeddedAttempt(
         projectedTaskStatusAudit: continuationAudit,
         projectedTaskStatusExplanation,
       });
-      // Only create an explicit resource loader when there are extension factories
-      // to register; otherwise let createAgentSession use its built-in default.
+      // 仅在有扩展工厂需要注册时创建显式资源加载器；
+      // 否则让 createAgentSession 使用其内置默认值。
       let resourceLoader: DefaultResourceLoader | undefined;
       if (extensionFactories.length > 0) {
         resourceLoader = new DefaultResourceLoader({
@@ -1065,7 +1064,7 @@ export async function runEmbeddedAttempt(
         await resourceLoader.reload();
       }
 
-      // Get hook runner early so it's available when creating tools
+      // 尽早获取钩子运行器，以便在创建工具时可用
       const hookRunner = getGlobalHookRunner();
 
       const { builtInTools, customTools } = splitSdkTools({
@@ -1073,27 +1072,26 @@ export async function runEmbeddedAttempt(
         sandboxEnabled: !!sandbox?.enabled,
       });
 
-      // Add client tools (OpenResponses hosted tools) to customTools
+      // 将客户端工具（OpenResponses 托管工具）添加到 customTools
       let clientToolCallDetected: { name: string; params: Record<string, unknown> } | null = null;
       const clientToolLoopDetection = resolveToolLoopDetectionConfig({
         cfg: params.config,
         agentId: sessionAgentId,
       });
-      // Exact raw names of every tool registered for this run, including
-      // bundled/plugin tools. Used as the raw-name set for the trusted local
-      // MEDIA: passthrough gate: a normalized alias is not sufficient — the
-      // emitted tool name must match an exact registration of this run.
+      // 此运行中注册的每个工具的精确原始名称，包括
+      // 内置/插件工具。用作可信本地 MEDIA 直通门的
+      // 原始名称集：规范化别名不足 — 发出的工具名称
+      // 必须匹配此运行的精确注册。
       const builtinToolNames = new Set(
         effectiveTools.flatMap((tool) => {
           const name = (tool.name ?? "").trim();
           return name ? [name] : [];
         }),
       );
-      // Admission-time conflict check only against non-plugin core tools, to
-      // preserve prior behavior where client tools may coexist with unrelated
-      // plugin tool names. MEDIA passthrough is still gated by the raw-name
-      // set above, so a client tool that normalize-collides with a plugin
-      // tool cannot inherit the plugin's local-media trust.
+      // 准入时冲突检查仅针对非插件核心工具，以保留
+      // 先前客户端工具可与不相关插件工具名称共存的行为。
+      // MEDIA 直通仍由上面的原始名称集门控，因此规范化
+      // 与插件工具冲突的客户端工具不能继承插件的本地媒体信任。
       const coreBuiltinToolNames = new Set(
         effectiveTools.flatMap((tool) => {
           const name = (tool.name ?? "").trim();

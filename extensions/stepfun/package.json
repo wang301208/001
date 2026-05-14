@@ -2,7 +2,7 @@
   "name": "@zhushou/stepfun-provider",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 StepFun provider plugin",
+  "description": "助手 阶跃星辰提供者插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

@@ -1,4 +1,4 @@
-// Real workspace contract for memory engine storage/index helpers.
+// 内存引擎存储/索引辅助的实际工作区合约。
 
 export {
   buildFileEntry,

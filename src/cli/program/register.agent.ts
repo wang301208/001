@@ -23,55 +23,55 @@ import { collectOption } from "./helpers.js";
 export function registerAgentCommands(program: Command, args: { agentChannelOptions: string }) {
   program
     .command("agent")
-    .description("Run an agent turn via the Gateway (use --local for embedded)")
-    .requiredOption("-m, --message <text>", "Message body for the agent")
-    .option("-t, --to <number>", "Recipient number in E.164 used to derive the session key")
-    .option("--session-id <id>", "Use an explicit session id")
-    .option("--agent <id>", "Agent id (overrides routing bindings)")
-    .option("--thinking <level>", "Thinking level: off | minimal | low | medium | high | xhigh")
-    .option("--verbose <on|off>", "Persist agent verbose level for the session")
+    .description("通过网关运行代理交互（使用 --local 进行内嵌模式）")
+    .requiredOption("-m, --message <text>", "代理消息正文")
+    .option("-t, --to <number>", "E.164 格式的接收者号码，用于派生会话密钥")
+    .option("--session-id <id>", "使用显式会话 ID")
+    .option("--agent <id>", "代理 ID（覆盖路由绑定）")
+    .option("--thinking <level>", "思考级别：off | minimal | low | medium | high | xhigh")
+    .option("--verbose <on|off>", "持久化代理详细级别用于该会话")
     .option(
       "--channel <channel>",
-      `Delivery channel: ${args.agentChannelOptions} (omit to use the main session channel)`,
+      `投递频道：${args.agentChannelOptions}（省略则使用主会话频道）`,
     )
-    .option("--reply-to <target>", "Delivery target override (separate from session routing)")
-    .option("--reply-channel <channel>", "Delivery channel override (separate from routing)")
-    .option("--reply-account <id>", "Delivery account id override")
+    .option("--reply-to <target>", "投递目标覆盖（与会话路由分开）")
+    .option("--reply-channel <channel>", "投递频道覆盖（与路由分开）")
+    .option("--reply-account <id>", "投递账号 ID 覆盖")
     .option(
       "--local",
-      "Run the embedded agent locally (requires model provider API keys in your shell)",
+      "在本地运行内嵌代理（需要 shell 中有模型提供商 API 密钥）",
       false,
     )
-    .option("--deliver", "Send the agent's reply back to the selected channel", false)
-    .option("--json", "Output result as JSON", false)
+    .option("--deliver", "将代理回复发送回所选频道", false)
+    .option("--json", "以 JSON 格式输出结果", false)
     .option(
       "--timeout <seconds>",
-      "Override agent command timeout (seconds, default 600 or config value)",
+      "覆盖代理命令超时（秒，默认 600 或配置值）",
     )
     .addHelpText(
       "after",
       () =>
         `
-${theme.heading("Examples:")}
+${theme.heading("示例：")}
 ${formatHelpExamples([
-  ['zhushou agent --to +15555550123 --message "status update"', "Start a new session."],
-  ['zhushou agent --agent ops --message "Summarize logs"', "Use a specific agent."],
+  ['zhushou agent --to +15555550123 --message "status update"', "启动新会话。"],
+  ['zhushou agent --agent ops --message "Summarize logs"', "使用指定代理。"],
   [
     'zhushou agent --session-id 1234 --message "Summarize inbox" --thinking medium',
-    "Target a session with explicit thinking level.",
+    "以指定思考级别访问会话。",
   ],
   [
     'zhushou agent --to +15555550123 --message "Trace logs" --verbose on --json',
-    "Enable verbose logging and JSON output.",
+    "启用详细日志和 JSON 输出。",
   ],
-  ['zhushou agent --to +15555550123 --message "Summon reply" --deliver', "Deliver reply."],
+  ['zhushou agent --to +15555550123 --message "Summon reply" --deliver', "投递回复。"],
   [
     'zhushou agent --agent ops --message "Generate report" --deliver --reply-channel slack --reply-to "#reports"',
-    "Send reply to a different channel/target.",
+    "将回复发送到不同的频道/目标。",
   ],
 ])}
 
-${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.zhushou.ai/cli/agent")}`,
+${theme.muted("文档：")} ${formatDocsLink("/cli/agent", "docs.zhushou.ai/cli/agent")}`,
     )
     .action(async (opts) => {
       const verboseLevel =
@@ -86,18 +86,18 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.zhushou.ai/cli/agen
 
   const agents = program
     .command("agents")
-    .description("Manage isolated agents (workspaces + auth + routing)")
+    .description("管理隔离代理（工作空间 + 认证 + 路由）")
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/agents", "docs.zhushou.ai/cli/agents")}\n`,
+        `\n${theme.muted("文档：")} ${formatDocsLink("/cli/agents", "docs.zhushou.ai/cli/agents")}\n`,
     );
 
   agents
     .command("list")
-    .description("List configured agents")
-    .option("--json", "Output JSON instead of text", false)
-    .option("--bindings", "Include routing bindings", false)
+    .description("列出已配置的代理")
+    .option("--json", "输出 JSON 而非文本", false)
+    .option("--bindings", "包含路由绑定", false)
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         await agentsListCommand(
@@ -109,9 +109,9 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.zhushou.ai/cli/agen
 
   agents
     .command("bindings")
-    .description("List routing bindings")
-    .option("--agent <id>", "Filter by agent id")
-    .option("--json", "Output JSON instead of text", false)
+    .description("列出路由绑定")
+    .option("--agent <id>", "按代理 ID 筛选")
+    .option("--json", "输出 JSON 而非文本", false)
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         await agentsBindingsCommand(
@@ -126,15 +126,15 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.zhushou.ai/cli/agen
 
   agents
     .command("bind")
-    .description("Add routing bindings for an agent")
-    .option("--agent <id>", "Agent id (defaults to current default agent)")
+    .description("为代理添加路由绑定")
+    .option("--agent <id>", "代理 ID（默认为当前默认代理）")
     .option(
       "--bind <channel[:accountId]>",
-      "Binding to add (repeatable). If omitted, accountId is resolved by channel defaults/hooks.",
+      "要添加的绑定（可重复）。若省略 accountId，则由频道默认值/钩子解析。",
       collectOption,
       [],
     )
-    .option("--json", "Output JSON summary", false)
+    .option("--json", "输出 JSON 摘要", false)
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         await agentsBindCommand(
@@ -150,11 +150,11 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.zhushou.ai/cli/agen
 
   agents
     .command("unbind")
-    .description("Remove routing bindings for an agent")
-    .option("--agent <id>", "Agent id (defaults to current default agent)")
-    .option("--bind <channel[:accountId]>", "Binding to remove (repeatable)", collectOption, [])
-    .option("--all", "Remove all bindings for this agent", false)
-    .option("--json", "Output JSON summary", false)
+    .description("移除代理的路由绑定")
+    .option("--agent <id>", "代理 ID（默认为当前默认代理）")
+    .option("--bind <channel[:accountId]>", "要移除的绑定（可重复）", collectOption, [])
+    .option("--all", "移除该代理的所有绑定", false)
+    .option("--json", "输出 JSON 摘要", false)
     .action(async (opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         await agentsUnbindCommand(
@@ -171,13 +171,13 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.zhushou.ai/cli/agen
 
   agents
     .command("add [name]")
-    .description("Add a new isolated agent")
-    .option("--workspace <dir>", "Workspace directory for the new agent")
-    .option("--model <id>", "Model id for this agent")
-    .option("--agent-dir <dir>", "Agent state directory for this agent")
-    .option("--bind <channel[:accountId]>", "Route channel binding (repeatable)", collectOption, [])
-    .option("--non-interactive", "Disable prompts; requires --workspace", false)
-    .option("--json", "Output JSON summary", false)
+    .description("添加新的隔离代理")
+    .option("--workspace <dir>", "新代理的工作空间目录")
+    .option("--model <id>", "该代理的模型 ID")
+    .option("--agent-dir <dir>", "该代理的状态目录")
+    .option("--bind <channel[:accountId]>", "路由频道绑定（可重复）", collectOption, [])
+    .option("--non-interactive", "禁用提示；需要 --workspace", false)
+    .option("--json", "输出 JSON 摘要", false)
     .action(async (name, opts, command) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         const hasFlags = hasExplicitOptions(command, [
@@ -205,31 +205,31 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.zhushou.ai/cli/agen
 
   agents
     .command("set-identity")
-    .description("Update an agent identity (name/theme/emoji/avatar)")
-    .option("--agent <id>", "Agent id to update")
-    .option("--workspace <dir>", "Workspace directory used to locate the agent + IDENTITY.md")
-    .option("--identity-file <path>", "Explicit IDENTITY.md path to read")
-    .option("--from-identity", "Read values from IDENTITY.md", false)
-    .option("--name <name>", "Identity name")
-    .option("--theme <theme>", "Identity theme")
-    .option("--emoji <emoji>", "Identity emoji")
-    .option("--avatar <value>", "Identity avatar (workspace path, http(s) URL, or data URI)")
-    .option("--json", "Output JSON summary", false)
+    .description("更新代理身份（名称/主题/表情/头像）")
+    .option("--agent <id>", "要更新的代理 ID")
+    .option("--workspace <dir>", "用于定位代理 + IDENTITY.md 的工作空间目录")
+    .option("--identity-file <path>", "显式 IDENTITY.md 路径")
+    .option("--from-identity", "从 IDENTITY.md 读取值", false)
+    .option("--name <name>", "身份名称")
+    .option("--theme <theme>", "身份主题")
+    .option("--emoji <emoji>", "身份表情")
+    .option("--avatar <value>", "身份头像（工作空间路径、http(s) URL 或 data URI）")
+    .option("--json", "输出 JSON 摘要", false)
     .addHelpText(
       "after",
       () =>
         `
-${theme.heading("Examples:")}
+${theme.heading("示例：")}
 ${formatHelpExamples([
-  ['zhushou agents set-identity --agent main --name "助手" --emoji "🤖"', "Set name + emoji."],
-  ["zhushou agents set-identity --agent main --avatar avatars/zhushou.png", "Set avatar path."],
+  ['zhushou agents set-identity --agent main --name "助手" --emoji "🤖"', "设置名称 + 表情。"],
+  ["zhushou agents set-identity --agent main --avatar avatars/zhushou.png", "设置头像路径。"],
   [
     "zhushou agents set-identity --workspace ~/.zhushou/workspace --from-identity",
-    "Load from IDENTITY.md.",
+    "从 IDENTITY.md 加载。",
   ],
   [
     "zhushou agents set-identity --identity-file ~/.zhushou/workspace/IDENTITY.md --agent main",
-    "Use a specific IDENTITY.md.",
+    "使用指定的 IDENTITY.md。",
   ],
 ])}
 `,
@@ -255,9 +255,9 @@ ${formatHelpExamples([
 
   agents
     .command("delete <id>")
-    .description("Delete an agent and prune workspace/state")
-    .option("--force", "Skip confirmation", false)
-    .option("--json", "Output JSON summary", false)
+    .description("删除代理并清理工作空间/状态")
+    .option("--force", "跳过确认", false)
+    .option("--json", "输出 JSON 摘要", false)
     .action(async (id, opts) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         await agentsDeleteCommand(

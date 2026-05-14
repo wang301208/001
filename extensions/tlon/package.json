@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/tlon",
   "version": "2026.4.16",
-  "description": "助手 Tlon/Urbit channel plugin",
+  "description": "助手 Tlon/Urbit 渠道插件",
   "type": "module",
   "dependencies": {
     "@aws-sdk/client-s3": "3.1028.0",

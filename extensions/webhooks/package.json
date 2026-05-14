@@ -2,7 +2,7 @@
   "name": "@zhushou/webhooks",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 webhook bridge plugin",
+  "description": "助手 Webhook 桥接插件",
   "type": "module",
   "dependencies": {
     "zod": "^4.3.6"

@@ -2,7 +2,7 @@
   "name": "@zhushou/qa-channel",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 QA synthetic channel plugin",
+  "description": "助手 QA 合成渠道插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*",

@@ -145,7 +145,7 @@ function appendDebugLog(line: string) {
       "utf8",
     );
   } catch {
-    // Debug logging must never affect gateway startup.
+    // 调试日志绝不能影响网关启动。
   }
 }
 

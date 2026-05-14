@@ -2,6 +2,7 @@
   "name": "@zhushou/plugin-package-contract",
   "version": "0.0.0-private",
   "private": true,
+  "description": "助手插件包合约类型定义",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"

@@ -157,7 +157,7 @@ export function repairOAuthProfileIdMismatch(params: {
     },
   };
 
-  const changes = [`Auth: migrate ${legacyProfileId} → ${toProfileId} (OAuth profile id)`];
+  const changes = [`认证: 迁移 ${legacyProfileId} → ${toProfileId} (OAuth 配置文件 ID)`];
 
   return {
     config: nextCfg,

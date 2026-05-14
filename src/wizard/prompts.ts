@@ -34,16 +34,16 @@ export type WizardProgress = {
   stop: (message?: string) => void;
 };
 
-/** An individual validation issue shown in `showValidationErrors`. */
+/** `showValidationErrors` 中显示的单个验证问题。 */
 export type WizardValidationIssue = {
-  /** Dot-separated config path the issue relates to (e.g. "gateway.auth.mode"). */
+  /** 问题关联的点分隔配置路径（例如 "gateway.auth.mode"）。 */
   path: string;
   message: string;
-  /** "error" blocks continuation; "conflict" is a mutually-exclusive pair; "warning" is advisory. */
+  /** "error" 阻止继续；"conflict" 为互斥对；"warning" 为建议。 */
   severity: "error" | "conflict" | "warning";
 };
 
-/** A before/after config diff entry shown in `showConfigDiff`. */
+/** `showConfigDiff` 中显示的配置变更前后差异条目。 */
 export type WizardConfigDiffEntry = {
   path: string;
   before: unknown;
@@ -59,14 +59,14 @@ export type WizardPrompter = {
   text: (params: WizardTextParams) => Promise<string>;
   confirm: (params: WizardConfirmParams) => Promise<boolean>;
   progress: (label: string) => WizardProgress;
-  /** Display structured validation issues grouped by severity. */
+  /** 按严重性分组显示结构化验证问题。 */
   showValidationErrors: (issues: WizardValidationIssue[], title?: string) => Promise<void>;
-  /** Display a before/after diff of config changes for user review. */
+  /** 显示配置变更前后差异供用户审核。 */
   showConfigDiff: (entries: WizardConfigDiffEntry[], title?: string) => Promise<void>;
 };
 
 export class WizardCancelledError extends Error {
-  constructor(message = "wizard cancelled") {
+  constructor(message = "向导已取消") {
     super(message);
     this.name = "WizardCancelledError";
   }

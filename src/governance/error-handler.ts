@@ -67,7 +67,7 @@ export class ErrorClassifier {
     const message = error.message.toLowerCase();
     const name = error.name.toLowerCase();
 
-    // Network errors
+    // 网络错误
     if (
       message.includes('network') ||
       message.includes('connection') ||
@@ -77,7 +77,7 @@ export class ErrorClassifier {
       return ErrorCategory.NETWORK;
     }
 
-    // Timeout errors
+    // 超时错误
     if (
       message.includes('timeout') ||
       message.includes('timed out') ||
@@ -86,7 +86,7 @@ export class ErrorClassifier {
       return ErrorCategory.TIMEOUT;
     }
 
-    // Validation errors
+    // 验证错误
     if (
       message.includes('validation') ||
       message.includes('invalid') ||
@@ -95,7 +95,7 @@ export class ErrorClassifier {
       return ErrorCategory.VALIDATION;
     }
 
-    // Authentication errors
+    // 认证错误
     if (
       message.includes('authentication') ||
       message.includes('unauthorized') ||
@@ -104,7 +104,7 @@ export class ErrorClassifier {
       return ErrorCategory.AUTHENTICATION;
     }
 
-    // Authorization errors
+    // 授权错误
     if (
       message.includes('authorization') ||
       message.includes('forbidden') ||
@@ -113,7 +113,7 @@ export class ErrorClassifier {
       return ErrorCategory.AUTHORIZATION;
     }
 
-    // Rate limit errors
+    // 速率限制错误
     if (
       message.includes('rate limit') ||
       message.includes('too many requests') ||
@@ -122,7 +122,7 @@ export class ErrorClassifier {
       return ErrorCategory.RATE_LIMIT;
     }
 
-    // Resource not found
+    // 资源未找到
     if (
       message.includes('not found') ||
       message.includes('404')
@@ -130,7 +130,7 @@ export class ErrorClassifier {
       return ErrorCategory.RESOURCE_NOT_FOUND;
     }
 
-    // External service errors
+    // 外部服务错误
     if (
       message.includes('external') ||
       message.includes('third-party') ||

@@ -2,7 +2,7 @@
   "name": "@zhushou/brave-plugin",
   "version": "2026.4.16",
   "private": true,
-  "description": "助手 Brave plugin",
+  "description": "助手 Brave 搜索插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

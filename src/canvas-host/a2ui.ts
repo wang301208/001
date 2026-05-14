@@ -21,12 +21,12 @@ async function resolveA2uiRoot(): Promise<string | null> {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const entryDir = process.argv[1] ? path.dirname(path.resolve(process.argv[1])) : null;
   const candidates = [
-    // Running from source (bun) or dist/canvas-host chunk.
+    // 从源码运行（bun）或 dist/canvas-host 分块。
     path.resolve(here, "a2ui"),
-    // Running from dist root chunk (common launchd path).
+    // 从 dist 根分块运行（常见 launchd 路径）。
     path.resolve(here, "canvas-host/a2ui"),
     path.resolve(here, "../canvas-host/a2ui"),
-    // Entry path fallbacks (helps when cwd is not the repo root).
+    // 入口路径回退（当 cwd 不是仓库根目录时有帮助）。
     ...(entryDir
       ? [
           path.resolve(entryDir, "a2ui"),
@@ -34,10 +34,10 @@ async function resolveA2uiRoot(): Promise<string | null> {
           path.resolve(entryDir, "../canvas-host/a2ui"),
         ]
       : []),
-    // Running from dist without copied assets (fallback to source).
+    // 从没有复制资源的 dist 运行（回退到源码）。
     path.resolve(here, "../../src/canvas-host/a2ui"),
     path.resolve(here, "../src/canvas-host/a2ui"),
-    // Running from repo root.
+    // 从仓库根目录运行。
     path.resolve(process.cwd(), "src/canvas-host/a2ui"),
     path.resolve(process.cwd(), "dist/canvas-host/a2ui"),
   ];
@@ -83,8 +83,8 @@ export function injectCanvasLiveReload(html: string): string {
   const snippet = `
 <script>
 (() => {
-  // Cross-platform action bridge helper.
-  // Works on:
+  // 跨平台操作桥接辅助。
+  // 适用于：
   // - iOS: window.webkit.messageHandlers.zhushouCanvasA2UIAction.postMessage(...)
   // - Android: window.zhushouCanvasA2UIAction.postMessage(...)
   const handlerNames = ["zhushouCanvasA2UIAction"];
@@ -99,7 +99,7 @@ export function injectCanvasLiveReload(html: string): string {
         }
         const androidHandler = globalThis[name];
         if (androidHandler && typeof androidHandler.postMessage === "function") {
-          // Important: call as a method on the interface object (binding matters on Android WebView).
+          // 重要：作为接口对象的方法调用（Android WebView 上绑定很重要）。
           androidHandler.postMessage(raw);
           return true;
         }
@@ -167,7 +167,7 @@ export async function handleA2uiHttpRequest(
   if (!a2uiRootReal) {
     res.statusCode = 503;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.end("A2UI assets not found");
+    res.end("A2UI 资源未找到");
     return true;
   }
 

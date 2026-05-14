@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/zalo",
   "version": "2026.4.16",
-  "description": "助手 Zalo channel plugin",
+  "description": "助手 Zalo 渠道插件",
   "type": "module",
   "dependencies": {
     "undici": "8.0.2"

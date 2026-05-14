@@ -2,6 +2,7 @@
   "name": "@zhushou/lobster-runtime",
   "version": "0.0.0-private",
   "private": true,
+  "description": "Lobster 工作流运行时",
   "type": "module",
   "exports": {
     "./core": "./src/core.ts"

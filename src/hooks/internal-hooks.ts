@@ -48,7 +48,7 @@ export type GatewayStartupHookEvent = InternalHookEvent & {
 };
 
 // ============================================================================
-// Message Hook Events
+// 消息钩子事件
 // ============================================================================
 
 export type MessageReceivedHookContext = {

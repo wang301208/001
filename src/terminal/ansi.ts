@@ -1,6 +1,6 @@
-// Full CSI: ESC [ <params> <final byte> covers cursor movement, erase, and SGR.
+// 完整 CSI：ESC [ <params> <final byte> 覆盖光标移动、擦除和 SGR。
 const ANSI_CSI_PATTERN = "\\x1b\\[[\\x20-\\x3f]*[\\x40-\\x7e]";
-// OSC-8 hyperlinks: ESC ] 8 ; ; url ST ... ESC ] 8 ; ; ST
+// OSC-8 超链接：ESC ] 8 ; ; url ST ... ESC ] 8 ; ; ST
 const OSC8_PATTERN = "\\x1b\\]8;;.*?\\x1b\\\\|\\x1b\\]8;;\\x1b\\\\";
 
 const ANSI_CSI_REGEX = new RegExp(ANSI_CSI_PATTERN, "g");
@@ -29,9 +29,9 @@ export function splitGraphemes(input: string): string[] {
 }
 
 /**
- * Sanitize a value for safe interpolation into log messages.
- * Strips ANSI escape sequences, C0 control characters (U+0000–U+001F),
- * and DEL (U+007F) to prevent log forging / terminal escape injection (CWE-117).
+ * 对值进行消毒以安全插入日志消息。
+ * 剥离 ANSI 转义序列、C0 控制字符（U+0000–U+001F）
+ * 和 DEL（U+007F），以防止日志伪造/终端转义注入（CWE-117）。
  */
 export function sanitizeForLog(v: string): string {
   let out = stripAnsi(v);

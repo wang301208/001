@@ -21,7 +21,7 @@ export const DEFAULT_AGENT_ID = "main";
 export const DEFAULT_MAIN_KEY = "main";
 export type SessionKeyShape = "missing" | "agent" | "legacy_or_alias" | "malformed_agent";
 
-// Pre-compiled regex
+// 预编译正则表达式
 const VALID_ID_RE = /^[a-z0-9][a-z0-9_-]{0,63}$/i;
 const INVALID_CHARS_RE = /[^a-z0-9_-]+/g;
 const LEADING_DASH_RE = /^-+/;
@@ -94,11 +94,11 @@ export function normalizeAgentId(value: string | undefined | null): string {
     return DEFAULT_AGENT_ID;
   }
   const normalized = normalizeLowercaseStringOrEmpty(trimmed);
-  // Keep it path-safe + shell-friendly.
+  // 保持路径安全且 Shell 友好。
   if (VALID_ID_RE.test(trimmed)) {
     return normalized;
   }
-  // Best-effort fallback: collapse invalid characters to "-"
+  // 尽力回退：将无效字符折叠为 "-"
   return (
     normalized
       .replace(INVALID_CHARS_RE, "-")

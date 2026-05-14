@@ -111,7 +111,7 @@ type ChatAbortRequester = {
   isAdmin: boolean;
 };
 
-/** True when a reply payload carries at least one media reference (mediaUrl or mediaUrls). */
+/** 当回复载荷携带至少一个媒体引用（mediaUrl 或 mediaUrls）时为真。 */
 function isMediaBearingPayload(payload: ReplyPayload): boolean {
   if (payload.mediaUrl?.trim()) {
     return true;
@@ -146,7 +146,7 @@ async function buildWebchatAudioOnlyZhushouMessage(
 
 export const DEFAULT_CHAT_HISTORY_TEXT_MAX_CHARS = 8_000;
 const CHAT_HISTORY_MAX_SINGLE_MESSAGE_BYTES = 128 * 1024;
-const CHAT_HISTORY_OVERSIZED_PLACEHOLDER = "[chat.history omitted: message too large]";
+const CHAT_HISTORY_OVERSIZED_PLACEHOLDER = "[chat.history 已省略: 消息过大]";
 let chatHistoryPlaceholderEmitCount = 0;
 const CHANNEL_AGNOSTIC_SESSION_SCOPES = new Set([
   "main",
@@ -331,9 +331,9 @@ function resolveChatSendOriginatingRoute(params: {
     params.hasConnectedClient &&
     (isFromGatewayCliClient || !hasClientMetadata);
 
-  // Webchat clients never inherit external delivery routes. Configured-main
-  // sessions are stricter than channel-scoped sessions: only CLI callers, or
-  // legacy callers with no client metadata, may inherit the last external route.
+  // 网页聊天客户端永不继承外部投递路由。配置的主会话
+  // 比通道范围会话更严格：仅 CLI 调用者，或
+  // 无客户端元数据的旧版调用者，可以继承上次的外部路由。
   const canInheritDeliverableRoute = Boolean(
     !isFromWebchatClient &&
     sessionChannelHint &&
@@ -380,7 +380,7 @@ export function sanitizeChatSendMessageInput(
 ): { ok: true; message: string } | { ok: false; error: string } {
   const normalized = message.normalize("NFC");
   if (normalized.includes("\u0000")) {
-    return { ok: false, error: "message must not contain null bytes" };
+    return { ok: false, error: "消息不能包含空字节" };
   }
   return { ok: true, message: stripDisallowedChatControlChars(normalized) };
 }
@@ -392,7 +392,7 @@ function normalizeOptionalChatSystemReceipt(
     return { ok: true };
   }
   if (typeof value !== "string") {
-    return { ok: false, error: "systemProvenanceReceipt must be a string" };
+    return { ok: false, error: "systemProvenanceReceipt 必须为字符串" };
   }
   const sanitized = sanitizeChatSendMessageInput(value);
   if (!sanitized.ok) {
@@ -731,15 +731,15 @@ function sanitizeZhushouPhasedContentBlocks(content: unknown[]): {
 }
 
 /**
- * Validate that a value is a finite number, returning undefined otherwise.
+ * 验证值是否为有限数，否则返回 undefined。
  */
 function toFiniteNumber(x: unknown): number | undefined {
   return typeof x === "number" && Number.isFinite(x) ? x : undefined;
 }
 
 /**
- * Sanitize usage metadata to ensure only finite numeric fields are included.
- * Prevents UI crashes from malformed transcript JSON.
+ * 清理使用量元数据，确保仅包含有限数值字段。
+ * 防止格式错误的会话记录 JSON 导致 UI 崩溃。
  */
 function sanitizeUsage(raw: unknown): Record<string, number> | undefined {
   if (!raw || typeof raw !== "object") {
@@ -748,7 +748,7 @@ function sanitizeUsage(raw: unknown): Record<string, number> | undefined {
   const u = raw as Record<string, unknown>;
   const out: Record<string, number> = {};
 
-  // Whitelist known usage fields and validate they're finite numbers
+  // 白名单已知使用量字段并验证其为有限数
   const knownFields = [
     "input",
     "output",
@@ -768,7 +768,7 @@ function sanitizeUsage(raw: unknown): Record<string, number> | undefined {
     }
   }
 
-  // Preserve nested usage.cost when present
+  // 存在时保留嵌套的 usage.cost
   if ("cost" in u && u.cost != null && typeof u.cost === "object") {
     const sanitizedCost = sanitizeCost(u.cost);
     if (sanitizedCost) {
@@ -780,8 +780,8 @@ function sanitizeUsage(raw: unknown): Record<string, number> | undefined {
 }
 
 /**
- * Sanitize cost metadata to ensure only finite numeric fields are included.
- * Prevents UI crashes from calling .toFixed() on non-numbers.
+ * 清理成本元数据，确保仅包含有限数值字段。
+ * 防止对非数字调用 .toFixed() 导致 UI 崩溃。
  */
 function sanitizeCost(raw: unknown): { total?: number } | undefined {
   if (!raw || typeof raw !== "object") {
@@ -817,7 +817,7 @@ function sanitizeChatHistoryMessage(
     changed = true;
   }
 
-  // Keep usage/cost so the chat UI can render per-message token and cost badges.
+  // 保留 usage/cost 以便聊天 UI 渲染每条消息的令牌和成本徽章。
   if (entry.role !== "assistant") {
     if ("usage" in entry) {
       delete entry.usage;
@@ -828,7 +828,7 @@ function sanitizeChatHistoryMessage(
       changed = true;
     }
   } else {
-    // Validate and sanitize usage/cost for zhushou messages
+    // 验证并清理助手消息的 usage/cost
     if ("usage" in entry) {
       const sanitized = sanitizeUsage(entry.usage);
       if (sanitized) {
@@ -892,10 +892,10 @@ function sanitizeChatHistoryMessage(
 }
 
 /**
- * Extract the visible text from an zhushou history message for silent-token checks.
- * Returns `undefined` for non-zhushou messages or messages with no extractable text.
- * When `entry.text` is present it takes precedence over `entry.content` to avoid
- * dropping messages that carry real text alongside a stale `content: "NO_REPLY"`.
+ * 从助手历史消息中提取可见文本，用于静默令牌检查。
+ * 对非助手消息或无提取文本的消息返回 `undefined`。
+ * 当 `entry.text` 存在时，优先于 `entry.content` 以避免
+ * 丢弃携带真实文本但伴有过时 `content: "NO_REPLY"` 的消息。
  */
 function extractZhushouTextForSilentCheck(message: unknown): string | undefined {
   if (!message || typeof message !== "object") {
@@ -1987,8 +1987,8 @@ export const chatHandlers: GatewayRequestHandlers = {
         mainKey: cfg.session?.mainKey,
         sessionKey,
       });
-      // Inject timestamp so agents know the current date/time.
-      // Only BodyForAgent gets the timestamp — Body stays raw for UI display.
+      // 注入时间戳以便 Agent 知晓当前日期/时间。
+      // 仅 BodyForAgent 获取时间戳 — Body 保持原始值用于 UI 显示。
       // See: https://github.com/moltbot/moltbot/issues/3658
       const stampedMessage = injectTimestamp(messageForAgent, timestampOptsFromConfig(cfg));
 
@@ -2130,9 +2130,9 @@ export const chatHandlers: GatewayRequestHandlers = {
               await appendWebchatAgentAudioTranscriptIfNeeded(payload);
               break;
             case "tool":
-              // Tool results that carry audio (e.g. the TTS tool) must be promoted
-              // to "final" so the downstream audio extraction path can pick them up.
-              // Strip text to avoid leaking tool summary into the combined reply.
+              // 携带音频的工具结果（如 TTS 工具）必须提升
+              // 为 "final" 以便下游音频提取路径可以拾取它们。
+              // 去除文本以避免将工具摘要泄露到组合回复中。
               if (isMediaBearingPayload(payload)) {
                 deliveredReplies.push({
                   payload: { ...payload, text: undefined },
@@ -2144,9 +2144,9 @@ export const chatHandlers: GatewayRequestHandlers = {
         },
       });
 
-      // Surface accepted inbound turns immediately so transcript subscribers
-      // (gateway watchers, MCP bridges, external channel backends) do not wait
-      // on model startup, completion, or failure paths before seeing the user turn.
+      // 立即呈现已接受的入站轮次，以便会话记录订阅者
+      // （网关观察器、MCP 桥接、外部通道后端）无需等待
+      // 模型启动、完成或失败路径即可看到用户轮次。
       void emitUserTranscriptUpdate().catch((transcriptErr) => {
         context.logGateway.warn(
           `webchat eager user transcript update failed: ${formatForLog(transcriptErr)}`,
@@ -2177,9 +2177,9 @@ export const chatHandlers: GatewayRequestHandlers = {
             );
             if (connId && wantsToolEvents) {
               context.registerToolEventRecipient(runId, connId);
-              // Register for any other active runs *in the same session* so
-              // late-joining clients (e.g. page refresh mid-response) receive
-              // in-progress tool events without leaking cross-session data.
+              // 注册同一会话中的其他活跃运行，以便
+              // 后加入的客户端（如页面在响应期间刷新）接收
+              // 进行中的工具事件，而不泄露跨会话数据。
               for (const [activeRunId, active] of context.chatAbortControllers) {
                 if (activeRunId !== runId && active.sessionKey === p.sessionKey) {
                   context.registerToolEventRecipient(activeRunId, connId);
@@ -2250,8 +2250,8 @@ export const chatHandlers: GatewayRequestHandlers = {
                     role: "assistant",
                     content: [{ type: "text", text: combinedReply }],
                     timestamp: now,
-                    // Keep this compatible with Pi stopReason enums even though this message isn't
-                    // persisted to the transcript due to the append failure.
+                    // 保持与 Pi stopReason 枚举兼容，即使此消息不会
+                    // 因追加失败而持久化到会话记录中。
                     stopReason: "stop",
                     usage: { input: 0, output: 0, totalTokens: 0 },
                   };
@@ -2354,7 +2354,7 @@ export const chatHandlers: GatewayRequestHandlers = {
       label?: string;
     };
 
-    // Load session to find transcript file
+    // 加载会话以查找会话记录文件
     const rawSessionKey = p.sessionKey;
     const { cfg, storePath, entry, canonicalKey: sessionKey } = loadSessionEntry(rawSessionKey);
     const sessionId = entry?.sessionId;
@@ -2384,7 +2384,7 @@ export const chatHandlers: GatewayRequestHandlers = {
       return;
     }
 
-    // Broadcast to webchat for immediate UI update
+    // 广播到网页聊天以立即更新 UI
     const chatPayload = {
       runId: `inject-${appended.messageId}`,
       sessionKey,

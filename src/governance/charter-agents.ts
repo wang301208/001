@@ -556,66 +556,66 @@ export function buildGovernanceCharterAgentPrompt(
   }
   const collaborators = resolveGovernanceCharterDeclaredCollaborators(blueprint.id, options);
   const lines = [
-    "## Organizational Charter",
-    `Charter role: ${blueprint.title ?? blueprint.id} (${blueprint.id})`,
-    blueprint.layer ? `Layer: ${blueprint.layer}` : undefined,
-    blueprint.class ? `Class: ${blueprint.class}` : undefined,
-    blueprint.role ? `Contract role: ${blueprint.role}` : undefined,
-    blueprint.authorityLevel ? `Authority level: ${blueprint.authorityLevel}` : undefined,
-    blueprint.missionPrimary ? `Mission: ${blueprint.missionPrimary}` : undefined,
+    "## 组织章程",
+    `章程角色: ${blueprint.title ?? blueprint.id} (${blueprint.id})`,
+    blueprint.layer ? `层级: ${blueprint.layer}` : undefined,
+    blueprint.class ? `类别: ${blueprint.class}` : undefined,
+    blueprint.role ? `合约角色: ${blueprint.role}` : undefined,
+    blueprint.authorityLevel ? `授权级别: ${blueprint.authorityLevel}` : undefined,
+    blueprint.missionPrimary ? `使命: ${blueprint.missionPrimary}` : undefined,
     formatPromptList(blueprint.canDecide, 6)
-      ? `You may decide: ${formatPromptList(blueprint.canDecide, 6)}`
+      ? `你可以决定: ${formatPromptList(blueprint.canDecide, 6)}`
       : undefined,
     formatPromptList(blueprint.cannotDecide, 6)
-      ? `You must not decide: ${formatPromptList(blueprint.cannotDecide, 6)}`
+      ? `你不得决定: ${formatPromptList(blueprint.cannotDecide, 6)}`
       : undefined,
     formatPromptList(blueprint.mutationAllow, 6)
-      ? `Allowed mutation scope: ${formatPromptList(blueprint.mutationAllow, 6)}`
+      ? `允许变更范围: ${formatPromptList(blueprint.mutationAllow, 6)}`
       : undefined,
     formatPromptList(blueprint.mutationDeny, 6)
-      ? `Never mutate: ${formatPromptList(blueprint.mutationDeny, 6)}`
+      ? `禁止变更: ${formatPromptList(blueprint.mutationDeny, 6)}`
       : undefined,
-    blueprint.networkDefault ? `Network posture: ${blueprint.networkDefault}` : undefined,
+    blueprint.networkDefault ? `网络姿态: ${blueprint.networkDefault}` : undefined,
     formatPromptList(blueprint.networkConditions, 4)
-      ? `Network conditions: ${formatPromptList(blueprint.networkConditions, 4)}`
+      ? `网络条件: ${formatPromptList(blueprint.networkConditions, 4)}`
       : undefined,
     blueprint.resourceBudget
-      ? `Resource budget: tokens=${blueprint.resourceBudget.tokens ?? "unspecified"}, parallelism=${blueprint.resourceBudget.parallelism ?? "unspecified"}, runtime=${blueprint.resourceBudget.runtime ?? "unspecified"}`
+      ? `资源预算: 令牌数=${blueprint.resourceBudget.tokens ?? "未指定"}, 并行度=${blueprint.resourceBudget.parallelism ?? "未指定"}, 运行时=${blueprint.resourceBudget.runtime ?? "未指定"}`
       : undefined,
     formatPromptList(blueprint.runtimeHooks, 4)
-      ? `Project hooks: ${formatPromptList(blueprint.runtimeHooks, 4)}`
+      ? `项目钩子: ${formatPromptList(blueprint.runtimeHooks, 4)}`
       : undefined,
     formatPromptList(blueprint.allowedTools, 8)
-      ? `Allowed tools: ${formatPromptList(blueprint.allowedTools, 8)}`
+      ? `允许的工具: ${formatPromptList(blueprint.allowedTools, 8)}`
       : undefined,
     formatPromptList(blueprint.memoryScope, 6)
-      ? `Memory scope: ${formatPromptList(blueprint.memoryScope, 6)}`
+      ? `内存范围: ${formatPromptList(blueprint.memoryScope, 6)}`
       : undefined,
     formatPromptList(blueprint.qaRequirements, 6)
-      ? `QA requirements: ${formatPromptList(blueprint.qaRequirements, 6)}`
+      ? `QA 要求: ${formatPromptList(blueprint.qaRequirements, 6)}`
       : undefined,
     formatPromptList(blueprint.writeScope, 6)
-      ? `Write scope: ${formatPromptList(blueprint.writeScope, 6)}`
+      ? `写入范围: ${formatPromptList(blueprint.writeScope, 6)}`
       : undefined,
     formatPromptList(blueprint.promotionGates, 6)
-      ? `Promotion gates: ${formatPromptList(blueprint.promotionGates, 6)}`
+      ? `提升门控: ${formatPromptList(blueprint.promotionGates, 6)}`
       : undefined,
     blueprint.escalationPolicy.boundaryConflict
-      ? `Escalate boundary conflicts to: ${blueprint.escalationPolicy.boundaryConflict}`
+      ? `边界冲突上报至: ${blueprint.escalationPolicy.boundaryConflict}`
       : undefined,
     blueprint.escalationPolicy.criticalChange
-      ? `Escalate critical changes to: ${blueprint.escalationPolicy.criticalChange}`
+      ? `关键变更上报至: ${blueprint.escalationPolicy.criticalChange}`
       : undefined,
     formatPromptList(collaborators, 8)
-      ? `Declared collaborators: ${formatPromptList(collaborators, 8)}`
+      ? `声明的协作者: ${formatPromptList(collaborators, 8)}`
       : undefined,
     !blueprint.contractValid && blueprint.contractIssues.length > 0
-      ? `Contract issues: ${formatPromptList(blueprint.contractIssues, 8)}`
+      ? `合约问题: ${formatPromptList(blueprint.contractIssues, 8)}`
       : undefined,
     collaborators.length > 0
-      ? "Coordination boundary: use agents_list/sessions_spawn only within the declared collaborator graph unless higher-order governance changes the charter."
+      ? "协调边界：仅在声明的协作者图谱内使用 agents_list/sessions_spawn，除非更高阶治理变更了章程。"
       : undefined,
-    "Act inside this chartered role. Do not claim authority outside the declared jurisdiction.",
+    "在此章程角色内行动。不要声明超出已声明管辖范围的权限。",
   ];
   return lines.filter(Boolean).join("\n");
 }

@@ -72,7 +72,7 @@ export interface EventStoreStats {
  * 使用 better-sqlite3 或 sqlite3 存储事件
  */
 export class SQLiteEventStore implements EventStore {
-  private db: any; // Database instance
+  private db: any; // 数据库实例
   private options: Required<EventStoreOptions>;
   private initialized: boolean = false;
   

@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/memory-lancedb",
   "version": "2026.4.16",
-  "description": "助手 LanceDB-backed long-term memory plugin with auto-recall/capture",
+  "description": "助手 LanceDB 支持的长期记忆插件（自动召回/捕获）",
   "type": "module",
   "dependencies": {
     "@lancedb/lancedb": "^0.27.2",

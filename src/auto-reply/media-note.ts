@@ -31,7 +31,7 @@ function formatMediaAttachedLine(params: {
   return `${prefix}${path}${typePart}${urlPart}]`;
 }
 
-// Common audio file extensions for transcription detection
+// 常见音频文件扩展名，用于转录检测
 const AUDIO_EXTENSIONS = new Set([
   ".ogg",
   ".opus",

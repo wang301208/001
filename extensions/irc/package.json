@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/irc",
   "version": "2026.4.16",
-  "description": "助手 IRC channel plugin",
+  "description": "助手 IRC 渠道插件",
   "type": "module",
   "devDependencies": {
     "@zhushou/plugin-sdk": "workspace:*"

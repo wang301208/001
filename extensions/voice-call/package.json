@@ -1,7 +1,7 @@
 {
   "name": "@zhushou/voice-call",
   "version": "2026.4.16",
-  "description": "助手 voice-call plugin",
+  "description": "助手 语音通话插件",
   "type": "module",
   "dependencies": {
     "@sinclair/typebox": "0.34.49",
