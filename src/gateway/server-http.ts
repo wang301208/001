@@ -937,10 +937,10 @@ export function createGatewayHttpServer(opts: {
   shouldEnforcePluginGatewayAuth?: (pathContext: PluginRoutePathContext) => boolean;
   resolvedAuth: ResolvedGatewayAuth;
   getResolvedAuth?: () => ResolvedGatewayAuth;
-  /** Optional rate limiter for auth brute-force protection. */
   rateLimiter?: AuthRateLimiter;
   getReadiness?: ReadinessChecker;
   tlsOptions?: HttpsServerOptions;
+  honoBridge?: { handleRequest: (req: IncomingMessage, res: ServerResponse) => Promise<boolean> };
 }): HttpServer {
   const {
     canvasHost,
@@ -956,6 +956,7 @@ export function createGatewayHttpServer(opts: {
     resolvedAuth,
     rateLimiter,
     getReadiness,
+    honoBridge,
   } = opts;
   const getResolvedAuth = opts.getResolvedAuth ?? (() => resolvedAuth);
   const openAiCompatEnabled = openAiChatCompletionsEnabled || openResponsesEnabled;
@@ -1017,6 +1018,18 @@ export function createGatewayHttpServer(opts: {
         ? resolvePluginRoutePathContext(effectiveRequestPath)
         : null;
       const requestStages: GatewayHttpRequestStage[] = [
+        {
+          name: "hono-bridge",
+          run: async () => {
+            if (!honoBridge) return false;
+            try {
+              return await honoBridge.handleRequest(req, res);
+            } catch {
+              return false;
+            }
+          },
+          continueOnError: true,
+        },
         {
           name: "hooks",
           run: () => handleHooksRequest(req, res),

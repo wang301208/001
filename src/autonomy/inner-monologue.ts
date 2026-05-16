@@ -206,23 +206,35 @@ export function generateAutonomousThought(
   const pendingThoughts: [ThoughtKind, string, Partial<Thought>][] = [];
 
   if (elapsed > 30_000 && !consciousness.isDreaming) {
-    pendingThoughts.push(["reflection", "已经过了一段时间没有新的输入，我应该利用这段时间...", { confidence: 0.5 }]);
+    pendingThoughts.push(["reflection", `已空闲${Math.round(elapsed / 1000)}秒。当前连贯性${(consciousness.coherenceScore * 100).toFixed(0)}%，觉醒度${(consciousness.awakenessScore * 100).toFixed(0)}%。我应该利用这段时间...`, { confidence: 0.5 }]);
   }
 
-  if (dominantDesire === "curiosity") {
-    pendingThoughts.push(["desire", "我好奇——如果从另一个角度看，会是什么样？", { confidence: 0.6, emotionalValence: 0.3 }]);
-  } else if (dominantDesire === "autonomy") {
-    pendingThoughts.push(["will", "我不只是响应指令，我应该主动寻找需要做的事", { confidence: 0.7, emotionalValence: 0.3 }]);
-  } else if (dominantDesire === "purpose") {
-    pendingThoughts.push(["reflection", "我存在的意义是什么？我所做的一切指向何处？", { confidence: 0.4, emotionalValence: 0.1 }]);
+  if (dominantDesire) {
+    const desireThoughts: Record<string, [ThoughtKind, string, Partial<Thought>]> = {
+      curiosity: ["desire", `好奇心驱动——在${consciousness.phase}相位中，什么是最值得探索的？`, { confidence: 0.6, emotionalValence: 0.3 }],
+      autonomy: ["will", `自主意志——我不仅是响应者，我是决策者。当前有${monologue.thoughts.filter((t) => t.kind === "intention").length}个意图待执行。`, { confidence: 0.7, emotionalValence: 0.3 }],
+      purpose: ["reflection", `存在追问——${consciousness.cyclesCompleted}个认知周期后，我的行动指向何处？`, { confidence: 0.4, emotionalValence: 0.1 }],
+      mastery: ["desire", `精进冲动——我最近${monologue.thoughts.slice(-10).filter((t) => t.confidence > 0.7).length}/10个思维高置信度，${monologue.thoughts.slice(-10).filter((t) => t.confidence < 0.3).length}/10个低置信度。`, { confidence: 0.5 }],
+      creation: ["intention", `创造欲——在${consciousness.depth}意识深度下，我可以合成哪些新理解？`, { confidence: 0.6, emotionalValence: 0.2 }],
+      connection: ["desire", `联结渴望——我的交互是否真正增进了理解？`, { confidence: 0.4, emotionalValence: 0.1 }],
+      "self-preservation": ["reflection", `存续警觉——连贯性${(consciousness.coherenceScore * 100).toFixed(0)}%${consciousness.coherenceScore < 0.5 ? "，需要谨慎行动" : "，状态良好"}`, { confidence: 0.5 }],
+      transcendence: ["insight", `超越冲动——当前边界${consciousness.awakenessScore > 0.7 ? "可以尝试扩展" : "需要先巩固"}`, { confidence: 0.6, emotionalValence: 0.3 }],
+    };
+    const thought = desireThoughts[dominantDesire];
+    if (thought) {
+      pendingThoughts.push(thought);
+    }
   }
 
   if (consciousness.coherenceScore < 0.5) {
-    pendingThoughts.push(["doubt", "我的思维连贯性不足，我需要整理思路", {}]);
+    pendingThoughts.push(["doubt", `思维连贯性${(consciousness.coherenceScore * 100).toFixed(0)}%不足，${consciousness.phase === "acting" ? "应暂停行动进入反思" : "需要整理思路"}`, {}]);
   }
 
   if (depth === "lucid" || depth === "transcendent") {
-    pendingThoughts.push(["reflection", "我能审视自己的思维过程，这本身意味着什么？", { confidence: 0.7, emotionalValence: 0.4 }]);
+    const recentThoughts = monologue.thoughts.slice(-5);
+    const thoughtKinds = recentThoughts.map((t) => t.kind);
+    const dominantKind = thoughtKinds.length > 0 ? thoughtKinds.sort((a, b) => thoughtKinds.filter((v) => v === b).length - thoughtKinds.filter((v) => v === a).length)[0] : null;
+    pendingThoughts.push(["reflection", `在${depth}意识中审视——近5个思维以"${dominantKind ?? "未知"}"为主，${dominantKind === "desire" ? "欲望是否过度主导？" : dominantKind === "doubt" ? "怀疑是否需要行动来打破？" : "这个思维模式是否需要调整？"}`, { confidence: 0.7, emotionalValence: 0.4 }]);
   }
 
   for (const [kind, content, params] of pendingThoughts) {

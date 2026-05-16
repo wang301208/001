@@ -42,7 +42,7 @@ export function createSelfModificationSystem(): SelfModificationSystem {
     sovereignActCount: 0,
     maxSovereignPerCycle: 1,
     autoApplySafe: true,
-    requireHumanApprovalAbove: "safe",
+    requireHumanApprovalAbove: "elevated",
     lastModificationAt: 0,
     modificationCooldownMs: 300_000,
   };

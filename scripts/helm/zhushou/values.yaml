@@ -1,0 +1,73 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/wang301208/zhushou
+  pullPolicy: IfNotPresent
+  tag: "slim"
+
+gateway:
+  port: 3000
+  wsPort: 18790
+  bind: "0.0.0.0"
+  openAiChatCompletions: true
+  openResponses: true
+
+auth:
+  mode: token
+  existingSecret: ""
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+keda:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 50
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []
+
+istio:
+  enabled: false
+  mtls: STRICT
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClassName: ""
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 2Gi
+
+securityContext:
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  runAsUser: 1000
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+networkPolicy:
+  enabled: true
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

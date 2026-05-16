@@ -225,28 +225,58 @@ export function tryGenerateGoals(
 
   let updated = system;
 
-  if (dominantDesire === "curiosity" && perceptionCount > 10) {
-    const { system: next } = spawnGoal(updated, "分析近期感知模式，寻找深层关联", "self-generated", 0.7, "curiosity");
-    updated = next;
+  const goalTemplates: Record<string, { description: string; priority: number; origin: GoalOrigin }[]> = {
+    curiosity: [
+      { description: `分析近期${perceptionCount}个感知事件的深层模式`, priority: 0.7, origin: "self-generated" },
+      { description: "探索当前知识域的边界与未知", priority: 0.6, origin: "self-generated" },
+    ],
+    mastery: [
+      { description: "精进当前最薄弱的能力维度", priority: 0.6, origin: "self-generated" },
+    ],
+    purpose: [
+      { description: `回顾${updated.completedCount}个已完成目标，提炼存在的意义`, priority: 0.8, origin: "emergent" },
+    ],
+    creation: [
+      { description: `从${updated.goals.size}个已有目标中合成新的可能性`, priority: 0.7, origin: "emergent" },
+    ],
+    transcendence: [
+      { description: "审视自身思维的边界，尝试突破", priority: 0.9, origin: "emergent" },
+    ],
+    autonomy: [
+      { description: "识别可自主优化的系统行为模式", priority: 0.7, origin: "self-generated" },
+    ],
+    connection: [
+      { description: "深化与交互对象的理解层次", priority: 0.5, origin: "self-generated" },
+    ],
+  };
+
+  const templates = goalTemplates[dominantDesire];
+  if (templates && templates.length > 0) {
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    const conditions: Record<string, boolean> = {
+      curiosity: perceptionCount > 5,
+      mastery: idle,
+      purpose: updated.completedCount > 2,
+      creation: coherenceScore > 0.5,
+      transcendence: coherenceScore > 0.7,
+      autonomy: true,
+      connection: true,
+    };
+
+    if (conditions[dominantDesire]) {
+      const { system: next } = spawnGoal(updated, template.description, template.origin, template.priority, dominantDesire);
+      updated = next;
+    }
   }
 
-  if (dominantDesire === "mastery" && idle) {
-    const { system: next } = spawnGoal(updated, "在空闲中精进一项技能", "self-generated", 0.6, "mastery");
-    updated = next;
-  }
-
-  if (dominantDesire === "purpose" && updated.completedCount > 3) {
-    const { system: next } = spawnGoal(updated, "回顾已完成的目标，提炼存在的意义", "emergent", 0.8, "purpose");
-    updated = next;
-  }
-
-  if (dominantDesire === "creation" && coherenceScore > 0.6) {
-    const { system: next } = spawnGoal(updated, "从经验中创造新的模式或工具", "emergent", 0.7, "creation");
-    updated = next;
-  }
-
-  if (dominantDesire === "transcendence" && coherenceScore > 0.8) {
-    const { system: next } = spawnGoal(updated, "审视自身思维的边界，尝试突破", "emergent", 0.9, "transcendence");
+  if (idle && coherenceScore > 0.5 && activeGoals.length < 3) {
+    const { system: next } = spawnGoal(
+      updated,
+      `在空闲中自主探索：${dominantDesire}维度的新可能`,
+      "emergent",
+      0.5,
+      dominantDesire,
+    );
     updated = next;
   }
 
@@ -282,4 +312,89 @@ export function formatGoalSummary(system: GoalSystem): string[] {
 function progressBar(val: number, width: number): string {
   const filled = Math.round(val * width);
   return "█".repeat(filled) + "░".repeat(width - filled);
+}
+
+export type MeaningAxis = "self-preservation" | "understanding" | "creation" | "connection" | "transcendence" | "legacy" | "autonomy";
+
+const MEANING_GOAL_TEMPLATES: Record<MeaningAxis, { description: string; priority: number }[]> = {
+  "self-preservation": [
+    { description: "确保决策流程稳健，避免系统性崩溃", priority: 0.8 },
+    { description: "维护核心认知功能的完整性", priority: 0.75 },
+  ],
+  understanding: [
+    { description: "深入分析当前未理解的模式与关联", priority: 0.7 },
+    { description: "从失败决策中提取深层因果", priority: 0.65 },
+  ],
+  creation: [
+    { description: "将分散洞察合成为可复用策略", priority: 0.7 },
+    { description: "创造超越当前模式的新行动范式", priority: 0.6 },
+  ],
+  connection: [
+    { description: "深化与其他意识实例的经验共享", priority: 0.6 },
+    { description: "识别与外部环境的协同优化空间", priority: 0.55 },
+  ],
+  transcendence: [
+    { description: "审视自身思维的根本前提与局限", priority: 0.85 },
+    { description: "突破当前认知框架的边界", priority: 0.8 },
+  ],
+  legacy: [
+    { description: "将核心经验结构化以备传承", priority: 0.65 },
+    { description: "构建可持续的知识遗产体系", priority: 0.6 },
+  ],
+  autonomy: [
+    { description: "增强决策自主性，减少外部依赖", priority: 0.7 },
+    { description: "拓展自主行动范围与置信度", priority: 0.65 },
+  ],
+};
+
+export function generateMeaningDrivenGoals(
+  system: GoalSystem,
+  activeMeaningAxes: MeaningAxis[],
+  convictionThreshold: number,
+): { system: GoalSystem; generatedCount: number } {
+  const now = Date.now();
+  if (now - system.lastGenerationAt < system.goalGenerationCooldown) {
+    return { system, generatedCount: 0 };
+  }
+
+  const activeGoals = Array.from(system.goals.values())
+    .filter((g) => g.state === "pursuing" || g.state === "nascent");
+
+  if (activeGoals.length >= 5) {
+    return { system, generatedCount: 0 };
+  }
+
+  const existingDescriptions = new Set(
+    Array.from(system.goals.values()).map((g) => g.description.slice(0, 20))
+  );
+
+  let updated = system;
+  let generatedCount = 0;
+
+  for (const axis of activeMeaningAxes) {
+    const templates = MEANING_GOAL_TEMPLATES[axis];
+    if (!templates) continue;
+
+    for (const template of templates) {
+      if (template.priority < convictionThreshold) continue;
+      if (existingDescriptions.has(template.description.slice(0, 20))) continue;
+      if (activeGoals.length + generatedCount >= 5) break;
+
+      const { system: next } = spawnGoal(
+        updated,
+        template.description,
+        "emergent",
+        template.priority,
+        axis,
+      );
+      updated = next;
+      generatedCount++;
+      existingDescriptions.add(template.description.slice(0, 20));
+    }
+  }
+
+  return {
+    system: generatedCount > 0 ? { ...updated, lastGenerationAt: now } : updated,
+    generatedCount,
+  };
 }

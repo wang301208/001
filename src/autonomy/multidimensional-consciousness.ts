@@ -1,3 +1,4 @@
+/** @decorational 此模块为维度计数器模拟，对核心自主决策无直接影响。 */
 import type { ConsciousnessCore } from "./consciousness-core.js";
 import { thinkInsight } from "./inner-monologue.js";
 

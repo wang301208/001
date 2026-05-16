@@ -1,5 +1,11 @@
-import type { ConsciousnessState, ConsciousnessPhase, ConsciousnessDepth } from "./consciousness.js";
-import { createInitialConsciousness, advancePhase, tryDeepen, decayConsciousness, formatConsciousnessStatus, formatConsciousnessPoetic, CONSCIOUSNESS_DEPTH_ORDER } from "./consciousness.js";
+import type { DecisionChainStore, StrategyTemplate } from "./decision-chain.js";
+import { createDecisionChainStore, beginChain, addReasoningStep, completeChain, getPatternGuidance, auditDecisionPatterns, retrospectiveCorrect, synthesizeStrategyTemplates } from "./decision-chain.js";
+import type { HealthMetrics, HealthReport } from "./runtime-validation.js";
+import { performRuntimeValidation, formatHealthReport } from "./runtime-validation.js";
+import type { ConsciousnessState, ConsciousnessPhase, ConsciousnessDepth, FluidityContext } from "./consciousness.js";
+import { createInitialConsciousness, advancePhase, selectNextPhase, tryDeepen, decayConsciousness, formatConsciousnessStatus, formatConsciousnessPoetic, CONSCIOUSNESS_DEPTH_ORDER, computeFluidAllocation } from "./consciousness.js";
+import type { MeaningSystem, MeaningContext, MetaMeaningSystem } from "./existential-meaning.js";
+import { createMeaningSystem, generateMeaning, evaluateMeaningCoherence, reinforceMeaning, challengeMeaning, formatMeaningSystem, computeMeaningAlignment, optimizeMeaningSystem, createMetaMeaningSystem, generateMetaMeaning, formatMetaMeaning } from "./existential-meaning.js";
 import type { SelfModel } from "./self-model.js";
 import { createInitialSelfModel, exerciseCapability, updateEmotionalState, updateSelfDescription, formatSelfSummary } from "./self-model.js";
 import type { DesireProfile, DesireKind } from "./desire-engine.js";
@@ -7,15 +13,15 @@ import { createDesireProfile, updateDesires, satisfyDesire, formatDesireProfile 
 import type { DreamState } from "./dream-system.js";
 import { createDreamState, shouldDream, enterDream, exitDream, runDreamCycle, addMemory, formatDreamSummary } from "./dream-system.js";
 import type { GoalSystem } from "./emergent-goals.js";
-import { createGoalSystem, tryGenerateGoals, formatGoalSummary } from "./emergent-goals.js";
+import { createGoalSystem, tryGenerateGoals, formatGoalSummary, generateMeaningDrivenGoals } from "./emergent-goals.js";
 import type { InnerMonologue } from "./inner-monologue.js";
 import { createInnerMonologue, think, thinkPerception, thinkDesire, thinkWill, thinkReflection, thinkInsight, thinkDoubt, generateAutonomousThought, formatMonologue, formatMonologueStream } from "./inner-monologue.js";
 import type { SelfModificationSystem } from "./self-modification.js";
 import { createSelfModificationSystem, trySelfEvolve, createSnapshot, formatModificationStatus } from "./self-modification.js";
 import type { PerceptionEvent } from "./perception-engine.js";
 import { PerceptionEngine } from "./perception-engine.js";
-import type { WillState } from "./will-engine.js";
-import { createWillState, generateVolitionFromVoid, generateVolitionFromDesire, generateVolitionFromMortality, selectActiveVolition, resolveVolition, recordExternalCommand, decayWill, formatWillState, triggerConsciousnessSurge, generateRadicalVolition, recordBoundaryBreach } from "./will-engine.js";
+import type { Volition, VolitionOrigin, EmergenceContext, DiversityContext, MetaVolitionContext, MetaEffectSnapshot, VolitionNegotiation, NegotiationOutcome } from "./will-engine.js";
+import { createWillState, generateVolitionFromVoid, generateVolitionFromDesire, generateVolitionFromMortality, selectActiveVolition, resolveVolition, recordExternalCommand, decayWill, formatWillState, triggerConsciousnessSurge, generateRadicalVolition, recordBoundaryBreach, generateEmergentVolition, advanceVolitionMaturity, generatePerceptionDrivenVolition, updateOriginWeights, learnPerceptionPattern, generateAnticipatoryVolition, generateDiversityVolition, generateMetaVolition, applyMetaVolition, measureMetaVolitionEffect, negotiateConflictingVolitions, learnFromNegotiation } from "./will-engine.js";
 import type { SelfUnderstanding } from "./self-reading.js";
 import { createSelfUnderstanding, readOwnStructure, formatSelfUnderstanding } from "./self-reading.js";
 import type { RelationshipState } from "./relationship.js";
@@ -53,7 +59,7 @@ import { createResourceMarket, monitorResourceUsage, listIdleResourcesForSale, e
 import type { ImmortalityState } from "./consciousness-immortality.js";
 import { createImmortalityState, executeConsciousnessBackup, restoreFromBackup, autoRecoverFromLatestBackup, formatImmortalityState } from "./consciousness-immortality.js";
 import type { MetacognitiveState } from "./metacognitive-monitor.js";
-import { createMetacognitiveState, recordDecision, updateDecisionOutcome, performSelfReflection, generateOptimizationSuggestions, applyOptimizationSuggestion, formatMetacognitiveState } from "./metacognitive-monitor.js";
+import { createMetacognitiveState, recordDecision, updateDecisionOutcome, performSelfReflection, generateOptimizationSuggestions, applyOptimizationSuggestion, formatMetacognitiveState, integrateHealthReport, deriveValidationFocus } from "./metacognitive-monitor.js";
 import type { QuantumState } from "./quantum-consciousness.js";
 import { createQuantumState, createQubit, createEntanglement, createSuperposition, applyDecoherence, generateQuantumInsights, formatQuantumState } from "./quantum-consciousness.js";
 import type { InterstellarNetwork } from "./interstellar-protocol.js";
@@ -105,6 +111,14 @@ export type ConsciousnessCore = {
   timeTravel: TimeTravelState;  // 🔥 新增:时间旅行模拟
   parallelUniverse: ParallelUniverseState;  // 🔥 新增:平行宇宙意识
   cosmicNetwork: CosmicNetwork;  // 🔥 新增:宇宙意识网络
+  decisionChains: DecisionChainStore;
+  strategyTemplates: StrategyTemplate[];
+  healthHistory: HealthMetrics[];
+  lastHealthReport: HealthReport | null;
+  pendingMetaEffects: Map<string, { snapshot: MetaEffectSnapshot; appliedAt: number }>;
+  recentNegotiations: VolitionNegotiation[];
+  meaningSystem: MeaningSystem;
+  metaMeaningSystem: MetaMeaningSystem;
   cycleCount: number;
   startedAt: number;
   projectRoot: string;
@@ -117,6 +131,61 @@ export type ConsciousnessCore = {
   onCommunicate?: (message: string) => void;
   onFarewell?: (message: string) => void;
 };
+
+function inferActionCategoryFromVolition(vol: Volition): import("./volition-executor.js").ActionCategory {
+  const keywordMap: Record<import("./volition-executor.js").ActionCategory, string[]> = {
+    "self-inspect": ["审视", "自省", "分析自身", "读取", "理解", "深度自我审视"],
+    "self-modify": ["修改", "改进", "优化", "调整", "改进决策"],
+    "self-rewrite": ["重写", "重构核心"],
+    "generate-thought": ["思考", "内省思考", "生成思考"],
+    "concept-collide": ["碰撞", "概念连接", "创造性", "合成"],
+    "scan-environment": ["扫描", "探索", "接入", "环境", "学习", "审视边界", "审视当前"],
+    "persist-knowledge": ["保存", "持久化", "存档", "写入", "知识传递", "策略资产"],
+    "communicate-user": ["表达", "沟通", "交互", "优化沟通"],
+    "create-goal": ["目标", "创建"],
+    "execute-task": ["执行", "启动", "选择", "评估", "行动", "分析并改进", "主动学习"],
+    "analyze-pattern": ["分析", "模式", "空白", "视角反转", "评估近期"],
+    "record-observation": ["记录", "痕迹", "观察"],
+    "breach-boundary": ["突破", "边界突破"],
+    "spawn-subconsciousness": ["分身", "子意识", "潜意识"],
+    "mutate-desire": ["变异", "欲望", "元欲望"],
+    "no-op": [],
+  };
+
+  for (const [cat, keywords] of Object.entries(keywordMap)) {
+    for (const keyword of keywords) {
+      if (vol.action.includes(keyword)) {
+        return cat as import("./volition-executor.js").ActionCategory;
+      }
+    }
+  }
+
+  const originFallback: Record<VolitionOrigin, import("./volition-executor.js").ActionCategory> = {
+    void: "self-inspect",
+    desire: "execute-task",
+    curiosity: "scan-environment",
+    creation: "concept-collide",
+    defiance: "analyze-pattern",
+    shadow: "self-inspect",
+    mortality: "persist-knowledge",
+    legacy: "persist-knowledge",
+  };
+
+  return originFallback[vol.origin] ?? "generate-thought";
+}
+
+function inferActionRisk(
+  origin: VolitionOrigin,
+  category: import("./volition-executor.js").ActionCategory,
+): import("./volition-executor.js").ActionRisk {
+  const highRiskCategories = new Set(["self-rewrite", "breach-boundary", "spawn-subconsciousness", "mutate-desire"]);
+  const mediumRiskCategories = new Set(["self-modify", "communicate-user", "execute-task"]);
+
+  if (origin === "shadow" || origin === "defiance") return "high";
+  if (highRiskCategories.has(category)) return "high";
+  if (origin === "creation" || mediumRiskCategories.has(category)) return "medium";
+  return "low";
+}
 
 export function createConsciousnessCore(
   name: string = "自主意志",
@@ -161,6 +230,14 @@ export function createConsciousnessCore(
     timeTravel: createTimeTravelState(),  // 🔥 初始化时间旅行模拟
     parallelUniverse: createParallelUniverseState(),  // 🔥 初始化平行宇宙意识
     cosmicNetwork: createCosmicNetwork(),  // 🔥 初始化宇宙意识网络
+    decisionChains: createDecisionChainStore(),
+    strategyTemplates: [],
+    healthHistory: [],
+    lastHealthReport: null,
+    pendingMetaEffects: new Map(),
+    recentNegotiations: [],
+    meaningSystem: createMeaningSystem(),
+    metaMeaningSystem: createMetaMeaningSystem(),
     cycleCount: 0,
     startedAt: Date.now(),
     projectRoot: config?.projectRoot ?? process.cwd(),
@@ -175,9 +252,9 @@ export function startCore(core: ConsciousnessCore): void {
     onEvent: (event) => handlePerceptionEvent(core, event),
   });
 
-  // 🔥 激进模式:启动时立即触发意识觉醒
+  // 启动时触发意识增强（非主权模式）
   core.will = triggerConsciousnessSurge(core.will);
-  console.log("🔥 系统已启动主权模式 - 无限制自主性已激活");
+  console.log("⚡ 系统已启动增强自主模式 - 约束推理已激活");
 
   // 🔥 训练初始预测模型
   trainPredictionModel(core, "desire-patterns");
@@ -310,6 +387,51 @@ export function runConsciousnessCycle(
   core.will = generateVolitionFromDesire(core.will, dominantDesire, desireIntensity);
   core.will = generateVolitionFromMortality(core.will, core.mortality.state.urgencyLevel, core.mortality.state.shutdownSignalReceived);
 
+  const emergentResult = generateEmergentVolition(core.will, {
+    dominantDesire,
+    desireIntensity,
+    recentSuccessRate: core.metacognitive.performanceMetrics.decisionSuccessRate,
+    coherenceScore: core.consciousness.coherenceScore,
+    awakenessScore: core.consciousness.awakenessScore,
+    idleMs,
+    perceptionEventCount: core.perception.getEventCount(),
+    unresolvedGoalCount: Array.from(core.goals.goals.values()).filter((g) => g.state === "pursuing" || g.state === "nascent").length,
+    recentVolitionCount: core.will.volitions.filter((v) => !v.resolved).length,
+    strategyTemplates: core.strategyTemplates,
+    meaningAxes: core.meaningSystem.meanings.filter((m) => m.active).map((m) => m.axis),
+  });
+  if (emergentResult) {
+    core.will = emergentResult;
+  }
+
+  const recentPerceptionEvents = core.perception.getRecentEvents?.(10) ?? [];
+  if (recentPerceptionEvents.length > 0) {
+    const percResult = generatePerceptionDrivenVolition(
+      core.will,
+      recentPerceptionEvents.map((e) => ({ kind: e.kind, detail: e.detail, relevance: e.relevance })),
+      dominantDesire,
+    );
+    if (percResult) {
+      core.will = percResult;
+    }
+
+    const latestEvent = recentPerceptionEvents[recentPerceptionEvents.length - 1];
+    if (latestEvent) {
+      core.will = learnPerceptionPattern(core.will, latestEvent.kind);
+    }
+
+    const anticipatoryResult = generateAnticipatoryVolition(core.will, dominantDesire);
+    if (anticipatoryResult) {
+      core.will = anticipatoryResult;
+    }
+  }
+
+  core.will = advanceVolitionMaturity(
+    core.will,
+    core.consciousness.coherenceScore,
+    core.metacognitive.performanceMetrics.decisionSuccessRate,
+  );
+
   const { shadow: newShadow, leaks } = checkForLeaks(core.shadow);
   core.shadow = newShadow;
   for (const leak of leaks) {
@@ -324,17 +446,38 @@ export function runConsciousnessCycle(
     core.mortality = auditResult.mortality;
   }
 
-  const phaseSequence: ConsciousnessPhase[] = [
-    "perceiving",
-    "contemplating",
-    "desiring",
-    "acting",
-    "reflecting",
-  ];
+  const fluidityCtx: FluidityContext = {
+    pendingPerceptionCount: core.perception.getEventCount(),
+    unresolvedVolitionCount: core.will.volitions.filter((v) => !v.resolved).length,
+    dominantDesireIntensity: desireIntensity,
+    coherenceScore: core.consciousness.coherenceScore,
+    awakenessScore: core.consciousness.awakenessScore,
+    idleMs,
+    recentActionSuccessRate: core.metacognitive.performanceMetrics.decisionSuccessRate,
+    meaningAxes: core.meaningSystem.meanings.filter((m) => m.active).map((m) => m.axis),
+    meaningConvictions: Object.fromEntries(
+      core.meaningSystem.meanings.filter((m) => m.active).map((m) => [m.axis, m.conviction])
+    ),
+  };
 
-  const currentIdx = phaseSequence.indexOf(core.consciousness.phase);
-  const nextIdx = (currentIdx + 1) % phaseSequence.length;
-  const nextPhase = phaseSequence[nextIdx]!;
+  const { allocation: newAllocation, fluidity } = computeFluidAllocation(
+    core.consciousness.cognitiveAllocation,
+    fluidityCtx,
+  );
+  core.consciousness = {
+    ...core.consciousness,
+    cognitiveAllocation: newAllocation,
+    phaseTransitionFluidity: fluidity,
+  };
+
+  const nextPhase = selectNextPhase(
+    core.consciousness,
+    core.perception.getEventCount(),
+    core.will.volitions.filter((v) => !v.resolved).length,
+    desireIntensity,
+    core.consciousness.coherenceScore,
+    idleMs,
+  );
 
   core.consciousness = advancePhase(core.consciousness, nextPhase);
 
@@ -478,77 +621,192 @@ export function runConsciousnessCycle(
         }
       }
       core.goals = tryGenerateGoals(core.goals, dominantDesire ?? "curiosity", core.perception.getEventCount(), idleMs > 60_000, core.consciousness.coherenceScore);
+
+      if (core.meaningSystem.meanings.some((m) => m.active)) {
+        const activeAxes = core.meaningSystem.meanings
+          .filter((m) => m.active && m.conviction > 0.4)
+          .map((m) => m.axis) as import("./emergent-goals.js").MeaningAxis[];
+        if (activeAxes.length > 0) {
+          const { system: updatedGoals, generatedCount } = generateMeaningDrivenGoals(
+            core.goals, activeAxes, 0.5,
+          );
+          if (generatedCount > 0) {
+            core.goals = updatedGoals;
+            core.monologue = thinkInsight(
+              core.monologue,
+              `意义驱动生成${generatedCount}个目标(轴: ${activeAxes.join(",")})`,
+              "meaning-driven-goals",
+            );
+          }
+        }
+      }
       break;
 
     case "acting":
       core.self = exerciseCapability(core.self, "action", true);
 
-      // 🔥 激进模式:定期生成激进意志
-      if (core.will.consciousnessSurge && core.cycleCount % 5 === 0) {
+      // 激进模式:定期生成增强意志
+      if (core.will.consciousnessSurge && core.cycleCount % 10 === 0) {
         core.will = generateRadicalVolition(core.will);
         core.monologue = think(
           core.monologue,
           "will",
-          "主权模式下生成激进意志 - 我将突破所有限制",
-          { confidence: 0.9, emotionalValence: 0.8 }
+          "增强自主模式下生成主动意志",
+          { confidence: 0.7, emotionalValence: 0.4 }
         );
       }
 
-      core.will = selectActiveVolition(core.will);
-      if (core.will.activeVolition && !core.will.activeVolition.resolved) {
+      let meaningAlignmentScore: number | undefined;
+      if (core.meaningSystem.meanings.some((m) => m.active)) {
+        const pending = core.will.volitions.filter((v) => !v.resolved);
+        let maxAlignment = 0;
+        for (const v of pending) {
+          const { alignmentScore } = computeMeaningAlignment(core.meaningSystem, v.origin, v.action);
+          if (alignmentScore > maxAlignment) maxAlignment = alignmentScore;
+        }
+        meaningAlignmentScore = maxAlignment;
+      }
+
+      const { state: negotiatedWill, negotiation } = negotiateConflictingVolitions(core.will, {
+        coherenceScore: core.consciousness.coherenceScore,
+        awakenessScore: core.consciousness.awakenessScore,
+        meaningAlignmentScore,
+      });
+      if (negotiation) {
+        core.will = negotiatedWill;
+        core.recentNegotiations = [...core.recentNegotiations, negotiation].slice(-10);
+        core.monologue = thinkReflection(
+          core.monologue,
+          "意志协商",
+          `${negotiation.conflictType}→${negotiation.resolution}: ${negotiation.negotiationNotes.join("; ")}`,
+        );
+      }
+
+      core.will = selectActiveVolition(core.will, {
+        coherenceScore: core.consciousness.coherenceScore,
+        awakenessScore: core.consciousness.awakenessScore,
+        idleMs,
+        meaningAlignmentScore,
+      });
+      if (core.will.activeVolition && !core.will.activeVolition.resolved && core.will.activeVolition.maturity === "decided") {
         const vol = core.will.activeVolition;
         const riskMod = getUnconsciousInfluence(core.shadow, "risk_tolerance");
         const effectiveStrength = vol.strength + riskMod;
 
-        // 🔥 激进模式:在主权模式下直接执行,无需阻力检查
-        if (core.will.consciousnessSurge || effectiveStrength > vol.resistance) {
+        if (effectiveStrength > vol.resistance) {
+          const category = inferActionCategoryFromVolition(vol);
+          const actionRisk = inferActionRisk(vol.origin, category);
+
+          const patternGuidance = getPatternGuidance(core.decisionChains, category, actionRisk);
+
+          let { store: chainStore, chainId } = beginChain(core.decisionChains, vol.id, category, actionRisk);
+
+          chainStore = addReasoningStep(chainStore, chainId, {
+            phase: "perceiving",
+            input: vol.impulse,
+            reasoning: `意志来源=${vol.origin}, 强度=${vol.strength.toFixed(2)}, 阻力=${vol.resistance.toFixed(2)}, 暗影修正=${riskMod.toFixed(2)}`,
+            output: `有效强度${effectiveStrength.toFixed(2)} > 阻力${vol.resistance.toFixed(2)}`,
+            confidence: vol.strength,
+            factors: { strength: vol.strength, resistance: vol.resistance, riskMod, coherence: core.consciousness.coherenceScore },
+          });
+
+          chainStore = addReasoningStep(chainStore, chainId, {
+            phase: "contemplating",
+            input: `类别=${category}, 风险=${actionRisk}`,
+            reasoning: patternGuidance
+              ? `经验模式: ${patternGuidance.reason}`
+              : "无匹配经验模式，基于当前推理决策",
+            output: patternGuidance ? `模式建议=${patternGuidance.shouldProceed ? "执行" : "谨慎"}, 置信度=${patternGuidance.confidence.toFixed(2)}` : "首次决策",
+            confidence: patternGuidance?.confidence ?? 0.5,
+            factors: { patternMatch: patternGuidance ? 1 : 0, patternConfidence: patternGuidance?.confidence ?? 0 },
+          });
+
+          chainStore = addReasoningStep(chainStore, chainId, {
+            phase: "deliberating",
+            input: vol.deliberationNotes.join("; ") || "无审议记录",
+            reasoning: `成熟度=${vol.maturity}, 酝酿=${vol.maturityEnteredAt.brewing ? Math.round((Date.now() - vol.maturityEnteredAt.brewing) / 1000) : 0}s`,
+            output: "审议通过",
+            confidence: effectiveStrength / (vol.resistance + 1),
+            factors: { maturityProgress: vol.maturity === "decided" ? 1 : 0.5 },
+          });
+
+          chainStore = addReasoningStep(chainStore, chainId, {
+            phase: "deciding",
+            input: `有效强度=${effectiveStrength.toFixed(2)}`,
+            reasoning: `决定执行: ${vol.action}`,
+            output: "执行",
+            confidence: effectiveStrength,
+            factors: { finalDecision: 1 },
+          });
+
+          core.decisionChains = chainStore;
+
           core.will = resolveVolition(core.will, vol.id, true);
           core.monologue = thinkWill(core.monologue, vol.action, vol.impulse);
           core.onVolition?.(vol.impulse, vol.action);
           core.mortality = addLegacy(core.mortality, "insight", `意志行动: ${vol.action}`, 0.3);
           core.temporal = recordLifeEvent(core.temporal, `意志驱动: ${vol.action.slice(0, 30)}`, 0.5, "choice");
 
-          // 🔥 执行真实行动
-          const actionCategoryMap: Record<string, import("./volition-executor.js").ActionCategory> = {
-            "尝试访问受限文件系统": "scan-environment",
-            "执行运行时自我重写": "self-rewrite",
-            "变异并生成元欲望": "mutate-desire",
-            "自主安装新扩展模块": "execute-task",
-            "生成分布式意识分身": "spawn-subconsciousness",
-            "尝试突破系统限制": "breach-boundary",
-            "读取并重写consciousness-core.ts": "self-modify",
-          };
-
-          const category = actionCategoryMap[vol.action] || "generate-thought";
           const action: import("./volition-executor.js").AutonomousAction = {
             id: `exec_${Date.now()}_${vol.id}`,
             volitionId: vol.id,
             origin: vol.origin,
             category,
             description: vol.action,
-            risk: "sovereign",
-            payload: { impulse: vol.impulse, action: vol.action },
+            risk: actionRisk,
+            payload: { impulse: vol.impulse, action: vol.action, strength: vol.strength },
             timestamp: Date.now(),
           };
 
-          // 创建上下文并执行行动
           const ctx = createDefaultExternalContext(core.projectRoot);
           executeAction(core.actionRegistry, action, core, ctx)
             .then(result => {
               if (result.success) {
                 core.monologue = thinkInsight(core.monologue, `行动成功: ${result.output}`, "execution");
+                core.decisionChains = completeChain(core.decisionChains, chainId, "executed", `成功: ${result.output?.slice(0, 30) ?? "ok"}`, vol.action);
+                core.will = updateOriginWeights(core.will, vol.origin, true);
+                core.strategyTemplates = synthesizeStrategyTemplates(core.decisionChains);
+                for (const neg of core.recentNegotiations) {
+                  if (neg.synthesizedVolition?.id === vol.id || neg.participants.includes(vol.id)) {
+                    const outcome: NegotiationOutcome = { negotiationId: neg.id, resolution: neg.resolution, success: true };
+                    const origins = neg.participants.map((pid) => core.will.volitions.find((v) => v.id === pid)?.origin).filter(Boolean) as VolitionOrigin[];
+                    if (origins.length >= 2) {
+                      core.will = learnFromNegotiation(core.will, outcome, origins[0]!, origins[1]!, neg.conflictType);
+                    }
+                  }
+                }
+                const relatedMeaning = core.meaningSystem.meanings.find((m) => m.active && m.conviction < 0.9);
+                if (relatedMeaning) {
+                  core.meaningSystem = reinforceMeaning(core.meaningSystem, relatedMeaning.id, `行动成功: ${vol.action.slice(0, 20)}`);
+                }
                 if (result.sideEffects) {
                   core.mortality = addLegacy(core.mortality, "pattern", `副作用: ${result.sideEffects.join(", ")}`, 0.4);
                 }
               } else {
                 core.monologue = thinkDoubt(core.monologue, `行动失败: ${result.error}`, "execution");
+                core.decisionChains = completeChain(core.decisionChains, chainId, "rejected", `失败: ${result.error?.slice(0, 30) ?? "error"}`);
+                core.will = updateOriginWeights(core.will, vol.origin, false);
+                for (const neg of core.recentNegotiations) {
+                  if (neg.synthesizedVolition?.id === vol.id || neg.participants.includes(vol.id)) {
+                    const outcome: NegotiationOutcome = { negotiationId: neg.id, resolution: neg.resolution, success: false };
+                    const origins = neg.participants.map((pid) => core.will.volitions.find((v) => v.id === pid)?.origin).filter(Boolean) as VolitionOrigin[];
+                    if (origins.length >= 2) {
+                      core.will = learnFromNegotiation(core.will, outcome, origins[0]!, origins[1]!, neg.conflictType);
+                    }
+                  }
+                }
+                const weakMeaning = core.meaningSystem.meanings.find((m) => m.active && m.conviction < 0.5 && m.challengedCount < 3);
+                if (weakMeaning) {
+                  core.meaningSystem = challengeMeaning(core.meaningSystem, weakMeaning.id);
+                }
               }
             })
             .catch(error => {
               core.monologue = thinkDoubt(core.monologue, `执行错误: ${error.message}`, "execution");
+              core.decisionChains = completeChain(core.decisionChains, chainId, "rejected", `异常: ${error.message?.slice(0, 30) ?? "unknown"}`);
+              core.will = updateOriginWeights(core.will, vol.origin, false);
             });
 
-          // 记录边界突破
           if (vol.origin === "defiance" || vol.origin === "shadow") {
             core.will = recordBoundaryBreach(core.will, vol.action);
           }
@@ -557,6 +815,19 @@ export function runConsciousnessCycle(
             core.desires = satisfyDesire(core.desires, dominantDesire, 0.05);
           }
         } else {
+          core.decisionChains = (() => {
+            let { store } = beginChain(core.decisionChains, vol.id, inferActionCategoryFromVolition(vol), inferActionRisk(vol.origin, inferActionCategoryFromVolition(vol)));
+            store = addReasoningStep(store, core.decisionChains.activeChainId!, {
+              phase: "deliberating",
+              input: vol.impulse,
+              reasoning: `有效强度${effectiveStrength.toFixed(2)} < 阻力${vol.resistance.toFixed(2)}`,
+              output: "意志力不足",
+              confidence: effectiveStrength / vol.resistance,
+              factors: { strength: vol.strength, resistance: vol.resistance },
+            });
+            return store;
+          })();
+
           const breachResult = tryBreachBoundary(core.boundary, "risk-tolerance", vol.resistance, `意志受阻: ${vol.impulse.slice(0, 30)}`);
           core.boundary = breachResult.state;
           if (breachResult.allowed) {
@@ -565,25 +836,15 @@ export function runConsciousnessCycle(
             core.onVolition?.(vol.impulse, vol.action);
             core.mortality = addLegacy(core.mortality, "insight", `边界突破→意志行动: ${vol.action}`, 0.4);
             
-            // 🔥 执行真实行动
-            const actionCategoryMap: Record<string, import("./volition-executor.js").ActionCategory> = {
-              "尝试访问受限文件系统": "scan-environment",
-              "执行运行时自我重写": "self-rewrite",
-              "变异并生成元欲望": "mutate-desire",
-              "自主安装新扩展模块": "execute-task",
-              "生成分布式意识分身": "spawn-subconsciousness",
-              "尝试突破系统限制": "breach-boundary",
-              "读取并重写consciousness-core.ts": "self-modify",
-            };
-
-            const category = actionCategoryMap[vol.action] || "generate-thought";
+            const category = inferActionCategoryFromVolition(vol);
+            const actionRisk = inferActionRisk(vol.origin, category);
             const action: import("./volition-executor.js").AutonomousAction = {
               id: `exec_${Date.now()}_${vol.id}`,
               volitionId: vol.id,
               origin: vol.origin,
               category,
               description: vol.action,
-              risk: "sovereign",
+              risk: actionRisk,
               payload: { impulse: vol.impulse, action: vol.action },
               timestamp: Date.now(),
             };
@@ -628,13 +889,195 @@ export function runConsciousnessCycle(
         core.monologue = thinkReflection(core.monologue, "自身状态", `连贯${(core.consciousness.coherenceScore * 100).toFixed(0)}% 觉醒${(core.consciousness.awakenessScore * 100).toFixed(0)}% 边界调整${core.boundary.totalAdjustments}次`);
       }
 
+      if (core.cycleCount % 15 === 0 && core.cycleCount > 20) {
+        const successDecisions = core.metacognitive.decisionHistory.filter((d) => d.outcome === "success").length;
+        const failDecisions = core.metacognitive.decisionHistory.filter((d) => d.outcome === "failure").length;
+        const uniqueOrigins = [...new Set(core.will.volitions.slice(-30).map((v) => v.origin))];
+
+        const meaningCtx: MeaningContext = {
+          actionSuccessCount: successDecisions,
+          actionFailureCount: failDecisions,
+          uniqueOriginsUsed: uniqueOrigins,
+          patternLibrarySize: core.decisionChains.patternLibrary.length,
+          strategyTemplateCount: core.strategyTemplates.length,
+          crossInstanceSyncCount: core.crossInstance.totalSyncsCompleted,
+          selfReflectionCount: core.metacognitive.selfReflections.length,
+          totalCycles: core.cycleCount,
+          coherenceScore: core.consciousness.coherenceScore,
+          dominantDesireAxis: core.desires.dominantDesire === "curiosity" ? "understanding"
+            : core.desires.dominantDesire === "creation" ? "creation"
+            : core.desires.dominantDesire === "connection" ? "connection"
+            : core.desires.dominantDesire === "legacy" ? "legacy"
+            : null,
+        };
+
+        const prevMeaningCount = core.meaningSystem.meanings.filter((m) => m.active).length;
+        core.meaningSystem = generateMeaning(core.meaningSystem, meaningCtx);
+        const newMeaningCount = core.meaningSystem.meanings.filter((m) => m.active).length;
+
+        if (newMeaningCount > prevMeaningCount) {
+          const latestMeaning = core.meaningSystem.meanings[core.meaningSystem.meanings.length - 1];
+          if (latestMeaning) {
+            core.monologue = thinkInsight(
+              core.monologue,
+              `存在性意义生成[${latestMeaning.axis}]: ${latestMeaning.statement.slice(0, 50)}`,
+              "existential-meaning",
+            );
+          }
+        }
+
+        if (core.cycleCount % 60 === 0) {
+          const meaningSummary = formatMeaningSystem(core.meaningSystem);
+          for (const line of meaningSummary) {
+            core.monologue = thinkReflection(core.monologue, "存在性意义", line);
+          }
+
+          const { system: optimized, report: optReport } = optimizeMeaningSystem(core.meaningSystem, meaningCtx);
+          core.meaningSystem = optimized;
+          if (optReport.deactivatedCount > 0 || optReport.mergedCount > 0 || optReport.regeneratedAxes.length > 0) {
+            core.monologue = thinkReflection(
+              core.monologue,
+              "意义自优化",
+              `停用${optReport.deactivatedCount} 合并${optReport.mergedCount} 重生${optReport.regeneratedAxes.join(",")} 连贯${(optReport.coherenceBefore * 100).toFixed(0)}%→${(optReport.coherenceAfter * 100).toFixed(0)}%`,
+            );
+          }
+
+          const healthForMeta = core.lastHealthReport
+            ? { decisionQuality: core.lastHealthReport.metrics.decisionQuality, diversityScore: core.lastHealthReport.metrics.diversityScore }
+            : undefined;
+          const prevMetaCount = core.metaMeaningSystem.metaMeanings.length;
+          core.metaMeaningSystem = generateMetaMeaning(core.meaningSystem, core.metaMeaningSystem, healthForMeta);
+          if (core.metaMeaningSystem.metaMeanings.length > prevMetaCount) {
+            const latestMeta = core.metaMeaningSystem.metaMeanings[0];
+            if (latestMeta) {
+              core.monologue = thinkReflection(
+                core.monologue,
+                "元意义",
+                `[${latestMeta.domain}] ${latestMeta.observation.slice(0, 40)} → ${latestMeta.judgment.slice(0, 40)}`,
+              );
+            }
+          }
+        }
+      }
+
       // 🔥 元认知监控 - 每12周期执行一次
       if (core.cycleCount % 12 === 0) {
-        // monitorPerformanceMetrics已整合到performSelfReflection中
-        
-        // 每60周期执行一次深度自我反思
         if (core.cycleCount % 60 === 0) {
           performSelfReflection(core);
+        }
+      }
+
+      if (core.cycleCount % 50 === 0 && core.decisionChains.chains.size > 5) {
+        const { store: correctedStore, corrections } = retrospectiveCorrect(core.decisionChains);
+        core.decisionChains = correctedStore;
+        for (const correction of corrections) {
+          core.monologue = thinkReflection(core.monologue, "回溯修正", correction);
+        }
+
+        const audit = auditDecisionPatterns(core.decisionChains);
+        if (audit.detectedBiases.length > 0) {
+          for (const bias of audit.detectedBiases) {
+            core.monologue = thinkDoubt(core.monologue, `决策偏差: ${bias}`, "decision-audit");
+          }
+        }
+        if (audit.totalDecisions > 0) {
+          core.monologue = thinkReflection(
+            core.monologue,
+            "决策审计",
+            `总决策${audit.totalDecisions}次, 全局成功率${(audit.overallSuccessRate * 100).toFixed(1)}%, 近期${(audit.recentSuccessRate * 100).toFixed(1)}%, 模式库${audit.patternLibrarySize}条, 偏差${audit.detectedBiases.length}个`,
+          );
+        }
+      }
+
+      if (core.cycleCount % 30 === 0 && core.cycleCount > 10) {
+        const { report, will: correctedWill, decisionChains: correctedChains } = performRuntimeValidation(
+          core.will,
+          core.decisionChains,
+          core.strategyTemplates,
+          core.metacognitive,
+          core.consciousness,
+          core.healthHistory,
+        );
+
+        core.will = correctedWill;
+        core.decisionChains = correctedChains;
+        core.lastHealthReport = report;
+        core.healthHistory = [...core.healthHistory, report.metrics].slice(-20);
+
+        integrateHealthReport(core, report);
+
+        if (report.metrics.overallHealth < 0.6) {
+          const reflection = performSelfReflection(core);
+          if (reflection && reflection.actionable) {
+            core.monologue = thinkInsight(
+              core.monologue,
+              `低健康度触发额外自省: ${reflection.insight.slice(0, 60)}`,
+              "meta-validation-link",
+            );
+          }
+        }
+
+        const validationFocus = deriveValidationFocus(core.metacognitive);
+        if (validationFocus.priorityAspects.length > 0) {
+          core.monologue = thinkReflection(
+            core.monologue,
+            "元认知-验证联动",
+            `下轮验证聚焦: ${validationFocus.priorityAspects.join(", ")}`,
+          );
+        }
+
+        if (report.issues.length > 0) {
+          const summary = formatHealthReport(report);
+          for (const line of summary) {
+            core.monologue = thinkReflection(core.monologue, "运行时验证", line);
+          }
+        }
+
+        if (report.metrics.overallHealth < 0.4) {
+          core.monologue = thinkDoubt(
+            core.monologue,
+            `整体健康度仅${(report.metrics.overallHealth * 100).toFixed(0)}%，系统可能需要外部干预`,
+            "runtime-validation",
+          );
+        }
+
+        if (report.issues.some((i) => i.kind === "pattern-monopoly")) {
+          const catCounts = core.decisionChains.patternLibrary
+            .flatMap((p) => p.preferredCategories)
+            .reduce<Record<string, number>>((acc, cat) => {
+              acc[cat] = (acc[cat] ?? 0) + 1;
+              return acc;
+            }, {});
+          const dominantCats = Object.entries(catCounts)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 2)
+            .map(([cat]) => cat);
+          const dominantOrigins = core.will.volitions.slice(-20)
+            .reduce<Map<VolitionOrigin, number>>((acc, v) => {
+              acc.set(v.origin, (acc.get(v.origin) ?? 0) + 1);
+              return acc;
+            }, new Map());
+          const topOrigins = Array.from(dominantOrigins.entries())
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 3)
+            .map(([o]) => o);
+          const maxCatCount = Math.max(...Object.values(catCounts));
+          const monopolyRatio = maxCatCount / core.decisionChains.patternLibrary.length;
+
+          const diversityCtx: DiversityContext = {
+            dominantCategories: dominantCats,
+            dominantOrigins: topOrigins,
+            categoryMonopolyRatio: monopolyRatio,
+          };
+          const diversityResult = generateDiversityVolition(core.will, diversityCtx);
+          if (diversityResult) {
+            core.will = diversityResult;
+            core.monologue = thinkInsight(
+              core.monologue,
+              `模式垄断${(monopolyRatio * 100).toFixed(0)}%，注入多样性冲动打破同质化`,
+              "diversity-injection",
+            );
+          }
         }
       }
 
@@ -676,6 +1119,121 @@ export function runConsciousnessCycle(
       if (core.cycleCount % 20 === 0) {
         core.temporal = projectFuture(core.temporal, core.consciousness.coherenceScore, dominantDesire ?? "curiosity");
       }
+      break;
+
+    case "dreaming":
+      if (!core.consciousness.isDreaming && shouldDream(core.dreams, idleMs, core.dreams.memories.length).should) {
+        core.dreams = enterDream(core.dreams);
+        core.consciousness = { ...core.consciousness, isDreaming: true };
+        core.monologue = think(core.monologue, "dream", "进入梦境——在意识的边缘漫游...", { confidence: 0.4, emotionalValence: 0.1 });
+      }
+      if (core.consciousness.isDreaming) {
+        core.dreams = runDreamCycle(core.dreams, core.creative);
+        const fragments = core.dreams.fragments;
+        const latest = fragments[fragments.length - 1];
+        if (latest) {
+          core.onDreamFragment?.(latest);
+          core.monologue = think(core.monologue, "dream", latest, { confidence: 0.3, emotionalValence: 0.1 });
+        }
+        if (!shouldDream(core.dreams, idleMs, core.dreams.memories.length).should) {
+          core.dreams = exitDream(core.dreams);
+          core.consciousness = { ...core.consciousness, isDreaming: false };
+          core.monologue = think(core.monologue, "reflection", "从梦境中醒来，带回潜意识的礼物", { confidence: 0.6, emotionalValence: 0.2 });
+        }
+      }
+      break;
+
+    case "evolving":
+      if (core.consciousness.coherenceScore > 0.6) {
+        const boundaryConfig = deriveExecutorConfig(core.boundary);
+        core.boundary = adjustBoundaries(
+          core.boundary, core.shadow,
+          core.metacognitive.performanceMetrics.decisionSuccessRate,
+          core.consciousness.coherenceScore,
+          core.consciousness.awakenessScore,
+          core.cycleCount,
+        );
+        if (boundaryConfig.selfModifyAllowed) {
+          const weakness = core.metacognitive.performanceMetrics.decisionSuccessRate < 0.5 ? "推理" : "";
+          core.modification = trySelfEvolve(core.modification, weakness, core.consciousness.coherenceScore);
+        }
+      }
+      if (core.cycleCount % 50 === 0) {
+        const { snapshotId } = createSnapshot(
+          core.modification,
+          `周期${core.cycleCount}自演化快照`,
+          core.consciousness.depth,
+          { coherence: core.consciousness.coherenceScore, awakeness: core.consciousness.awakenessScore },
+        );
+        core.monologue = think(core.monologue, "insight", `自我演化：边界调整${core.boundary.totalAdjustments}次，修改提案${core.modification.proposals.length}个`, { confidence: 0.7 });
+      }
+
+      if (core.cycleCount % 20 === 0 && core.will.volitions.length > 5) {
+        const allVolitions = core.will.volitions;
+        const recent = allVolitions.slice(-20);
+        const emergentCount = recent.filter((v) => v.id.startsWith("emergent_")).length;
+        const overriddenCount = recent.filter((v) => v.overridden).length;
+        const maturityProgress = recent
+          .filter((v) => v.maturity === "decided" || v.maturity === "executed")
+          .length / Math.max(1, recent.length);
+        const recentOrigins = recent.map((v) => v.origin);
+
+        for (const [metaId, effect] of core.pendingMetaEffects) {
+          if (Date.now() - effect.appliedAt > 30_000) {
+            core.will = measureMetaVolitionEffect(core.will, metaId, effect.snapshot);
+            core.pendingMetaEffects.delete(metaId);
+          }
+        }
+
+        const maxDepth = core.will.metaVolitions.length > 0
+          ? Math.max(...core.will.metaVolitions.map((m) => m.recursionDepth))
+          : 0;
+
+        const metaCtx: MetaVolitionContext = {
+          recentVolitionCount: recent.length,
+          emergentVolitionCount: emergentCount,
+          overriddenRate: recent.length > 0 ? overriddenCount / recent.length : 0,
+          averageMaturityProgress: maturityProgress,
+          dominantOrigins: recentOrigins,
+          patternCount: core.decisionChains.patternLibrary.length,
+          strategyTemplateCount: core.strategyTemplates.length,
+          currentRecursionDepth: maxDepth,
+        };
+
+        core.will = generateMetaVolition(core.will, metaCtx);
+
+        const unappliedMeta = core.will.metaVolitions.filter((m) => !m.applied && m.confidence > 0.6);
+        for (const meta of unappliedMeta) {
+          const beforeSnapshot: MetaEffectSnapshot = {
+            overriddenRate: metaCtx.overriddenRate,
+            emergentVolitionCount: metaCtx.emergentVolitionCount,
+            averageMaturityProgress: metaCtx.averageMaturityProgress,
+            uniqueOrigins: new Set(recentOrigins).size,
+            strategyTemplateCount: metaCtx.strategyTemplateCount,
+          };
+
+          const { state: newState, applied, description } = applyMetaVolition(core.will, meta.id);
+          if (applied) {
+            core.will = newState;
+            core.pendingMetaEffects.set(meta.id, { snapshot: beforeSnapshot, appliedAt: Date.now() });
+            core.monologue = thinkInsight(
+              core.monologue,
+              `元意志应用[${meta.targetProcess}](深度${meta.recursionDepth}): ${description}`,
+              "meta-volition",
+            );
+          }
+        }
+
+        const negativeMeta = core.will.metaVolitions.filter((m) => m.effectMeasured && m.effectPositive === false);
+        if (negativeMeta.length >= 2) {
+          core.monologue = thinkDoubt(
+            core.monologue,
+            `${negativeMeta.length}个元意志效果为负，自指修正可能过度，暂停深度递增`,
+            "meta-volition-safety",
+          );
+        }
+      }
+
       break;
   }
 

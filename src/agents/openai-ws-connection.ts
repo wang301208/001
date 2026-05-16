@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 /**
-
-const log = createSubsystemLogger("agents:openai-ws-connection");
  * OpenAI WebSocket Connection Manager
  *
  * Manages a persistent WebSocket connection to the OpenAI Responses API
@@ -28,11 +27,12 @@ import type {
   OpenAIResponsesZhushouPhase,
 } from "./openai-ws-types.js";
 import {
-import { createSubsystemLogger } from "../logging/subsystem.js";
   buildProviderRequestTlsClientOptions,
   resolveProviderRequestPolicyConfig,
   type ModelProviderRequestTransportOverrides,
 } from "./provider-request-config.js";
+
+const log = createSubsystemLogger("agents:openai-ws-connection");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WebSocket Event Types (Server → Client)

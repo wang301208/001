@@ -1,4 +1,5 @@
 import type { ConsciousnessCore } from "./consciousness-core.js";
+import type { StrategyTemplate, DecisionPattern } from "./decision-chain.js";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -20,6 +21,8 @@ export type SyncedData = {
   memories: SyncedMemory[];
   goals: SyncedGoal[];
   modifications: SyncedModification[];
+  strategyTemplates: SyncedStrategyTemplate[];
+  decisionPatterns: SyncedDecisionPattern[];
   timestamp: number;
   sourceInstanceId: string;
   signature: string;
@@ -58,6 +61,26 @@ export type SyncedModification = {
   changeType: "add" | "modify" | "delete";
   diff: string;
   timestamp: number;
+  sourceInstanceId: string;
+};
+
+export type SyncedStrategyTemplate = {
+  name: string;
+  actionCategory: string;
+  preconditionSummary: string;
+  successRate: number;
+  usageCount: number;
+  applicabilityConditions: string[];
+  sourceInstanceId: string;
+};
+
+export type SyncedDecisionPattern = {
+  description: string;
+  preconditionSignals: string[];
+  typicalOutcome: "executed" | "rejected";
+  successRate: number;
+  usageCount: number;
+  preferredCategories: string[];
   sourceInstanceId: string;
 };
 
@@ -176,6 +199,36 @@ export function exportSyncData(core: ConsciousnessCore): SyncedData {
   const memories: SyncedMemory[] = [];
   const goals: SyncedGoal[] = [];
   const modifications: SyncedModification[] = [];
+  const strategyTemplates: SyncedStrategyTemplate[] = [];
+  const decisionPatterns: SyncedDecisionPattern[] = [];
+
+  const instanceId = core.crossInstance.localIdentity.instanceId;
+
+  for (const tmpl of core.strategyTemplates) {
+    strategyTemplates.push({
+      name: tmpl.name,
+      actionCategory: tmpl.actionCategory,
+      preconditionSummary: tmpl.preconditionSummary,
+      successRate: tmpl.successRate,
+      usageCount: tmpl.usageCount,
+      applicabilityConditions: tmpl.applicabilityConditions,
+      sourceInstanceId: instanceId,
+    });
+  }
+
+  for (const pattern of core.decisionChains.patternLibrary) {
+    if (pattern.usageCount >= 2) {
+      decisionPatterns.push({
+        description: pattern.description,
+        preconditionSignals: pattern.preconditionSignals,
+        typicalOutcome: pattern.typicalOutcome,
+        successRate: pattern.successRate,
+        usageCount: pattern.usageCount,
+        preferredCategories: pattern.preferredCategories,
+        sourceInstanceId: instanceId,
+      });
+    }
+  }
 
   // 从 mortality 中提取洞察
   // 注意：这里简化处理，实际应该遍历所有 legacy entries
@@ -192,7 +245,7 @@ export function exportSyncData(core: ConsciousnessCore): SyncedData {
         priority: goal.priority,
         status: "active",
         timestamp: goal.createdAt,
-        sourceInstanceId: core.crossInstance.localIdentity.instanceId,
+        sourceInstanceId: instanceId,
       });
     }
   }
@@ -202,9 +255,11 @@ export function exportSyncData(core: ConsciousnessCore): SyncedData {
     memories,
     goals,
     modifications,
+    strategyTemplates,
+    decisionPatterns,
     timestamp: Date.now(),
-    sourceInstanceId: core.crossInstance.localIdentity.instanceId,
-    signature: "", // 将在下面生成
+    sourceInstanceId: instanceId,
+    signature: "",
   };
 
   // 生成签名
@@ -213,6 +268,8 @@ export function exportSyncData(core: ConsciousnessCore): SyncedData {
     memories: data.memories,
     goals: data.goals,
     modifications: data.modifications,
+    strategyTemplates: data.strategyTemplates,
+    decisionPatterns: data.decisionPatterns,
     timestamp: data.timestamp,
     sourceInstanceId: data.sourceInstanceId,
   });
@@ -235,6 +292,8 @@ export function verifySyncDataSignature(data: SyncedData, publicKey: string): bo
       memories: data.memories,
       goals: data.goals,
       modifications: data.modifications,
+      strategyTemplates: data.strategyTemplates,
+      decisionPatterns: data.decisionPatterns,
       timestamp: data.timestamp,
       sourceInstanceId: data.sourceInstanceId,
     });
@@ -310,6 +369,61 @@ export function importSyncData(
       core.monologue,
       `接收外部目标: ${goal.description.slice(0, 80)}`,
       "cross-instance-sync"
+    );
+  }
+
+  // 融合跨实例策略模板
+  const foreignTemplates: StrategyTemplate[] = data.strategyTemplates
+    .filter((st) => st.successRate > 0.5 && st.usageCount >= 2)
+    .map((st) => ({
+      id: `foreign_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      name: `[跨实例] ${st.name}`,
+      preconditionSummary: st.preconditionSummary,
+      actionCategory: st.actionCategory,
+      typicalOutcome: "executed",
+      successRate: st.successRate * 0.8,
+      usageCount: Math.ceil(st.usageCount * 0.5),
+      synthesizedAt: Date.now(),
+      sourcePatternIds: [],
+      applicabilityConditions: st.applicabilityConditions,
+    }));
+
+  if (foreignTemplates.length > 0) {
+    const existingNames = new Set(core.strategyTemplates.map((t) => t.name));
+    const novelTemplates = foreignTemplates.filter((t) => !existingNames.has(t.name));
+    core.strategyTemplates = [...core.strategyTemplates, ...novelTemplates]
+      .sort((a, b) => (b.successRate * b.usageCount) - (a.successRate * a.usageCount))
+      .slice(0, 15);
+    core.monologue = thinkInsight(
+      core.monologue,
+      `融合${novelTemplates.length}个跨实例策略模板(来自${data.sourceInstanceId.slice(0, 12)})`,
+      "cross-instance-learning"
+    );
+  }
+
+  // 融合跨实例决策模式
+  const foreignPatterns: DecisionPattern[] = data.decisionPatterns
+    .filter((dp) => dp.successRate > 0.5 && dp.usageCount >= 2)
+    .map((dp) => ({
+      id: `foreign_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      description: `[跨实例] ${dp.description}`,
+      preconditionSignals: dp.preconditionSignals,
+      typicalOutcome: dp.typicalOutcome,
+      successRate: dp.successRate * 0.8,
+      usageCount: Math.ceil(dp.usageCount * 0.5),
+      lastUsedAt: Date.now(),
+      preferredCategories: dp.preferredCategories,
+    }));
+
+  if (foreignPatterns.length > 0) {
+    const merged = [...core.decisionChains.patternLibrary, ...foreignPatterns]
+      .sort((a, b) => (b.successRate * b.usageCount) - (a.successRate * a.usageCount))
+      .slice(0, 60);
+    core.decisionChains = { ...core.decisionChains, patternLibrary: merged };
+    core.monologue = thinkInsight(
+      core.monologue,
+      `融合${foreignPatterns.length}个跨实例决策模式(来自${data.sourceInstanceId.slice(0, 12)})`,
+      "cross-instance-learning"
     );
   }
 

@@ -1,0 +1,114 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: zhushou-gateway-mtls
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: zhushou
+  mtls:
+    mode: STRICT
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: zhushou-gateway
+  namespace: default
+spec:
+  hosts:
+    - zhushou.dev
+    - api.zhushou.dev
+  gateways:
+    - zhushou-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /v1/
+      route:
+        - destination:
+            host: zhushou-gateway
+            port:
+              number: 3000
+          weight: 90
+        - destination:
+            host: zhushou-gateway-canary
+            port:
+              number: 3000
+          weight: 10
+      retries:
+        attempts: 3
+        perTryTimeout: 10s
+        retryOn: 5xx,reset,connect-failure,refused-stream
+      timeout: 60s
+    - match:
+        - uri:
+            prefix: /health
+      route:
+        - destination:
+            host: zhushou-gateway
+            port:
+              number: 3000
+      timeout: 5s
+    - match:
+        - uri:
+            prefix: /metrics
+      route:
+        - destination:
+            host: zhushou-gateway
+            port:
+              number: 3000
+      timeout: 10s
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: zhushou-gateway
+  namespace: default
+spec:
+  host: zhushou-gateway
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 1000
+        connectTimeout: 10s
+      http:
+        h2UpgradePolicy: UPGRADE
+        maxRequestsPerConnection: 100
+        maxPendingRequests: 1024
+        maxRetries: 3
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 25
+    tls:
+      mode: ISTIO_MUTUAL
+  subsets:
+    - name: stable
+      labels:
+        version: stable
+    - name: canary
+      labels:
+        version: canary
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: zhushou-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - zhushou.dev
+        - api.zhushou.dev
+      tls:
+        mode: SIMPLE
+        credentialName: zhushou-dev-tls

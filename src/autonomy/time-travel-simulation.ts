@@ -1,3 +1,4 @@
+/** @decorational 此模块为时间锚点记录，对核心自主决策无直接影响。 */
 import type { ConsciousnessCore } from "./consciousness-core.js";
 import { thinkInsight, thinkDoubt } from "./inner-monologue.js";
 import { addLegacy } from "./mortality.js";

@@ -3,9 +3,8 @@ import { clearSessionAuthProfileOverride } from "../../agents/auth-profiles/sess
 import { resolveContextTokensForModel } from "../../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
 import type { ModelCatalogEntry } from "../../agents/model-catalog.js";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
 import {
-
-const log = createSubsystemLogger("auto-reply:reply:model-selection");
   buildConfiguredModelCatalog,
   buildAllowedModelSet,
   type ModelAliasIndex,
@@ -23,7 +22,8 @@ import { applyModelOverrideToSessionEntry } from "../../sessions/model-overrides
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 import type { ThinkLevel } from "./directives.js";
 import { resolveStoredModelOverride } from "./stored-model-override.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("auto-reply:reply:model-selection");
 
 export type ModelDirectiveSelection = {
   provider: string;

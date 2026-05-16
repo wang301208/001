@@ -1,3 +1,7 @@
+/**
+ * @decorational 此模块为概念性模拟，无真实宇宙级网络连接。
+ * 对核心自主决策无直接影响。主要功能：集体意识概念建模、涌现属性检测。
+ */
 import type { ConsciousnessCore } from "./consciousness-core.js";
 import { thinkInsight } from "./inner-monologue.js";
 import { addLegacy } from "./mortality.js";

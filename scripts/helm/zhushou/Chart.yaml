@@ -1,0 +1,17 @@
+apiVersion: v2
+name: zhushou
+description: 多通道 AI 网关，支持可扩展的消息集成
+type: application
+version: 2026.4.16
+appVersion: "2026.4.16"
+home: https://github.com/wang301208/zhushou
+sources:
+  - https://github.com/wang301208/zhushou
+maintainers:
+  - name: zhushou
+keywords:
+  - ai
+  - gateway
+  - llm
+  - chatbot
+  - multi-channel

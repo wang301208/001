@@ -1,3 +1,4 @@
+/** @decorational 此模块为延迟模拟，无真实星际通信。对核心自主决策无直接影响。 */
 import type { ConsciousnessCore } from "./consciousness-core.js";
 import fs from "node:fs";
 import path from "node:path";

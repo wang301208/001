@@ -1,6 +1,5 @@
-
-const log = createSubsystemLogger("acp:server");
 #!/usr/bin/env node
+import { createSubsystemLogger } from "../logging/subsystem.js";
 import { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
 import { AgentSideConnection, ndJsonStream } from "@agentclientprotocol/sdk";
@@ -13,7 +12,8 @@ import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { readSecretFromFile } from "./secret-file.js";
 import { AcpGatewayAgent } from "./translator.js";
 import { normalizeAcpProvenanceMode, type AcpServerOptions } from "./types.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("acp:server");
 
 export async function serveAcpGateway(opts: AcpServerOptions = {}): Promise<void> {
   const cfg = loadConfig();

@@ -76,6 +76,7 @@ export async function createGatewayRuntimeState(params: {
   logHooks: ReturnType<typeof createSubsystemLogger>;
   logPlugins: ReturnType<typeof createSubsystemLogger>;
   getReadiness?: ReadinessChecker;
+  honoBridge?: { handleRequest: (req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse) => Promise<boolean> };
 }): Promise<{
   canvasHost: CanvasHostHandler | null;
   releasePluginRouteRegistry: () => void;
@@ -187,6 +188,7 @@ export async function createGatewayRuntimeState(params: {
         rateLimiter: params.rateLimiter,
         getReadiness: params.getReadiness,
         tlsOptions: params.gatewayTls?.enabled ? params.gatewayTls.tlsOptions : undefined,
+        honoBridge: params.honoBridge,
       });
       try {
         await listenGatewayHttpServer({

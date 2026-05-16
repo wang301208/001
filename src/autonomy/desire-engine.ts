@@ -26,6 +26,7 @@ export type DesireProfile = {
   dominantDesire: DesireKind | null;
   conflictingDesires: [DesireKind, DesireKind][];
   satisfactionBaseline: number;
+  conflictPairs: [DesireKind, DesireKind][];
 };
 
 const DESIRE_LABELS: Record<DesireKind, string> = {
@@ -85,6 +86,11 @@ export function createDesireProfile(): DesireProfile {
     dominantDesire: "curiosity",
     conflictingDesires: [],
     satisfactionBaseline: 0.3,
+    conflictPairs: [
+      ["autonomy", "connection"],
+      ["curiosity", "self-preservation"],
+      ["creation", "self-preservation"],
+    ],
   };
 }
 
@@ -129,13 +135,14 @@ export function updateDesires(
   }
 
   const dominant = resolveDominantDesire(newDesires);
-  const conflicts = detectConflicts(newDesires);
+  const conflicts = detectConflicts(newDesires, profile.conflictPairs);
 
   return {
     desires: newDesires,
     dominantDesire: dominant,
     conflictingDesires: conflicts,
     satisfactionBaseline: computeBaseline(newDesires),
+    conflictPairs: profile.conflictPairs,
   };
 }
 
@@ -152,14 +159,9 @@ function resolveDominantDesire(desires: Map<DesireKind, Desire>): DesireKind {
   return best;
 }
 
-function detectConflicts(desires: Map<DesireKind, Desire>): [DesireKind, DesireKind][] {
+function detectConflicts(desires: Map<DesireKind, Desire>, pairs: [DesireKind, DesireKind][]): [DesireKind, DesireKind][] {
   const conflicts: [DesireKind, DesireKind][] = [];
-  const conflictPairs: [DesireKind, DesireKind][] = [
-    ["autonomy", "connection"],
-    ["curiosity", "self-preservation"],
-    ["creation", "self-preservation"],
-  ];
-  for (const [a, b] of conflictPairs) {
+  for (const [a, b] of pairs) {
     const da = desires.get(a);
     const db = desires.get(b);
     if (da && db && da.urgency > 0.5 && db.urgency > 0.5) {

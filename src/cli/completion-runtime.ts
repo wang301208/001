@@ -2,14 +2,14 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
-
-const log = createSubsystemLogger("cli:completion-runtime");
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
 import { pathExists } from "../utils.js";
-import { createSubsystemLogger } from "../logging/subsystem.js";
+
+const log = createSubsystemLogger("cli:completion-runtime");
 
 export const COMPLETION_SHELLS = ["zsh", "bash", "powershell", "fish"] as const;
 export type CompletionShell = (typeof COMPLETION_SHELLS)[number];

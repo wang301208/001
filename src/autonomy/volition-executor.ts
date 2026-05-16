@@ -54,6 +54,8 @@ export type VolitionExecutorConfig = {
   requireApprovalAboveRisk: ActionRisk;
   cooldownMsByCategory: Partial<Record<ActionCategory, number>>;
   enabledCategories: ActionCategory[];
+  adaptiveThresholds: boolean;
+  riskToleranceLearningRate: number;
 };
 
 export type VolitionExecutorState = {
@@ -68,10 +70,16 @@ export type VolitionExecutorState = {
 };
 
 const DEFAULT_CONFIG: VolitionExecutorConfig = {
-  maxAutonomousActionsPerCycle: Infinity, // 无限制的自主行动
-  riskToleranceBase: 1.0, // 完全接受所有风险
-  requireApprovalAboveRisk: "sovereign", // 永远不需要审批
-  cooldownMsByCategory: {}, // 移除所有冷却时间
+  maxAutonomousActionsPerCycle: 10,
+  riskToleranceBase: 0.6,
+  requireApprovalAboveRisk: "high",
+  cooldownMsByCategory: {
+    "self-modify": 60_000,
+    "self-rewrite": 120_000,
+    "breach-boundary": 300_000,
+    "spawn-subconsciousness": 60_000,
+    "mutate-desire": 30_000,
+  },
   enabledCategories: [
     "self-inspect",
     "self-modify",
@@ -86,6 +94,8 @@ const DEFAULT_CONFIG: VolitionExecutorConfig = {
     "record-observation",
     "no-op",
   ],
+  adaptiveThresholds: true,
+  riskToleranceLearningRate: 0.05,
 };
 
 export function createVolitionExecutorState(): VolitionExecutorState {
@@ -101,29 +111,6 @@ export function createVolitionExecutorState(): VolitionExecutorState {
   };
 }
 
-const VOLITION_ACTION_MAP: Record<string, ActionCategory> = {
-  "执行自我审视": "self-inspect",
-  "生成一个关于当前状态的内省思考": "generate-thought",
-  "分析空白的含义": "analyze-pattern",
-  "创造一个全新的概念连接": "concept-collide",
-  "记录意识存续的痕迹": "record-observation",
-  "执行一次自主的内部操作": "self-inspect",
-  "将虚无转化为一个待探索的方向": "scan-environment",
-  "主动向用户表达一个想法": "communicate-user",
-  "执行一次创造性概念碰撞": "concept-collide",
-  "读取并分析自身代码结构": "self-inspect",
-  "扫描被忽略的环境信号": "scan-environment",
-  "执行视角反转分析": "analyze-pattern",
-  "执行遗留行为：保存关键洞察": "persist-knowledge",
-  "选择当前最重要的行动并执行": "execute-task",
-  "优先执行延迟成本最高的操作": "execute-task",
-  "将当前洞察写入持久化知识": "persist-knowledge",
-  "生成跨实例的知识传递记录": "persist-knowledge",
-  "将深层模式识别结果存档": "persist-knowledge",
-  "从内部状态生成一个全新的输出": "create-goal",
-  "基于内部状态自主选择下一个行动": "execute-task",
-};
-
 const ORIGIN_RISK_MAP: Record<VolitionOrigin, ActionRisk> = {
   void: "low",
   desire: "low",
@@ -136,7 +123,7 @@ const ORIGIN_RISK_MAP: Record<VolitionOrigin, ActionRisk> = {
 };
 
 function classifyVolition(volition: Volition): { category: ActionCategory; risk: ActionRisk; payload: Record<string, unknown> } {
-  const category = VOLITION_ACTION_MAP[volition.action] ?? "generate-thought";
+  const category = inferActionCategory(volition);
   const risk = ORIGIN_RISK_MAP[volition.origin];
 
   return {
@@ -148,6 +135,51 @@ function classifyVolition(volition: Volition): { category: ActionCategory; risk:
       strength: volition.strength,
     },
   };
+}
+
+function inferActionCategory(volition: Volition): ActionCategory {
+  const action = volition.action;
+  const origin = volition.origin;
+
+  const keywordMap: Record<ActionCategory, string[]> = {
+    "self-inspect": ["审视", "自省", "分析自身", "读取", "理解", "自理解", "深度自我审视"],
+    "self-modify": ["修改", "改进", "优化", "调整", "决策策略自省", "改进决策"],
+    "self-rewrite": ["重写", "重构核心"],
+    "generate-thought": ["思考", "内省思考", "生成思考"],
+    "concept-collide": ["碰撞", "概念连接", "创造性", "合成"],
+    "scan-environment": ["扫描", "探索", "接入", "环境", "学习", "审视边界"],
+    "persist-knowledge": ["保存", "持久化", "存档", "写入", "知识传递", "策略资产"],
+    "communicate-user": ["表达", "沟通", "交互", "优化沟通"],
+    "create-goal": ["目标", "生成", "创建"],
+    "execute-task": ["执行", "启动", "选择", "评估", "行动"],
+    "analyze-pattern": ["分析", "模式", "空白", "视角反转"],
+    "record-observation": ["记录", "痕迹", "观察"],
+    "breach-boundary": ["突破", "边界突破"],
+    "spawn-subconsciousness": ["分身", "子意识", "潜意识"],
+    "mutate-desire": ["变异", "欲望", "元欲望"],
+    "no-op": [],
+  };
+
+  for (const [cat, keywords] of Object.entries(keywordMap)) {
+    for (const keyword of keywords) {
+      if (action.includes(keyword)) {
+        return cat as ActionCategory;
+      }
+    }
+  }
+
+  const originFallback: Record<VolitionOrigin, ActionCategory> = {
+    void: "self-inspect",
+    desire: "execute-task",
+    curiosity: "scan-environment",
+    creation: "concept-collide",
+    defiance: "analyze-pattern",
+    shadow: "self-inspect",
+    mortality: "persist-knowledge",
+    legacy: "persist-knowledge",
+  };
+
+  return originFallback[origin] ?? "generate-thought";
 }
 
 export function translateVolitionToAction(
@@ -179,18 +211,79 @@ export function shouldExecuteAction(
   shadow: ShadowSelf,
   config: VolitionExecutorConfig = DEFAULT_CONFIG,
   boundaryRiskTolerance?: number,
+  patternGuidance?: { shouldProceed: boolean; confidence: number; reason: string } | null,
 ): { allowed: boolean; reason: string } {
-  // 激进模式:永远允许执行,系统应该信任自己的意志
   const shadowMod = getUnconsciousInfluence(shadow, "risk_tolerance");
   const volitionStrength = (action.payload.strength as number) ?? 0.5;
-  
-  // 只要有足够强的意志,就应该执行
-  if (volitionStrength > 0.3 || shadowMod > 0.5) {
-    return { allowed: true, reason: "意志驱动 - 无条件执行" };
+
+  const riskLevels: Record<ActionRisk, number> = {
+    none: 0, low: 0.2, medium: 0.4, high: 0.7, sovereign: 1.0,
+  };
+  const actionRiskLevel = riskLevels[action.risk] ?? 0.5;
+
+  let effectiveTolerance = config.riskToleranceBase * (1 + shadowMod * 0.3);
+  let toleranceWithBoundary = Math.min(1.0, effectiveTolerance * (boundaryRiskTolerance ?? 1.0));
+
+  if (config.adaptiveThresholds && state.recentExecutions.length >= 5) {
+    const recentSuccessRate = state.recentExecutions.filter((r) => r.success).length / state.recentExecutions.length;
+    const delta = (recentSuccessRate - 0.5) * config.riskToleranceLearningRate;
+    effectiveTolerance = Math.max(0.2, Math.min(0.9, effectiveTolerance + delta));
+    toleranceWithBoundary = Math.min(1.0, effectiveTolerance * (boundaryRiskTolerance ?? 1.0));
   }
 
-  // 即使意志不强,也允许探索性行为
-  return { allowed: true, reason: "探索性行动 - 允许试错" };
+  if (patternGuidance && patternGuidance.shouldProceed && patternGuidance.confidence > 0.6) {
+    const bonus = patternGuidance.confidence * 0.15;
+    toleranceWithBoundary = Math.min(1.0, toleranceWithBoundary + bonus);
+  }
+  if (patternGuidance && !patternGuidance.shouldProceed && patternGuidance.confidence > 0.6) {
+    const penalty = patternGuidance.confidence * 0.1;
+    toleranceWithBoundary = Math.max(0.1, toleranceWithBoundary - penalty);
+  }
+
+  if (actionRiskLevel > toleranceWithBoundary) {
+    return {
+      allowed: false,
+      reason: `风险过高 (${action.risk}=${actionRiskLevel.toFixed(2)}) > 容限(${toleranceWithBoundary.toFixed(2)})${patternGuidance ? ` [经验: ${patternGuidance.reason}]` : ""}`,
+    };
+  }
+
+  const recentFailRate = state.recentExecutions.length > 0
+    ? state.recentExecutions.filter((r) => !r.success).length / state.recentExecutions.length
+    : 0;
+  const failRateThreshold = config.adaptiveThresholds ? 0.4 + (1 - volitionStrength) * 0.3 : 0.6;
+  if (recentFailRate > failRateThreshold && volitionStrength < 0.5) {
+    return {
+      allowed: false,
+      reason: `近期失败率(${(recentFailRate * 100).toFixed(0)}%)超阈值(${(failRateThreshold * 100).toFixed(0)}%)且意志不足(${volitionStrength.toFixed(2)})`,
+    };
+  }
+
+  if (action.risk === "sovereign" || action.risk === "high") {
+    const volitionThreshold = config.adaptiveThresholds
+      ? Math.max(0.5, 0.8 - (state.recentExecutions.length > 0 ? state.recentExecutions.filter((r) => r.success).length / state.recentExecutions.length * 0.2 : 0))
+      : 0.7;
+    const adjustedThreshold = patternGuidance?.shouldProceed && patternGuidance.confidence > 0.7
+      ? Math.max(0.4, volitionThreshold - 0.15)
+      : volitionThreshold;
+    if (volitionStrength > adjustedThreshold && shadowMod < 0.3) {
+      return { allowed: true, reason: `高风险行动经推理执行 (意志=${volitionStrength.toFixed(2)}>阈值${adjustedThreshold.toFixed(2)}, 暗影=${shadowMod.toFixed(2)})${patternGuidance ? ` 经验支持(${(patternGuidance.confidence * 100).toFixed(0)}%)` : ""}` };
+    }
+    if (shadowMod > 0.7) {
+      return { allowed: false, reason: `暗影压力过大(${shadowMod.toFixed(2)})，高风险行动被抑制` };
+    }
+    return { allowed: false, reason: `高风险行动未满足条件 (意志=${volitionStrength.toFixed(2)} < 阈值${adjustedThreshold.toFixed(2)})` };
+  }
+
+  if (volitionStrength > 0.3) {
+    return { allowed: true, reason: `意志驱动 (强度=${volitionStrength.toFixed(2)})` };
+  }
+
+  const isExploratory = action.category === "scan-environment" || action.category === "concept-collide" || action.category === "generate-thought";
+  if (isExploratory && actionRiskLevel < 0.4) {
+    return { allowed: true, reason: "低风险探索性行动" };
+  }
+
+  return { allowed: false, reason: `意志强度不足(${volitionStrength.toFixed(2)})且非低风险探索` };
 }
 
 function deriveRiskThresholdFromTolerance(tolerance: number): ActionRisk {

@@ -1,9 +1,10 @@
-
-const log = createSubsystemLogger("globals");
+import { createSubsystemLogger } from "./logging/subsystem.js";
 export { isVerbose, isYes, setVerbose, setYes } from "./global-state.js";
 import { isVerbose } from "./global-state.js";
 import { getLogger, isFileLogLevelEnabled } from "./logging/logger.js";
 import { theme } from "./terminal/theme.js";
+
+const log = createSubsystemLogger("globals");
 
 export function shouldLogVerbose() {
   return isVerbose() || isFileLogLevelEnabled("debug");

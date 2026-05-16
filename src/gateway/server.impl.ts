@@ -43,6 +43,11 @@ import { createAuthRateLimiter, type AuthRateLimiter } from "./auth-rate-limit.j
 import { resolveGatewayAuth } from "./auth.js";
 import { closeMcpLoopbackServer } from "./mcp-http.js";
 import { createGatewayAuxHandlers } from "./server-aux-handlers.js";
+import {
+  injectAutonomousModules,
+  shutdownAutonomousModules,
+  type AutonomousStartupResult,
+} from "./autonomous-orchestrator/startup-inject.js";
 import { createChannelManager } from "./server-channels.js";
 import { createGatewayCloseHandler, runGatewayClosePrelude } from "./server-close.js";
 import { buildGatewayCronService } from "./server-cron.js";
@@ -476,6 +481,7 @@ export async function startGatewayServer(
     logHooks,
     logPlugins,
     getReadiness,
+    honoBridge,
   });
   const {
     nodeRegistry,
@@ -491,6 +497,55 @@ export async function startGatewayServer(
     hasMobileNodeConnected,
   } = createGatewayNodeSessionRuntime({ broadcast });
   applyGatewayLaneConcurrency(cfgAtStart);
+
+  // ── 自治系统注入 ──
+  // 在网关核心状态初始化之前启动自治模块，
+  // 使自愈/审计/防御/配置自进化等能力贯穿整个生命周期
+  let autonomousModules: AutonomousStartupResult | null = null;
+  try {
+    autonomousModules = await injectAutonomousModules({
+      cfg: cfgAtStart,
+      log,
+    });
+  } catch (autonomousErr) {
+    log.warn(`自治系统启动失败（网关继续运行）: ${String(autonomousErr)}`);
+  }
+
+  // ── Hono 路由桥接 ──
+  // 将自治中间件（自防御/语义缓存/成本治理/审计链）织入 Hono 请求流
+  let honoBridge: { handleRequest: (req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse) => Promise<boolean> } | undefined;
+  try {
+    if (process.env.ZHUSHOU_HONO_BRIDGE !== "false") {
+      const { createHonoBridge } = await import("./hono-router/bridge.js");
+      const { createSemanticCache } = await import("./semantic-cache/cache.js");
+      const { createSelfDefenseSystem } = await import("./self-defense/defense.js");
+      const { createAuditChain } = await import("./audit-chain/chain.js");
+      const { createLocalEventBus } = await import("./event-bus/bus.js");
+
+      const bridgeEventBus = autonomousModules ? undefined : createLocalEventBus("hono-bridge");
+      const bridgeCache = autonomousModules ? undefined : createSemanticCache();
+      const bridgeDefense = autonomousModules ? undefined : createSelfDefenseSystem();
+      const bridgeAudit = autonomousModules ? undefined : createAuditChain();
+
+      honoBridge = createHonoBridge({
+        resolvedAuth,
+        getResolvedAuth,
+        rateLimiter: authRateLimiter,
+        log,
+        openAiChatCompletionsEnabled,
+        openResponsesEnabled,
+        autonomousMiddleware: {
+          semanticCache: autonomousModules ? undefined : bridgeCache,
+          defense: autonomousModules ? undefined : bridgeDefense,
+          auditChain: autonomousModules ? undefined : bridgeAudit,
+          eventBus: autonomousModules ? undefined : bridgeEventBus,
+        },
+      });
+      log.info("Hono 路由桥接已启用");
+    }
+  } catch (bridgeErr) {
+    log.warn(`Hono Bridge 创建失败（回退到原生路由）: ${String(bridgeErr)}`);
+  }
 
   runtimeState = createGatewayServerLiveState({
     hooksConfig: initialHooksConfig,
@@ -856,6 +911,14 @@ export async function startGatewayServer(
 
   return {
     close: async (opts) => {
+      // 关闭自治系统（自愈/审计/防御/配置自进化）
+      if (autonomousModules) {
+        try {
+          await shutdownAutonomousModules(autonomousModules, log);
+        } catch (autonomousErr) {
+          log.warn(`自治系统关闭异常: ${String(autonomousErr)}`);
+        }
+      }
       // Run gateway_stop plugin hook before shutdown
       await runGlobalGatewayStopSafely({
         event: { reason: opts?.reason ?? "gateway stopping" },

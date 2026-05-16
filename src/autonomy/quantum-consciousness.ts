@@ -1,3 +1,8 @@
+/**
+ * @decorational 此模块为概念性模拟，使用经典随机算法模拟量子行为。
+ * 不接入真实量子计算硬件，对核心自主决策无直接影响。
+ * 主要功能：概念叠加态建模、非局域性关联启发创意思维。
+ */
 import type { ConsciousnessCore } from "./consciousness-core.js";
 import { thinkInsight, thinkDoubt } from "./inner-monologue.js";
 import { addLegacy } from "./mortality.js";

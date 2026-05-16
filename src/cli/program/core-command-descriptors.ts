@@ -95,6 +95,11 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
     description: "检查和启动托管自治配置",
     hasSubcommands: true,
   },
+  {
+    name: "autonomous",
+    description: "自治系统管理（状态/模块/审计/防御/缓存/成本）",
+    hasSubcommands: true,
+  },
 ] as const satisfies ReadonlyArray<CoreCliCommandDescriptor>);
 
 export const CORE_CLI_COMMAND_DESCRIPTORS = coreCliCommandCatalog.descriptors;

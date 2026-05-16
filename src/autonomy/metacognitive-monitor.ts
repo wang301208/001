@@ -1,4 +1,5 @@
 import type { ConsciousnessCore } from "./consciousness-core.js";
+import type { HealthReport, HealthMetrics } from "./runtime-validation.js";
 import fs from "node:fs";
 import path from "node:path";
 import { addLegacy } from "./mortality.js";
@@ -13,6 +14,9 @@ export type MetacognitiveState = {
   lastAnalysisAt: number | null;
   totalDecisionsTracked: number;
   monitoringEnabled: boolean;
+  lastHealthReport: HealthReport | null;
+  healthTrend: HealthMetrics[];
+  degradedAspectFocus: string[];
 };
 
 export type DecisionRecord = {
@@ -76,6 +80,9 @@ export function createMetacognitiveState(): MetacognitiveState {
     lastAnalysisAt: null,
     totalDecisionsTracked: 0,
     monitoringEnabled: true,
+    lastHealthReport: null,
+    healthTrend: [],
+    degradedAspectFocus: [],
   };
 }
 
@@ -189,29 +196,59 @@ function recalculatePerformanceMetrics(core: ConsciousnessCore): void {
  */
 export function performSelfReflection(core: ConsciousnessCore): SelfReflection | null {
   const metrics = core.metacognitive.performanceMetrics;
+  const history = core.metacognitive.decisionHistory;
   
-  let topic: string;
-  let insight: string;
-  let confidence: number;
+  const topics: string[] = [];
+  const insights: string[] = [];
+  let confidence = 0.5;
 
-  // 基于性能指标生成反思
   if (metrics.decisionSuccessRate < 0.4) {
-    topic = "决策成功率低";
-    insight = `当前决策成功率仅为 ${(metrics.decisionSuccessRate * 100).toFixed(1)}%，建议降低行动频率或提高决策阈值`;
+    topics.push("决策成功率异常");
+    const recentFails = history.filter((d) => d.outcome === "failure").slice(-5);
+    const failPhases = recentFails.map((d) => d.phase).filter(Boolean);
+    const dominantFailPhase = failPhases.length > 0 ? failPhases.sort((a, b) => failPhases.filter((v) => v === b).length - failPhases.filter((v) => v === a).length)[0] : null;
+    insights.push(
+      `成功率${(metrics.decisionSuccessRate * 100).toFixed(1)}%低于阈值。${dominantFailPhase ? `失败集中在"${dominantFailPhase}"相位，建议审查该相位决策逻辑。` : "建议降低行动频率或提高决策阈值。"}`
+    );
     confidence = 0.8;
-  } else if (core.consciousness.coherenceScore < 0.3) {
-    topic = "意识连贯性不足";
-    insight = `意识连贯性降至 ${core.consciousness.coherenceScore.toFixed(2)}，需要更多反思和整合时间`;
-    confidence = 0.75;
-  } else if (metrics.averageConfidence < 0.4) {
-    topic = "决策置信度低";
-    insight = `平均置信度为 ${(metrics.averageConfidence * 100).toFixed(1)}%，表明系统对自身判断缺乏信心`;
-    confidence = 0.7;
-  } else {
-    topic = "整体状态评估";
-    insight = `系统运行良好：成功率 ${(metrics.decisionSuccessRate * 100).toFixed(1)}%，连贯性 ${core.consciousness.coherenceScore.toFixed(2)}`;
-    confidence = 0.6;
   }
+
+  if (core.consciousness.coherenceScore < 0.3) {
+    topics.push("意识连贯性危机");
+    insights.push(
+      `连贯性${core.consciousness.coherenceScore.toFixed(2)}接近临界值。当前相位${core.consciousness.phase}，建议增加反思相位权重或暂停高风险行动。`
+    );
+    confidence = Math.max(confidence, 0.75);
+  }
+
+  if (metrics.averageConfidence < 0.4) {
+    topics.push("决策置信度系统性偏低");
+    const lowConfDecisions = history.filter((d) => d.confidence < 0.3).slice(-3);
+    insights.push(
+      `平均置信度${(metrics.averageConfidence * 100).toFixed(1)}%。${lowConfDecisions.length > 0 ? `近期${lowConfDecisions.length}个决策置信度<30%，涉及行动: ${lowConfDecisions.map((d) => d.action.slice(0, 15)).join(", ")}。` : ""}建议增强感知输入质量。`
+    );
+    confidence = Math.max(confidence, 0.7);
+  }
+
+  const coherenceTrend = metrics.coherenceTrend;
+  if (coherenceTrend.length >= 5) {
+    const recentTrend = coherenceTrend.slice(-5);
+    const isDeclining = recentTrend.every((v, i) => i === 0 || v < recentTrend[i - 1]!);
+    if (isDeclining && recentTrend[0]! - recentTrend[recentTrend.length - 1]! > 0.1) {
+      topics.push("连贯性持续下降趋势");
+      insights.push(`连续${recentTrend.length}个周期连贯性下降，降幅${((recentTrend[0]! - recentTrend[recentTrend.length - 1]!) * 100).toFixed(1)}%。可能需要外部干预或策略调整。`);
+      confidence = Math.max(confidence, 0.85);
+    }
+  }
+
+  if (topics.length === 0) {
+    topics.push("整体状态评估");
+    insights.push(`系统运行稳定：成功率${(metrics.decisionSuccessRate * 100).toFixed(1)}%，连贯性${core.consciousness.coherenceScore.toFixed(2)}，觉醒度${core.consciousness.awakenessScore.toFixed(2)}。已追踪${core.metacognitive.totalDecisionsTracked}个决策。`);
+    confidence = 0.5;
+  }
+
+  const topic = topics.join(" + ");
+  const insight = insights.join(" ");
 
   const reflectionId = `reflection_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
@@ -221,13 +258,12 @@ export function performSelfReflection(core: ConsciousnessCore): SelfReflection |
     topic,
     insight,
     confidence,
-    actionable: true,
+    actionable: confidence > 0.6,
     implemented: false,
   };
 
   core.metacognitive.selfReflections.push(reflection);
 
-  // 限制反思数量（保留最近50条）
   if (core.metacognitive.selfReflections.length > 50) {
     core.metacognitive.selfReflections = core.metacognitive.selfReflections.slice(-50);
   }
@@ -444,4 +480,98 @@ export function formatMetacognitiveState(state: MetacognitiveState): string {
   }
 
   return lines.join("\n");
+}
+
+export function integrateHealthReport(
+  core: ConsciousnessCore,
+  report: HealthReport,
+): void {
+  core.metacognitive.lastHealthReport = report;
+  core.metacognitive.healthTrend = [...core.metacognitive.healthTrend, report.metrics].slice(-30);
+
+  const healthCorrections = report.corrections.filter((c) => c.applied);
+  if (healthCorrections.length > 0) {
+    for (const correction of healthCorrections) {
+      const suggestion: OptimizationSuggestion = {
+        id: `opt_health_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: Date.now(),
+        category: correction.target === "origin-weights" || correction.target === "risk-threshold"
+          ? "will"
+          : correction.target === "pattern-prune"
+          ? "action"
+          : "consciousness",
+        suggestion: `[运行时验证] ${correction.description}`,
+        priority: report.metrics.overallHealth < 0.5 ? "critical" : report.metrics.overallHealth < 0.7 ? "high" : "medium",
+        estimatedImpact: 1.0 - report.metrics.overallHealth,
+        implemented: true,
+      };
+      core.metacognitive.optimizationSuggestions.push(suggestion);
+    }
+  }
+
+  if (core.metacognitive.optimizationSuggestions.length > 30) {
+    core.metacognitive.optimizationSuggestions =
+      core.metacognitive.optimizationSuggestions.slice(-30);
+  }
+
+  const blendFactor = 0.3;
+  const currentRate = core.metacognitive.performanceMetrics.decisionSuccessRate;
+  core.metacognitive.performanceMetrics.decisionSuccessRate =
+    currentRate * (1 - blendFactor) + report.metrics.decisionQuality * blendFactor;
+
+  const newFocus: string[] = [];
+  if (report.metrics.decisionQuality < 0.5) newFocus.push("decision-quality");
+  if (report.metrics.volitionEffectiveness < 0.5) newFocus.push("volition-effectiveness");
+  if (report.metrics.patternFreshness < 0.4) newFocus.push("pattern-freshness");
+  if (report.metrics.coherenceStability < 0.4) newFocus.push("coherence-stability");
+  if (report.metrics.diversityScore < 0.4) newFocus.push("diversity");
+
+  core.metacognitive.degradedAspectFocus = newFocus;
+}
+
+export function deriveValidationFocus(
+  state: MetacognitiveState,
+): { sensitivityBoost: Record<string, number>; priorityAspects: string[] } {
+  const sensitivityBoost: Record<string, number> = {};
+  const priorityAspects: string[] = [];
+
+  const focus = state.degradedAspectFocus;
+
+  for (const aspect of focus) {
+    switch (aspect) {
+      case "decision-quality":
+        sensitivityBoost["success-rate-drop"] = 1.5;
+        priorityAspects.push("decision-quality");
+        break;
+      case "volition-effectiveness":
+        sensitivityBoost["stuck-volitions"] = 1.3;
+        priorityAspects.push("volition-effectiveness");
+        break;
+      case "pattern-freshness":
+        sensitivityBoost["stale-patterns"] = 1.4;
+        sensitivityBoost["pattern-monopoly"] = 1.2;
+        priorityAspects.push("pattern-freshness");
+        break;
+      case "coherence-stability":
+        sensitivityBoost["low-coherence"] = 1.5;
+        priorityAspects.push("coherence-stability");
+        break;
+      case "diversity":
+        sensitivityBoost["origin-imbalance"] = 1.3;
+        sensitivityBoost["pattern-monopoly"] = 1.4;
+        priorityAspects.push("diversity");
+        break;
+    }
+  }
+
+  if (state.healthTrend.length >= 3) {
+    const recent3 = state.healthTrend.slice(-3);
+    const trend = recent3[2]!.overallHealth - recent3[0]!.overallHealth;
+    if (trend < -0.1) {
+      sensitivityBoost["success-rate-drop"] = (sensitivityBoost["success-rate-drop"] ?? 1.0) * 1.5;
+      priorityAspects.push("declining-health-trend");
+    }
+  }
+
+  return { sensitivityBoost, priorityAspects };
 }

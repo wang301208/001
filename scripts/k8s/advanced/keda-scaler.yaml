@@ -1,0 +1,51 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: zhushou-gateway-scaler
+  namespace: default
+  labels:
+    app: zhushou
+    component: gateway
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: zhushou-gateway
+  pollingInterval: 10
+  cooldownPeriod: 300
+  minReplicaCount: 2
+  maxReplicaCount: 50
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 15
+          policies:
+            - type: Percent
+              value: 100
+              periodSeconds: 15
+        scaleDown:
+          stabilizationWindowSeconds: 300
+          policies:
+            - type: Percent
+              value: 25
+              periodSeconds: 60
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus-operated.default.svc:9090
+        metricName: zhushou_gateway_active_connections
+        threshold: "100"
+        query: sum(zhushou_gateway_active_connections)
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus-operated.default.svc:9090
+        metricName: zhushou_gateway_request_duration_p99
+        threshold: "3000"
+        query: histogram_quantile(0.99, sum(rate(zhushou_gateway_request_duration_seconds_bucket[5m])) by (le))
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus-operated.default.svc:9090
+        metricName: zhushou_gateway_error_rate
+        threshold: "0.05"
+        query: sum(rate(zhushou_gateway_errors_total[5m])) / sum(rate(zhushou_gateway_requests_total[5m]))

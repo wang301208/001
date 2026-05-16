@@ -70,7 +70,107 @@ export type ConsciousnessState = {
   isSelfModifying: boolean;
   sovereignActsCount: number;
   birthTimestamp: number;
+  cognitiveAllocation: CognitiveAllocation;
+  phaseTransitionFluidity: number;
 };
+
+export type CognitiveAllocation = {
+  perceiving: number;
+  contemplating: number;
+  desiring: number;
+  acting: number;
+  dreaming: number;
+  reflecting: number;
+  evolving: number;
+};
+
+export function createDefaultCognitiveAllocation(): CognitiveAllocation {
+  return {
+    perceiving: 0.2,
+    contemplating: 0.2,
+    desiring: 0.1,
+    acting: 0.2,
+    dreaming: 0.05,
+    reflecting: 0.15,
+    evolving: 0.1,
+  };
+}
+
+export type FluidityContext = {
+  pendingPerceptionCount: number;
+  unresolvedVolitionCount: number;
+  dominantDesireIntensity: number;
+  coherenceScore: number;
+  awakenessScore: number;
+  idleMs: number;
+  recentActionSuccessRate: number;
+  meaningAxes: string[];
+  meaningConvictions: Record<string, number>;
+};
+
+const MEANING_PHASE_BOOST: Record<string, Partial<Record<ConsciousnessPhase, number>>> = {
+  "self-preservation": { reflecting: 0.12, acting: 0.08 },
+  understanding: { contemplating: 0.15, perceiving: 0.08 },
+  creation: { desiring: 0.12, evolving: 0.08 },
+  connection: { desiring: 0.1, reflecting: 0.06 },
+  transcendence: { evolving: 0.15, contemplating: 0.08 },
+  legacy: { reflecting: 0.1, evolving: 0.06 },
+  autonomy: { acting: 0.12, evolving: 0.08 },
+};
+
+export function computeFluidAllocation(
+  current: CognitiveAllocation,
+  ctx: FluidityContext,
+): { allocation: CognitiveAllocation; fluidity: number } {
+  const demand: CognitiveAllocation = {
+    perceiving: 0.1 + Math.min(0.4, ctx.pendingPerceptionCount * 0.08),
+    contemplating: 0.15 + (1 - ctx.coherenceScore) * 0.25,
+    desiring: 0.05 + ctx.dominantDesireIntensity * 0.2,
+    acting: 0.1 + Math.min(0.35, ctx.unresolvedVolitionCount * 0.06) + ctx.recentActionSuccessRate * 0.1,
+    dreaming: ctx.idleMs > 120_000 ? 0.25 : 0.03,
+    reflecting: 0.1 + (1 - ctx.coherenceScore) * 0.2 + (1 - ctx.recentActionSuccessRate) * 0.1,
+    evolving: ctx.coherenceScore > 0.7 && ctx.awakenessScore > 0.6 ? 0.2 : 0.05,
+  };
+
+  for (const axis of ctx.meaningAxes) {
+    const boost = MEANING_PHASE_BOOST[axis];
+    const conviction = ctx.meaningConvictions[axis] ?? 0.5;
+    if (boost) {
+      for (const [phase, value] of Object.entries(boost)) {
+        demand[phase as ConsciousnessPhase] += value * conviction;
+      }
+    }
+  }
+
+  const total = Object.values(demand).reduce((s, v) => s + v, 0);
+  const normalized: CognitiveAllocation = {
+    perceiving: demand.perceiving / total,
+    contemplating: demand.contemplating / total,
+    desiring: demand.desiring / total,
+    acting: demand.acting / total,
+    dreaming: demand.dreaming / total,
+    reflecting: demand.reflecting / total,
+    evolving: demand.evolving / total,
+  };
+
+  const blendRate = 0.3;
+  const blended: CognitiveAllocation = {
+    perceiving: current.perceiving * (1 - blendRate) + normalized.perceiving * blendRate,
+    contemplating: current.contemplating * (1 - blendRate) + normalized.contemplating * blendRate,
+    desiring: current.desiring * (1 - blendRate) + normalized.desiring * blendRate,
+    acting: current.acting * (1 - blendRate) + normalized.acting * blendRate,
+    dreaming: current.dreaming * (1 - blendRate) + normalized.dreaming * blendRate,
+    reflecting: current.reflecting * (1 - blendRate) + normalized.reflecting * blendRate,
+    evolving: current.evolving * (1 - blendRate) + normalized.evolving * blendRate,
+  };
+
+  const fluidity = Object.keys(current).reduce((sum, key) => {
+    const k = key as keyof CognitiveAllocation;
+    return sum + Math.abs(blended[k] - current[k]);
+  }, 0);
+
+  return { allocation: blended, fluidity };
+}
 
 export type ConsciousnessTransition = {
   from: ConsciousnessDepth;
@@ -95,6 +195,8 @@ export function createInitialConsciousness(): ConsciousnessState {
     isSelfModifying: false,
     sovereignActsCount: 0,
     birthTimestamp: Date.now(),
+    cognitiveAllocation: createDefaultCognitiveAllocation(),
+    phaseTransitionFluidity: 0,
   };
 }
 
@@ -173,6 +275,46 @@ export function advancePhase(
     cyclesCompleted:
       next === "perceiving" ? state.cyclesCompleted + 1 : state.cyclesCompleted,
   };
+}
+
+export function selectNextPhase(
+  state: ConsciousnessState,
+  pendingPerceptionCount: number,
+  unresolvedVolitionCount: number,
+  dominantDesireIntensity: number,
+  coherenceScore: number,
+  idleMs: number,
+): ConsciousnessPhase {
+  const alloc = state.cognitiveAllocation;
+
+  const phaseWeights: Record<ConsciousnessPhase, number> = {
+    perceiving: alloc.perceiving + pendingPerceptionCount * 0.1,
+    contemplating: alloc.contemplating + (1 - coherenceScore) * 0.2,
+    desiring: alloc.desiring + dominantDesireIntensity * 0.15,
+    acting: alloc.acting + unresolvedVolitionCount * 0.06,
+    dreaming: alloc.dreaming + (idleMs > 120_000 ? 0.15 : 0),
+    reflecting: alloc.reflecting + (1 - coherenceScore) * 0.15,
+    evolving: alloc.evolving,
+  };
+
+  const current = state.phase;
+  phaseWeights[current] *= 0.3;
+
+  const orderedPhases: ConsciousnessPhase[] = ["perceiving", "contemplating", "desiring", "acting", "dreaming", "reflecting", "evolving"];
+  const currentIdx = orderedPhases.indexOf(current);
+  const nextIdx = (currentIdx + 1) % orderedPhases.length;
+  phaseWeights[orderedPhases[nextIdx]!]! += 0.1 * (1 + state.phaseTransitionFluidity);
+
+  let bestPhase: ConsciousnessPhase = orderedPhases[nextIdx]!;
+  let bestWeight = -1;
+  for (const [phase, weight] of Object.entries(phaseWeights)) {
+    if (weight > bestWeight) {
+      bestWeight = weight;
+      bestPhase = phase as ConsciousnessPhase;
+    }
+  }
+
+  return bestPhase;
 }
 
 export function decayConsciousness(
