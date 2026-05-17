@@ -321,7 +321,9 @@ async function writeConfigHealthState(
       encoding: "utf-8",
       mode: 0o600,
     });
-  } catch {}
+  } catch (err) {
+    deps.logger.debug("Failed to write config health state", err);
+  }
 }
 
 function writeConfigHealthStateSync(deps: ObserveRecoveryDeps, state: ConfigHealthState): void {
@@ -332,7 +334,9 @@ function writeConfigHealthStateSync(deps: ObserveRecoveryDeps, state: ConfigHeal
       encoding: "utf-8",
       mode: 0o600,
     });
-  } catch {}
+  } catch (err) {
+    deps.logger.debug("Failed to write config health state (sync)", err);
+  }
 }
 
 function getConfigHealthEntry(state: ConfigHealthState, configPath: string): ConfigHealthEntry {
@@ -411,7 +415,9 @@ async function readConfigFingerprintForPath(
     let parsed: unknown = {};
     try {
       parsed = deps.json5.parse(raw);
-    } catch {}
+    } catch {
+      // 配置文件可能不是有效的JSON5，这是预期的
+    }
     return {
       hash: hashConfigRaw(raw),
       bytes: Buffer.byteLength(raw, "utf-8"),
@@ -437,7 +443,9 @@ function readConfigFingerprintForPathSync(
     let parsed: unknown = {};
     try {
       parsed = deps.json5.parse(raw);
-    } catch {}
+    } catch {
+      // 配置文件可能不是有效的JSON5，这是预期的
+    }
     return {
       hash: hashConfigRaw(raw),
       bytes: Buffer.byteLength(raw, "utf-8"),
@@ -561,7 +569,9 @@ export async function maybeRecoverSuspiciousConfigRead(params: {
   try {
     await params.deps.fs.promises.copyFile(backupPath, params.configPath);
     restoredFromBackup = true;
-  } catch {}
+  } catch (err) {
+    params.deps.logger.warn(`Failed to restore config from backup: ${backupPath}`, err);
+  }
 
   params.deps.logger.warn(
     `Config auto-restored from backup: ${params.configPath} (${suspicious.join(", ")})`,
@@ -655,7 +665,9 @@ export function maybeRecoverSuspiciousConfigReadSync(params: {
   try {
     params.deps.fs.copyFileSync(backupPath, params.configPath);
     restoredFromBackup = true;
-  } catch {}
+  } catch (err) {
+    params.deps.logger.warn(`Failed to restore config from backup (sync): ${backupPath}`, err);
+  }
 
   params.deps.logger.warn(
     `Config auto-restored from backup: ${params.configPath} (${suspicious.join(", ")})`,

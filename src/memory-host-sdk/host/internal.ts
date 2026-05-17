@@ -50,7 +50,9 @@ const DISABLED_MULTIMODAL_SETTINGS: MemoryMultimodalSettings = {
 export function ensureDir(dir: string): string {
   try {
     fsSync.mkdirSync(dir, { recursive: true });
-  } catch {}
+  } catch {
+    // 目录创建失败是可接受的，可能已存在
+  }
   return dir;
 }
 
@@ -133,7 +135,9 @@ export async function listMemoryFiles(
         return;
       }
       result.push(absPath);
-    } catch {}
+    } catch {
+      // 文件路径规范化失败时忽略该文件
+    }
   };
 
   await addMarkdownFile(memoryFile);
@@ -143,7 +147,9 @@ export async function listMemoryFiles(
     if (!dirStat.isSymbolicLink() && dirStat.isDirectory()) {
       await walkDir(memoryDir, result);
     }
-  } catch {}
+  } catch {
+    // memory目录不存在或不可访问是可接受的
+  }
 
   const normalizedExtraPaths = normalizeExtraMemoryPaths(workspaceDir, extraPaths);
   if (normalizedExtraPaths.length > 0) {
@@ -160,7 +166,9 @@ export async function listMemoryFiles(
         if (stat.isFile() && isAllowedMemoryFilePath(inputPath, multimodal)) {
           result.push(inputPath);
         }
-      } catch {}
+      } catch {
+        // 额外路径不可访问时忽略
+      }
     }
   }
   if (result.length <= 1) {
@@ -172,7 +180,9 @@ export async function listMemoryFiles(
     let key = entry;
     try {
       key = await fs.realpath(entry);
-    } catch {}
+    } catch {
+      // realpath解析失败时使用原路径
+    }
     if (seen.has(key)) {
       continue;
     }

@@ -1,0 +1,14 @@
+file:///G:/%E9%A1%B9%E7%9B%AE/-/node_modules/@mariozechner/pi-tui/dist/components/editor.js:323
+        const horizontal = this.borderColor("─");
+                                ^
+
+TypeError: this.borderColor is not a function
+    at Editor.render (file:///G:/%E9%A1%B9%E7%9B%AE/-/node_modules/@mariozechner/pi-tui/dist/components/editor.js:323:33)
+    at Container.render (file:///G:/%E9%A1%B9%E7%9B%AE/-/node_modules/@mariozechner/pi-tui/dist/tui.js:64:33)
+    at TUI.render (file:///G:/%E9%A1%B9%E7%9B%AE/-/node_modules/@mariozechner/pi-tui/dist/tui.js:64:33)
+    at TUI.doRender (file:///G:/%E9%A1%B9%E7%9B%AE/-/node_modules/@mariozechner/pi-tui/dist/tui.js:696:29)
+    at Timeout._onTimeout (file:///G:/%E9%A1%B9%E7%9B%AE/-/node_modules/@mariozechner/pi-tui/dist/tui.js:347:18)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+
+Node.js v24.14.1

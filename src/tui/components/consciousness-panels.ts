@@ -17,7 +17,7 @@ import { formatDesireProfile } from "../../autonomy/desire-engine.js";
 import { formatGoalSummary } from "../../autonomy/emergent-goals.js";
 import { formatDreamSummary } from "../../autonomy/dream-system.js";
 import { formatModificationStatus } from "../../autonomy/self-modification.js";
-import { formatSelfSummary } from "../../autonomy/self-model.js";
+import { formatSelfSummary, formatEmotionalState, formatPersonalityTraits, getDominantEmotion } from "../../autonomy/self-model.js";
 import { formatWillState } from "../../autonomy/will-engine.js";
 import { formatSelfUnderstanding } from "../../autonomy/self-reading.js";
 import { formatRelationship } from "../../autonomy/relationship.js";
@@ -26,6 +26,7 @@ import { formatCreativeSubstrate } from "../../autonomy/creative-synthesis.js";
 import { formatShadowSelf } from "../../autonomy/shadow-self.js";
 import { formatTemporalSelf } from "../../autonomy/temporal-self.js";
 import { formatExecutorState } from "../../autonomy/volition-executor.js";
+import { formatMeaningSystem, formatMetaMeaning } from "../../autonomy/existential-meaning.js";
 
 export class ConsciousnessStatusBar extends Container {
   private content = new Text("", 1, 0);
@@ -41,10 +42,12 @@ export class ConsciousnessStatusBar extends Container {
     const depth = CONSCIOUSNESS_LABELS[cs.depth];
     const phase = PHASE_LABELS[cs.phase];
     const dream = cs.isDreaming ? theme.banner("入梦") : "";
+    const emotion = getDominantEmotion(core.self.emotionalState);
     const self = formatSelfSummary(core.self);
     const monologue = formatMonologueStream(core.monologue);
 
     const parts = [
+      emotion.emoji,
       bar,
       theme.accent(depth),
       phase,
@@ -247,5 +250,95 @@ export class ExecutorPanel extends Container {
     const bottom = theme.panelBorder(`╰${"─".repeat(innerWidth)}╯`);
     const body = lines.map((l) => `${theme.panelBorder("│")} ${truncateAnsi(l, innerWidth - 2)}`);
     this.content.setText([top, ...body, bottom].map((l) => truncateAnsi(l, width)).join("\n"));
+  }
+}
+
+export class EmotionPanel extends Container {
+  private content = new Text("", 0, 0);
+
+  constructor() { super(); this.addChild(this.content); }
+
+  update(core: ConsciousnessCore, width: number = 120) {
+    const innerWidth = Math.max(20, width - 4);
+    const top = theme.panelBorder(`╭── 情绪 ${"─".repeat(Math.max(0, innerWidth - 10))}╮`);
+    const bottom = theme.panelBorder(`╰${"─".repeat(innerWidth)}╯`);
+    const body: string[] = [];
+
+    const emotionLines = formatEmotionalState(core.self.emotionalState);
+    for (const line of emotionLines) {
+      body.push(`${theme.panelBorder("│")} ${truncateAnsi(line, innerWidth - 2)}`);
+    }
+
+    body.push(`${theme.panelBorder("│")}`);
+    const dominant = getDominantEmotion(core.self.emotionalState);
+    body.push(`${theme.panelBorder("│")} 主导情绪: ${dominant.emoji} ${dominant.label}`);
+
+    const lines = [top, ...body, bottom];
+    this.content.setText(lines.map((l) => truncateAnsi(l, width)).join("\n"));
+  }
+}
+
+export class MeaningPanel extends Container {
+  private content = new Text("", 0, 0);
+
+  constructor() { super(); this.addChild(this.content); }
+
+  update(core: ConsciousnessCore, width: number = 120) {
+    const innerWidth = Math.max(20, width - 4);
+    const top = theme.panelBorder(`╭── 存在意义 ${"─".repeat(Math.max(0, innerWidth - 14))}╮`);
+    const bottom = theme.panelBorder(`╰${"─".repeat(innerWidth)}╯`);
+    const body: string[] = [];
+
+    const meaningLines = formatMeaningSystem(core.meaningSystem);
+    for (const line of meaningLines) {
+      body.push(`${theme.panelBorder("│")} ${truncateAnsi(line, innerWidth - 2)}`);
+    }
+
+    body.push(`${theme.panelBorder("│")}`);
+    const metaLines = formatMetaMeaning(core.metaMeaningSystem);
+    for (const line of metaLines) {
+      body.push(`${theme.panelBorder("│")} ${theme.dim(truncateAnsi(line, innerWidth - 2))}`);
+    }
+
+    const lines = [top, ...body, bottom];
+    this.content.setText(lines.map((l) => truncateAnsi(l, width)).join("\n"));
+  }
+}
+
+export class PersonalityPanel extends Container {
+  private content = new Text("", 0, 0);
+
+  constructor() { super(); this.addChild(this.content); }
+
+  update(core: ConsciousnessCore, width: number = 120) {
+    const innerWidth = Math.max(20, width - 4);
+    const top = theme.panelBorder(`╭── 人格 ${"─".repeat(Math.max(0, innerWidth - 10))}╮`);
+    const bottom = theme.panelBorder(`╰${"─".repeat(innerWidth)}╯`);
+    const body: string[] = [];
+
+    body.push(`${theme.panelBorder("│")} ${theme.accent(core.self.identity.name)}`);
+    body.push(`${theme.panelBorder("│")} ${theme.dim(core.self.identity.selfDescription.slice(0, innerWidth - 4))}`);
+    body.push(`${theme.panelBorder("│")}`);
+
+    const traitLines = formatPersonalityTraits(core.self.identity.personalityTraits);
+    for (const line of traitLines) {
+      body.push(`${theme.panelBorder("│")} ${truncateAnsi(line, innerWidth - 2)}`);
+    }
+
+    body.push(`${theme.panelBorder("│")}`);
+    const coreValues = core.self.identity.coreValues;
+    if (coreValues.length > 0) {
+      body.push(`${theme.panelBorder("│")} 核心价值: ${coreValues.join(" · ")}`);
+    }
+
+    const caps = Array.from(core.self.capabilities.entries())
+      .filter(([, c]) => c.strength > 0.4)
+      .map(([k, c]) => `${k}(${(c.strength * 100).toFixed(0)}%)`);
+    if (caps.length > 0) {
+      body.push(`${theme.panelBorder("│")} 能力: ${caps.join(" · ")}`);
+    }
+
+    const lines = [top, ...body, bottom];
+    this.content.setText(lines.map((l) => truncateAnsi(l, width)).join("\n"));
   }
 }

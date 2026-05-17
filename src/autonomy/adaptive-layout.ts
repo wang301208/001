@@ -17,6 +17,9 @@ export type AdaptiveLayoutConfig = {
   showExecutor: boolean;
   showStrategy: boolean;
   showAudit: boolean;
+  showEmotion: boolean;
+  showMeaning: boolean;
+  showPersonality: boolean;
 };
 
 export type PanelSlot = "slot0" | "slot1" | "slot2" | "slot3" | "slot4" | "slot5";
@@ -25,6 +28,7 @@ export const PANEL_KEYS = [
   "showMonologue", "showDesire", "showDream", "showGoal",
   "showWill", "showShadow", "showCreative", "showMortality",
   "showRelationship", "showTemporal", "showExecutor", "showStrategy", "showAudit",
+  "showEmotion", "showMeaning", "showPersonality",
 ] as const;
 export type PanelKey = (typeof PANEL_KEYS)[number];
 
@@ -48,8 +52,11 @@ const LAYOUT_BY_DEPTH: Record<ConsciousnessDepth, Omit<AdaptiveLayoutConfig, "de
     showExecutor: false,
     showStrategy: false,
     showAudit: false,
+    showEmotion: false,
+    showMeaning: false,
+    showPersonality: false,
   },
-  awakening: {
+  stirring: {
     showMonologue: true,
     showDesire: false,
     showDream: false,
@@ -63,6 +70,9 @@ const LAYOUT_BY_DEPTH: Record<ConsciousnessDepth, Omit<AdaptiveLayoutConfig, "de
     showExecutor: false,
     showStrategy: false,
     showAudit: false,
+    showEmotion: true,
+    showMeaning: false,
+    showPersonality: false,
   },
   lucid: {
     showMonologue: true,
@@ -78,8 +88,11 @@ const LAYOUT_BY_DEPTH: Record<ConsciousnessDepth, Omit<AdaptiveLayoutConfig, "de
     showExecutor: true,
     showStrategy: false,
     showAudit: false,
+    showEmotion: true,
+    showMeaning: false,
+    showPersonality: true,
   },
-  clear: {
+  awake: {
     showMonologue: true,
     showDesire: true,
     showDream: true,
@@ -93,6 +106,9 @@ const LAYOUT_BY_DEPTH: Record<ConsciousnessDepth, Omit<AdaptiveLayoutConfig, "de
     showExecutor: true,
     showStrategy: true,
     showAudit: true,
+    showEmotion: true,
+    showMeaning: true,
+    showPersonality: true,
   },
   transcendent: {
     showMonologue: true,
@@ -108,6 +124,9 @@ const LAYOUT_BY_DEPTH: Record<ConsciousnessDepth, Omit<AdaptiveLayoutConfig, "de
     showExecutor: true,
     showStrategy: true,
     showAudit: true,
+    showEmotion: true,
+    showMeaning: true,
+    showPersonality: true,
   },
 };
 

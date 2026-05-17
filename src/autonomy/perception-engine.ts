@@ -254,7 +254,9 @@ export class PerceptionEngine {
     for (const entry of this.watchers) {
       try {
         entry.watcher.close();
-      } catch {}
+      } catch {
+        // 监视器关闭失败是可接受的
+      }
     }
     this.watchers = [];
   }
@@ -273,7 +275,9 @@ export class PerceptionEngine {
       );
       watcher.on("error", () => {});
       this.watchers.push({ path: dirPath, watcher });
-    } catch {}
+    } catch {
+      // 目录监视失败是可接受的，可能无权限
+    }
   }
 
   private handleFileEvent(
@@ -358,7 +362,9 @@ export class PerceptionEngine {
       if (observer.filter && !observer.filter(event)) {continue;}
       try {
         observer.onEvent(event);
-      } catch {}
+      } catch {
+        // 观察者回调失败不应影响其他观察者
+      }
     }
   }
 }

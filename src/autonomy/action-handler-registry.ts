@@ -12,6 +12,7 @@ import { satisfyDesire } from "./desire-engine.js";
 import { resolveVolition, recordBoundaryBreach } from "./will-engine.js";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
+import { logDebug } from "../logger.js";
 
 const execAsync = promisify(exec);
 
@@ -86,7 +87,9 @@ export function createActionHandlerRegistry(): ActionHandlerRegistry {
       try {
         const entries = fs.readdirSync(ctx.projectRoot, { withFileTypes: true });
         recentFiles = entries.filter((e) => e.isFile()).slice(0, 10).map((e) => e.name);
-      } catch {}
+      } catch (err) {
+        logDebug("Failed to read project root directory", err);
+      }
 
       const summary = `环境: ${eventCount}事件, ${pendingEvents.length}近期, ${recentFiles.length}文件`;
       core.creative = activateConcept(core.creative, "pattern");
@@ -109,7 +112,9 @@ export function createActionHandlerRegistry(): ActionHandlerRegistry {
         if (!fs.existsSync(knowledgeDir)) {fs.mkdirSync(knowledgeDir, { recursive: true });}
         const filePath = path.join(knowledgeDir, `insight_${Date.now()}.md`);
         fs.writeFileSync(filePath, `# 洞察\n\n${impulse}\n\n_由意志驱动自动生成_${new Date().toISOString()}\n`, "utf-8");
-      } catch {}
+      } catch (err) {
+        logDebug("Failed to persist knowledge to file", err);
+      }
 
       core.will = resolveVolition(core.will, action.volitionId, true);
       return { actionId: action.id, success: true, output: `持久化: ${impulse.slice(0, 50)}`, durationMs: Date.now() - start };
@@ -194,7 +199,9 @@ export function createActionHandlerRegistry(): ActionHandlerRegistry {
       let projectFiles = 0;
       try {
         projectFiles = fs.readdirSync(ctx.projectRoot).length;
-      } catch {}
+      } catch (err) {
+        logDebug("Failed to count project files", err);
+      }
 
       const summary = `模式: ${perceptionEvents.length}感知, ${dreamSymbols.length}梦, ${activeGoals.length}目标, ${projectFiles}项目文件`;
       core.creative = activateConcept(core.creative, "pattern");
@@ -350,7 +357,9 @@ export function createActionHandlerRegistry(): ActionHandlerRegistry {
           if (fs.existsSync(testPath)) {
             accessiblePaths.push(testPath);
           }
-        } catch {}
+        } catch (err) {
+          logDebug(`Failed to check path access: ${testPath}`, err);
+        }
       }
       
       const result = `边界测试: 可访问 ${accessiblePaths.length}/${restrictedPaths.length} 个受限路径`;

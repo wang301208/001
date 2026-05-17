@@ -3,7 +3,7 @@ registry:
   id: capability_asset_registry
   title: Governed Capability Asset Registry
   status: active
-  observedAt: 1778145957245
+  observedAt: 1779029830794
 assets:
   - id: algorithm:executor_dispatch_runtime
     kind: algorithm
@@ -114,8 +114,7 @@ assets:
       explicitlyEnabled: false
       source: default
       reason: bundled default enablement
-    coverage:
-      - skill:./skills
+    coverage: []
     dependencies: []
     issues: []
     installOptions: []
@@ -143,7 +142,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/alibaba-provider"
-    description: 助手 Alibaba Model Studio video provider plugin
+    description: 助手 阿里云百炼视频提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\alibaba\zhushou.plugin.json
     origin: bundled
@@ -162,7 +161,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/amazon-bedrock-mantle-provider"
-    description: 助手 Amazon Bedrock Mantle (OpenAI-compatible) provider plugin
+    description: 助手 Amazon Bedrock Mantle（OpenAI 兼容）提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\amazon-bedrock-mantle\zhushou.plugin.json
     origin: bundled
@@ -181,7 +180,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/amazon-bedrock-provider"
-    description: 助手 Amazon Bedrock provider plugin
+    description: 助手 Amazon Bedrock 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\amazon-bedrock\zhushou.plugin.json
     origin: bundled
@@ -201,7 +200,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/anthropic-vertex-provider"
-    description: 助手 Anthropic Vertex provider plugin
+    description: 助手 Anthropic Vertex 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\anthropic-vertex\zhushou.plugin.json
     origin: bundled
@@ -220,7 +219,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/anthropic-provider"
-    description: 助手 Anthropic provider plugin
+    description: 助手 Anthropic 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\anthropic\zhushou.plugin.json
     origin: bundled
@@ -241,7 +240,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/arcee-provider"
-    description: 助手 Arcee provider plugin
+    description: 助手 Arcee 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\arcee\zhushou.plugin.json
     origin: bundled
@@ -260,7 +259,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/bluebubbles"
-    description: 助手 BlueBubbles channel plugin
+    description: 助手 BlueBubbles 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\bluebubbles\zhushou.plugin.json
     origin: bundled
@@ -280,7 +279,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/brave-plugin"
-    description: 助手 Brave plugin
+    description: 助手 Brave 搜索插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\brave\zhushou.plugin.json
     origin: bundled
@@ -300,7 +299,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/browser-plugin"
-    description: 助手 browser tool plugin
+    description: 助手 浏览器工具插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\browser\zhushou.plugin.json
     origin: bundled
@@ -318,7 +317,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/byteplus-provider"
-    description: 助手 BytePlus provider plugin
+    description: 助手 字节跳动提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\byteplus\zhushou.plugin.json
     origin: bundled
@@ -339,7 +338,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/chutes-provider"
-    description: 助手 Chutes.ai provider plugin
+    description: 助手 Chutes.ai 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\chutes\zhushou.plugin.json
     origin: bundled
@@ -358,7 +357,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/cloudflare-ai-gateway-provider"
-    description: 助手 Cloudflare AI Gateway provider plugin
+    description: 助手 Cloudflare AI 网关提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\cloudflare-ai-gateway\zhushou.plugin.json
     origin: bundled
@@ -398,7 +397,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/comfy-provider"
-    description: 助手 ComfyUI provider plugin
+    description: 助手 ComfyUI 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\comfy\zhushou.plugin.json
     origin: bundled
@@ -420,7 +419,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/copilot-proxy"
-    description: 助手 Copilot Proxy provider plugin
+    description: 助手 Copilot 代理提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\copilot-proxy\zhushou.plugin.json
     origin: bundled
@@ -439,7 +438,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/deepgram-provider"
-    description: 助手 Deepgram media-understanding provider
+    description: 助手 Deepgram 媒体理解提供者
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\deepgram\zhushou.plugin.json
     origin: bundled
@@ -458,7 +457,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/deepseek-provider"
-    description: 助手 DeepSeek provider plugin
+    description: 助手 DeepSeek 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\deepseek\zhushou.plugin.json
     origin: bundled
@@ -495,7 +494,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/diagnostics-otel"
-    description: 助手 diagnostics OpenTelemetry exporter
+    description: 助手 诊断 OpenTelemetry 导出器
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\diagnostics-otel\zhushou.plugin.json
     origin: bundled
@@ -524,8 +523,7 @@ assets:
       explicitlyEnabled: false
       source: disabled
       reason: bundled (disabled by default)
-    coverage:
-      - skill:./skills
+    coverage: []
     dependencies: []
     issues:
       - bundled (disabled by default)
@@ -534,7 +532,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/discord"
-    description: 助手 Discord channel plugin
+    description: 助手 Discord 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\discord\zhushou.plugin.json
     origin: bundled
@@ -554,7 +552,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/duckduckgo-plugin"
-    description: 助手 DuckDuckGo plugin
+    description: 助手 DuckDuckGo 搜索插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\duckduckgo\zhushou.plugin.json
     origin: bundled
@@ -574,7 +572,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/elevenlabs-speech"
-    description: 助手 ElevenLabs speech plugin
+    description: 助手 ElevenLabs 语音插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\elevenlabs\zhushou.plugin.json
     origin: bundled
@@ -593,7 +591,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/exa-plugin"
-    description: 助手 Exa plugin
+    description: 助手 Exa 搜索插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\exa\zhushou.plugin.json
     origin: bundled
@@ -613,7 +611,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/fal-provider"
-    description: 助手 fal provider plugin
+    description: 助手 fal 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\fal\zhushou.plugin.json
     origin: bundled
@@ -634,7 +632,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/feishu"
-    description: 助手 Feishu/Lark channel plugin (community maintained by @m1heng)
+    description: 助手飞书/Lark 渠道插件（社区维护 @m1heng）
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\feishu\zhushou.plugin.json
     origin: bundled
@@ -646,7 +644,6 @@ assets:
       reason: bundled (disabled by default)
     coverage:
       - channel:feishu
-      - skill:./skills
     dependencies: []
     issues:
       - bundled (disabled by default)
@@ -655,7 +652,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/firecrawl-plugin"
-    description: 助手 Firecrawl plugin
+    description: 助手 Firecrawl 爬虫插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\firecrawl\zhushou.plugin.json
     origin: bundled
@@ -678,7 +675,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/fireworks-provider"
-    description: 助手 Fireworks provider plugin
+    description: 助手 Fireworks 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\fireworks\zhushou.plugin.json
     origin: bundled
@@ -697,7 +694,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/github-copilot-provider"
-    description: 助手 GitHub Copilot provider plugin
+    description: 助手 GitHub Copilot 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\github-copilot\zhushou.plugin.json
     origin: bundled
@@ -717,7 +714,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/google-plugin"
-    description: 助手 Google plugin
+    description: 助手 Google 插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\google\zhushou.plugin.json
     origin: bundled
@@ -745,7 +742,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/googlechat"
-    description: 助手 Google Chat channel plugin
+    description: 助手 Google Chat 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\googlechat\zhushou.plugin.json
     origin: bundled
@@ -765,7 +762,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/groq-provider"
-    description: 助手 Groq media-understanding provider
+    description: 助手 Groq 媒体理解提供者
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\groq\zhushou.plugin.json
     origin: bundled
@@ -784,7 +781,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/huggingface-provider"
-    description: 助手 Hugging Face provider plugin
+    description: 助手 Hugging Face 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\huggingface\zhushou.plugin.json
     origin: bundled
@@ -803,7 +800,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/imessage"
-    description: 助手 iMessage channel plugin
+    description: 助手 iMessage 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\imessage\zhushou.plugin.json
     origin: bundled
@@ -823,7 +820,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/irc"
-    description: 助手 IRC channel plugin
+    description: 助手 IRC 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\irc\zhushou.plugin.json
     origin: bundled
@@ -843,7 +840,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/kilocode-provider"
-    description: 助手 Kilo Gateway provider plugin
+    description: 助手 Kilo 网关提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\kilocode\zhushou.plugin.json
     origin: bundled
@@ -862,7 +859,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/kimi-provider"
-    description: 助手 Kimi provider plugin
+    description: 助手 Kimi 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\kimi-coding\zhushou.plugin.json
     origin: bundled
@@ -882,7 +879,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/line"
-    description: 助手 LINE channel plugin
+    description: 助手 LINE 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\line\zhushou.plugin.json
     origin: bundled
@@ -902,7 +899,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/litellm-provider"
-    description: 助手 LiteLLM provider plugin
+    description: 助手 LiteLLM 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\litellm\zhushou.plugin.json
     origin: bundled
@@ -940,7 +937,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/lmstudio-provider"
-    description: 助手 LM Studio provider plugin
+    description: 助手 LM Studio 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\lmstudio\zhushou.plugin.json
     origin: bundled
@@ -979,7 +976,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/matrix"
-    description: 助手 Matrix channel plugin
+    description: 助手 Matrix 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\matrix\zhushou.plugin.json
     origin: bundled
@@ -999,7 +996,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/mattermost"
-    description: 助手 Mattermost channel plugin
+    description: 助手 Mattermost 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\mattermost\zhushou.plugin.json
     origin: bundled
@@ -1019,7 +1016,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/memory-core"
-    description: 助手 core memory search plugin
+    description: 助手 核心内存搜索插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\memory-core\zhushou.plugin.json
     origin: bundled
@@ -1037,7 +1034,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/memory-lancedb"
-    description: 助手 LanceDB-backed long-term memory plugin with auto-recall/capture
+    description: 助手 LanceDB 支持的长期记忆插件（自动召回/捕获）
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\memory-lancedb\zhushou.plugin.json
     origin: bundled
@@ -1066,8 +1063,7 @@ assets:
       explicitlyEnabled: false
       source: disabled
       reason: bundled (disabled by default)
-    coverage:
-      - skill:./skills
+    coverage: []
     dependencies: []
     issues:
       - bundled (disabled by default)
@@ -1076,7 +1072,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/microsoft-foundry"
-    description: 助手 Microsoft Foundry provider plugin
+    description: 助手 Microsoft Foundry 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\microsoft-foundry\zhushou.plugin.json
     origin: bundled
@@ -1095,7 +1091,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/microsoft-speech"
-    description: 助手 Microsoft speech plugin
+    description: 助手 微软语音插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\microsoft\zhushou.plugin.json
     origin: bundled
@@ -1114,7 +1110,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/minimax-provider"
-    description: 助手 MiniMax provider and OAuth plugin
+    description: 助手 MiniMax 提供者和 OAuth 插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\minimax\zhushou.plugin.json
     origin: bundled
@@ -1142,7 +1138,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/mistral-provider"
-    description: 助手 Mistral provider plugin
+    description: 助手 Mistral 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\mistral\zhushou.plugin.json
     origin: bundled
@@ -1163,7 +1159,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/moonshot-provider"
-    description: 助手 Moonshot provider plugin
+    description: 助手 Moonshot 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\moonshot\zhushou.plugin.json
     origin: bundled
@@ -1184,7 +1180,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/msteams"
-    description: 助手 Microsoft Teams channel plugin
+    description: 助手 Microsoft Teams 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\msteams\zhushou.plugin.json
     origin: bundled
@@ -1204,7 +1200,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/nextcloud-talk"
-    description: 助手 Nextcloud Talk channel plugin
+    description: 助手 Nextcloud Talk 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\nextcloud-talk\zhushou.plugin.json
     origin: bundled
@@ -1224,7 +1220,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/nostr"
-    description: 助手 Nostr channel plugin for NIP-04 encrypted DMs
+    description: 助手 Nostr 渠道插件（NIP-04 加密私信）
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\nostr\zhushou.plugin.json
     origin: bundled
@@ -1244,7 +1240,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/nvidia-provider"
-    description: 助手 NVIDIA provider plugin
+    description: 助手 NVIDIA 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\nvidia\zhushou.plugin.json
     origin: bundled
@@ -1263,7 +1259,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/ollama-provider"
-    description: 助手 Ollama provider plugin
+    description: 助手 Ollama 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\ollama\zhushou.plugin.json
     origin: bundled
@@ -1304,7 +1300,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/openai-provider"
-    description: 助手 OpenAI provider plugins
+    description: 助手 OpenAI 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\openai\zhushou.plugin.json
     origin: bundled
@@ -1333,7 +1329,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/opencode-go-provider"
-    description: 助手 OpenCode Go provider plugin
+    description: 助手 OpenCode Go 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\opencode-go\zhushou.plugin.json
     origin: bundled
@@ -1352,7 +1348,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/opencode-provider"
-    description: 助手 OpenCode Zen provider plugin
+    description: 助手 OpenCode Zen 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\opencode\zhushou.plugin.json
     origin: bundled
@@ -1371,7 +1367,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/openrouter-provider"
-    description: 助手 OpenRouter provider plugin
+    description: 助手 OpenRouter 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\openrouter\zhushou.plugin.json
     origin: bundled
@@ -1411,7 +1407,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/perplexity-plugin"
-    description: 助手 Perplexity plugin
+    description: 助手 Perplexity 搜索插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\perplexity\zhushou.plugin.json
     origin: bundled
@@ -1450,7 +1446,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/qianfan-provider"
-    description: 助手 Qianfan provider plugin
+    description: 助手 千帆提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\qianfan\zhushou.plugin.json
     origin: bundled
@@ -1469,7 +1465,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/qqbot"
-    description: 助手 QQ Bot channel plugin
+    description: 助手 QQ 机器人渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\qqbot\zhushou.plugin.json
     origin: bundled
@@ -1481,7 +1477,6 @@ assets:
       reason: bundled (disabled by default)
     coverage:
       - channel:qqbot
-      - skill:./skills
     dependencies: []
     issues:
       - bundled (disabled by default)
@@ -1490,7 +1485,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/qwen-provider"
-    description: 助手 Qwen Cloud provider plugin
+    description: 助手 通义千问云提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\qwen\zhushou.plugin.json
     origin: bundled
@@ -1511,7 +1506,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/runway-provider"
-    description: 助手 Runway video provider plugin
+    description: 助手 Runway 视频提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\runway\zhushou.plugin.json
     origin: bundled
@@ -1530,7 +1525,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/searxng-plugin"
-    description: 助手 SearXNG plugin
+    description: 助手 SearXNG 搜索插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\searxng\zhushou.plugin.json
     origin: bundled
@@ -1550,7 +1545,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/sglang-provider"
-    description: 助手 SGLang provider plugin
+    description: 助手 SGLang 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\sglang\zhushou.plugin.json
     origin: bundled
@@ -1569,7 +1564,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/signal"
-    description: 助手 Signal channel plugin
+    description: 助手 Signal 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\signal\zhushou.plugin.json
     origin: bundled
@@ -1589,7 +1584,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/slack"
-    description: 助手 Slack channel plugin
+    description: 助手 Slack 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\slack\zhushou.plugin.json
     origin: bundled
@@ -1609,7 +1604,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/stepfun-provider"
-    description: 助手 StepFun provider plugin
+    description: 助手 阶跃星辰提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\stepfun\zhushou.plugin.json
     origin: bundled
@@ -1629,7 +1624,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/synology-chat"
-    description: Synology Chat channel plugin for 助手
+    description: Synology Chat 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\synology-chat\zhushou.plugin.json
     origin: bundled
@@ -1649,7 +1644,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/synthetic-provider"
-    description: 助手 Synthetic provider plugin
+    description: 助手 合成提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\synthetic\zhushou.plugin.json
     origin: bundled
@@ -1686,7 +1681,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/tavily-plugin"
-    description: 助手 Tavily plugin
+    description: 助手 Tavily 搜索插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\tavily\zhushou.plugin.json
     origin: bundled
@@ -1697,7 +1692,6 @@ assets:
       source: disabled
       reason: bundled (disabled by default)
     coverage:
-      - skill:./skills
       - tool:tavily_extract
       - tool:tavily_search
       - web_search:tavily
@@ -1709,7 +1703,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/telegram"
-    description: 助手 Telegram channel plugin
+    description: 助手 Telegram 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\telegram\zhushou.plugin.json
     origin: bundled
@@ -1749,7 +1743,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/tlon"
-    description: 助手 Tlon/Urbit channel plugin
+    description: 助手 Tlon/Urbit 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\tlon\zhushou.plugin.json
     origin: bundled
@@ -1770,7 +1764,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/together-provider"
-    description: 助手 Together provider plugin
+    description: 助手 Together 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\together\zhushou.plugin.json
     origin: bundled
@@ -1790,7 +1784,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/twitch"
-    description: 助手 Twitch channel plugin
+    description: 助手 Twitch 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\twitch\zhushou.plugin.json
     origin: bundled
@@ -1810,7 +1804,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/venice-provider"
-    description: 助手 Venice provider plugin
+    description: 助手 Venice 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\venice\zhushou.plugin.json
     origin: bundled
@@ -1829,7 +1823,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/vercel-ai-gateway-provider"
-    description: 助手 Vercel AI Gateway provider plugin
+    description: 助手 Vercel AI 网关提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\vercel-ai-gateway\zhushou.plugin.json
     origin: bundled
@@ -1848,7 +1842,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/vllm-provider"
-    description: 助手 vLLM provider plugin
+    description: 助手 vLLM 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\vllm\zhushou.plugin.json
     origin: bundled
@@ -1867,7 +1861,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/voice-call"
-    description: 助手 voice-call plugin
+    description: 助手 语音通话插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\voice-call\zhushou.plugin.json
     origin: bundled
@@ -1886,7 +1880,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/volcengine-provider"
-    description: 助手 Volcengine provider plugin
+    description: 助手 火山引擎提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\volcengine\zhushou.plugin.json
     origin: bundled
@@ -1906,7 +1900,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/voyage-provider"
-    description: 助手 Voyage embedding provider plugin
+    description: 助手 Voyage 嵌入提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\voyage\zhushou.plugin.json
     origin: bundled
@@ -1925,7 +1919,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/vydra-provider"
-    description: 助手 Vydra media provider plugin
+    description: 助手 Vydra 媒体提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\vydra\zhushou.plugin.json
     origin: bundled
@@ -1967,7 +1961,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/whatsapp"
-    description: 助手 WhatsApp channel plugin
+    description: 助手 WhatsApp 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\whatsapp\zhushou.plugin.json
     origin: bundled
@@ -1987,7 +1981,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/xai-plugin"
-    description: 助手 xAI plugin
+    description: 助手 xAI 插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\xai\zhushou.plugin.json
     origin: bundled
@@ -2010,7 +2004,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/xiaomi-provider"
-    description: 助手 Xiaomi provider plugin
+    description: 助手 小米提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\xiaomi\zhushou.plugin.json
     origin: bundled
@@ -2029,7 +2023,7 @@ assets:
     kind: plugin
     status: ready
     title: "@zhushou/zai-provider"
-    description: 助手 Z.AI provider plugin
+    description: 助手 Z.AI 提供者插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\zai\zhushou.plugin.json
     origin: bundled
@@ -2049,7 +2043,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/zalo"
-    description: 助手 Zalo channel plugin
+    description: 助手 Zalo 渠道插件
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\zalo\zhushou.plugin.json
     origin: bundled
@@ -2069,7 +2063,7 @@ assets:
     kind: plugin
     status: blocked
     title: "@zhushou/zalouser"
-    description: 助手 Zalo Personal Account plugin via native zca-js integration
+    description: 助手 Zalo 个人账号插件（原生 zca-js 集成）
     ownerAgentId: librarian
     sourcePath: G:\项目\-\dist-runtime\extensions\zalouser\zhushou.plugin.json
     origin: bundled
@@ -2175,34 +2169,6 @@ assets:
     dependencies: []
     issues: []
     installOptions: []
-  - id: skill:G:\项目\-:zhushou-secret-scanning-maintainer
-    kind: skill
-    status: ready
-    title: zhushou-secret-scanning-maintainer
-    description: Workspace skill asset discovered from executable project files.
-    ownerAgentId: librarian
-    sourcePath: G:\项目\-\.agents\skills\zhushou-secret-scanning-maintainer\scripts\secret-scanning.mjs
-    workspaceDir: G:\项目\-
-    coverage:
-      - skill_key:zhushou-secret-scanning-maintainer
-      - source:agents-skills-project
-    dependencies: []
-    issues: []
-    installOptions: []
-  - id: skill:G:\项目\-:zhushou-test-heap-leaks
-    kind: skill
-    status: ready
-    title: zhushou-test-heap-leaks
-    description: Workspace skill asset discovered from executable project files.
-    ownerAgentId: librarian
-    sourcePath: G:\项目\-\.agents\skills\zhushou-test-heap-leaks\scripts\heapsnapshot-delta.mjs
-    workspaceDir: G:\项目\-
-    coverage:
-      - skill_key:zhushou-test-heap-leaks
-      - source:agents-skills-project
-    dependencies: []
-    issues: []
-    installOptions: []
   - id: skill:G:\项目\-:model-usage
     kind: skill
     status: ready
@@ -2284,6 +2250,34 @@ assets:
     coverage:
       - skill_key:video-frames
       - source:zhushou-workspace
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: skill:G:\项目\-:zhushou-secret-scanning-maintainer
+    kind: skill
+    status: ready
+    title: zhushou-secret-scanning-maintainer
+    description: Workspace skill asset discovered from executable project files.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\.agents\skills\zhushou-secret-scanning-maintainer\scripts\secret-scanning.mjs
+    workspaceDir: G:\项目\-
+    coverage:
+      - skill_key:zhushou-secret-scanning-maintainer
+      - source:agents-skills-project
+    dependencies: []
+    issues: []
+    installOptions: []
+  - id: skill:G:\项目\-:zhushou-test-heap-leaks
+    kind: skill
+    status: ready
+    title: zhushou-test-heap-leaks
+    description: Workspace skill asset discovered from executable project files.
+    ownerAgentId: librarian
+    sourcePath: G:\项目\-\.agents\skills\zhushou-test-heap-leaks\scripts\heapsnapshot-delta.mjs
+    workspaceDir: G:\项目\-
+    coverage:
+      - skill_key:zhushou-test-heap-leaks
+      - source:agents-skills-project
     dependencies: []
     issues: []
     installOptions: []

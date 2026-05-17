@@ -1,12 +1,11 @@
 import {
   type Component,
   Input,
-  isKeyRelease,
-  matchesKey,
   type SelectItem,
   type SelectListTheme,
   truncateToWidth,
 } from "@mariozechner/pi-tui";
+import { matchesKey, isKeyRelease } from "../adapters/index.js";
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 import { stripAnsi, visibleWidth } from "../../terminal/ansi.js";
 import { findWordBoundaryIndex, fuzzyFilterLower } from "./fuzzy-filter.js";

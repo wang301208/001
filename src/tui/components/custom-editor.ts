@@ -1,4 +1,5 @@
-import { Editor, Key, matchesKey, truncateToWidth, visibleWidth } from "@mariozechner/pi-tui";
+import { Editor, truncateToWidth, visibleWidth } from "@mariozechner/pi-tui";
+import { Key, matchesKey } from "../adapters/index.js";
 
 export class CustomEditor extends Editor {
   onEscape?: () => void;
@@ -24,6 +25,9 @@ export class CustomEditor extends Editor {
   onCtrl1?: () => void;
   onCtrl2?: () => void;
   onCtrl3?: () => void;
+  onCtrl4?: () => void;
+  onCtrl5?: () => void;
+  onCtrl6?: () => void;
   onShiftTab?: () => void;
   onAltEnter?: () => void;
   onAltUp?: () => void;
@@ -134,6 +138,18 @@ export class CustomEditor extends Editor {
     }
     if (matchesKey(data, Key.ctrl("3")) && this.onCtrl3) {
       this.onCtrl3();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("4")) && this.onCtrl4) {
+      this.onCtrl4();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("5")) && this.onCtrl5) {
+      this.onCtrl5();
+      return;
+    }
+    if (matchesKey(data, Key.ctrl("6")) && this.onCtrl6) {
+      this.onCtrl6();
       return;
     }
     if (matchesKey(data, Key.shift("tab")) && this.onShiftTab) {

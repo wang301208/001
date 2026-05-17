@@ -1,0 +1,5 @@
+[pi-tui] TUI.handleInput: hex=0d focused=Editor
+[pi-tui] Editor.handleInput: hex=0d len=1
+[pi-tui] submitValue() called, text="hello"
+[pi-tui] TUI.handleInput: hex=1b 5b 32 37 3b 31 3b 31 33 7e focused=Editor
+[pi-tui] submitValue() called, text="test2"

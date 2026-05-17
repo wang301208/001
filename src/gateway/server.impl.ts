@@ -432,6 +432,7 @@ export async function startGatewayServer(
   });
   trace("after createChannelManager");
   log.info("starting HTTP server...");
+  let honoBridge: { handleRequest: (req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse) => Promise<boolean> } | undefined;
   const {
     canvasHost,
     releasePluginRouteRegistry,
@@ -513,7 +514,6 @@ export async function startGatewayServer(
 
   // ── Hono 路由桥接 ──
   // 将自治中间件（自防御/语义缓存/成本治理/审计链）织入 Hono 请求流
-  let honoBridge: { handleRequest: (req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse) => Promise<boolean> } | undefined;
   try {
     if (process.env.ZHUSHOU_HONO_BRIDGE !== "false") {
       const { createHonoBridge } = await import("./hono-router/bridge.js");

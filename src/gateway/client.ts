@@ -394,7 +394,9 @@ export class GatewayClient {
       const forceTerminateTimer = setTimeout(() => {
         try {
           ws.terminate();
-        } catch {}
+        } catch (err) {
+          logDebug("WebSocket terminate failed during force stop", err);
+        }
         this.resolvePendingStop(ws);
       }, FORCE_STOP_TERMINATE_GRACE_MS);
       forceTerminateTimer.unref?.();

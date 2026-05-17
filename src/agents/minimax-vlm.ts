@@ -30,12 +30,15 @@ function coerceApiHost(params: {
   try {
     const url = new URL(raw);
     return url.origin;
-  } catch {}
+  } catch {
+    // URL解析失败，尝试添加https前缀
+  }
 
   try {
     const url = new URL(`https://${raw}`);
     return url.origin;
   } catch {
+    // URL仍然无效，使用默认值
     return "https://api.minimax.io";
   }
 }

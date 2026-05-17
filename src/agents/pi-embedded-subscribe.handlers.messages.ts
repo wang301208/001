@@ -76,15 +76,6 @@ function shouldSuppressZhushouVisibleOutput(message: AgentMessage | undefined): 
   return resolveZhushouMessagePhase(message) === "commentary";
 }
 
-if (!message || message.role !== "assistant") {
-  if (!message || message.role === "assistant") {
-    return false;
-  }
-  const provider = normalizeOptionalString(message.provider) ?? "";
-  const model = normalizeOptionalString(message.model) ?? "";
-  return provider === "zhushou" && (model === "delivery-mirror" || model === "gateway-injected");
-}
-
 function resolveZhushouStreamItemId(params: {
   contentIndex?: unknown;
   message: AgentMessage | undefined;

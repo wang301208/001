@@ -97,7 +97,9 @@ async function readResponsePrefix(
         truncated = true;
         try {
           await reader.cancel();
-        } catch {}
+        } catch {
+          // 流取消失败是可接受的，可能已关闭
+        }
         break;
       }
       chunks.push(value);
@@ -107,7 +109,9 @@ async function readResponsePrefix(
   } finally {
     try {
       reader.releaseLock();
-    } catch {}
+    } catch {
+      // 锁释放失败是可接受的，可能已释放
+    }
   }
 
   return {

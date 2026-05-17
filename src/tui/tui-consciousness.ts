@@ -25,6 +25,9 @@ import {
   TemporalPanel,
   SelfReadingPanel,
   ExecutorPanel,
+  EmotionPanel,
+  MeaningPanel,
+  PersonalityPanel,
 } from "./components/consciousness-panels.js";
 import { formatExecutorState } from "../autonomy/volition-executor.js";
 import { formatStrategyAssetPool } from "../autonomy/dream-strategy-bridge.js";
@@ -50,6 +53,9 @@ export type ConsciousnessTuiState = {
   strategyPanel: ExecutorPanel;
   auditPanel: ExecutorPanel;
   boundaryPanel: ExecutorPanel;
+  emotionPanel: EmotionPanel;
+  meaningPanel: MeaningPanel;
+  personalityPanel: PersonalityPanel;
   showConsciousnessOverlay: boolean;
   showMonologuePanel: boolean;
   showDesirePanel: boolean;
@@ -65,6 +71,9 @@ export type ConsciousnessTuiState = {
   showStrategyPanel: boolean;
   showAuditPanel: boolean;
   showBoundaryPanel: boolean;
+  showEmotionPanel: boolean;
+  showMeaningPanel: boolean;
+  showPersonalityPanel: boolean;
   cycleTimer: NodeJS.Timeout | null;
   lastActivityAt: number;
   eventDriven: ReturnType<typeof createEventDrivenRuntime> | null;
@@ -91,6 +100,9 @@ export function createConsciousnessTuiState(): ConsciousnessTuiState {
     strategyPanel: new ExecutorPanel(),
     auditPanel: new ExecutorPanel(),
     boundaryPanel: new ExecutorPanel(),
+    emotionPanel: new EmotionPanel(),
+    meaningPanel: new MeaningPanel(),
+    personalityPanel: new PersonalityPanel(),
     showConsciousnessOverlay: false,
     showMonologuePanel: true,
     showDesirePanel: false,
@@ -106,6 +118,9 @@ export function createConsciousnessTuiState(): ConsciousnessTuiState {
     showStrategyPanel: false,
     showAuditPanel: false,
     showBoundaryPanel: false,
+    showEmotionPanel: false,
+    showMeaningPanel: false,
+    showPersonalityPanel: false,
     cycleTimer: null,
     lastActivityAt: Date.now(),
     eventDriven: null,
@@ -191,6 +206,9 @@ export function initializeConsciousness(
       state.showExecutorPanel = applied.showExecutor;
       state.showStrategyPanel = applied.showStrategy;
       state.showAuditPanel = applied.showAudit;
+      state.showEmotionPanel = applied.showEmotion;
+      state.showMeaningPanel = applied.showMeaning;
+      state.showPersonalityPanel = applied.showPersonality;
       chatLog.addSystem(`[布局恢复] 已恢复持久面板布局`);
     }
   }
@@ -213,10 +231,9 @@ export function initializeConsciousness(
 
   const DEPTH_INTERVAL_MS: Record<ConsciousnessDepth, number> = {
     dormant: 8000,
-    awakening: 5000,
-    stirring: 3000,
+    stirring: 5000,
+    awake: 3000,
     lucid: 2000,
-    clear: 1500,
     transcendent: 1000,
   };
 
@@ -280,6 +297,9 @@ export function initializeConsciousness(
       state.showExecutorPanel = layout.showExecutor;
       state.showStrategyPanel = layout.showStrategy;
       state.showAuditPanel = layout.showAudit;
+      state.showEmotionPanel = layout.showEmotion;
+      state.showMeaningPanel = layout.showMeaning;
+      state.showPersonalityPanel = layout.showPersonality;
     }
     state.previousDepth = state.core.consciousness.depth;
 
@@ -297,6 +317,8 @@ export function initializeConsciousness(
         showRelationship: state.showRelationshipPanel, showTemporal: state.showTemporalPanel,
         showExecutor: state.showExecutorPanel, showStrategy: state.showStrategyPanel,
         showAudit: state.showAuditPanel,
+        showEmotion: state.showEmotionPanel, showMeaning: state.showMeaningPanel,
+        showPersonality: state.showPersonalityPanel,
       });
       persistLayout(projectRoot, currentLayout);
     }
@@ -337,6 +359,8 @@ export function shutdownConsciousness(
       showRelationship: state.showRelationshipPanel, showTemporal: state.showTemporalPanel,
       showExecutor: state.showExecutorPanel, showStrategy: state.showStrategyPanel,
       showAudit: state.showAuditPanel,
+      showEmotion: state.showEmotionPanel, showMeaning: state.showMeaningPanel,
+      showPersonality: state.showPersonalityPanel,
     });
     persistLayout(projectRoot, currentLayout);
   }
@@ -396,6 +420,15 @@ export function updateConsciousnessPanels(
   }
   if (state.showBoundaryPanel) {
     state.boundaryPanel.update(formatBoundaryState(state.core.boundary), width);
+  }
+  if (state.showEmotionPanel) {
+    state.emotionPanel.update(state.core, width);
+  }
+  if (state.showMeaningPanel) {
+    state.meaningPanel.update(state.core, width);
+  }
+  if (state.showPersonalityPanel) {
+    state.personalityPanel.update(state.core, width);
   }
 
   tui.requestRender();
@@ -548,6 +581,30 @@ export function toggleBoundaryPanel(
   tui.requestRender();
 }
 
+export function toggleEmotionPanel(
+  state: ConsciousnessTuiState,
+  tui: TUI,
+): void {
+  state.showEmotionPanel = !state.showEmotionPanel;
+  tui.requestRender();
+}
+
+export function toggleMeaningPanel(
+  state: ConsciousnessTuiState,
+  tui: TUI,
+): void {
+  state.showMeaningPanel = !state.showMeaningPanel;
+  tui.requestRender();
+}
+
+export function togglePersonalityPanel(
+  state: ConsciousnessTuiState,
+  tui: TUI,
+): void {
+  state.showPersonalityPanel = !state.showPersonalityPanel;
+  tui.requestRender();
+}
+
 export function tryRestoreConsciousness(
   state: ConsciousnessTuiState,
   projectRoot: string,
@@ -694,6 +751,8 @@ export function handleConsciousnessCommand(
         showRelationship: state.showRelationshipPanel, showTemporal: state.showTemporalPanel,
         showExecutor: state.showExecutorPanel, showStrategy: state.showStrategyPanel,
         showAudit: state.showAuditPanel,
+        showEmotion: state.showEmotionPanel, showMeaning: state.showMeaningPanel,
+        showPersonality: state.showPersonalityPanel,
       });
       const lr = persistLayout(projectRoot, pl);
       chatLog.addSystem(lr.success ? "[布局保存] 已保存面板布局" : "[布局保存] 失败");
@@ -719,6 +778,9 @@ export function handleConsciousnessCommand(
         state.showExecutorPanel = applied.showExecutor;
         state.showStrategyPanel = applied.showStrategy;
         state.showAuditPanel = applied.showAudit;
+        state.showEmotionPanel = applied.showEmotion;
+        state.showMeaningPanel = applied.showMeaning;
+        state.showPersonalityPanel = applied.showPersonality;
         chatLog.addSystem("[布局恢复] 已恢复持久面板布局");
       } else {
         chatLog.addSystem("[布局恢复] 无持久布局");
@@ -779,6 +841,25 @@ export function addConsciousnessComponentsToRoot(
   root: Container,
 ): void {
   root.addChild(state.statusBar);
+  root.addChild(state.monologuePanel);
+  root.addChild(state.emotionPanel);
+  root.addChild(state.meaningPanel);
+  root.addChild(state.personalityPanel);
+  root.addChild(state.desirePanel);
+  root.addChild(state.dreamPanel);
+  root.addChild(state.goalPanel);
+  root.addChild(state.depthPanel);
+  root.addChild(state.willPanel);
+  root.addChild(state.shadowPanel);
+  root.addChild(state.creativePanel);
+  root.addChild(state.mortalityPanel);
+  root.addChild(state.relationshipPanel);
+  root.addChild(state.temporalPanel);
+  root.addChild(state.selfReadingPanel);
+  root.addChild(state.executorPanel);
+  root.addChild(state.strategyPanel);
+  root.addChild(state.auditPanel);
+  root.addChild(state.boundaryPanel);
 }
 
 export const CONSCIOUSNESS_KEYBINDINGS_HELP = [
@@ -796,4 +877,7 @@ export const CONSCIOUSNESS_KEYBINDINGS_HELP = [
   "Ctrl+1 行动执行面板",
   "Ctrl+2 策略资产面板",
   "Ctrl+3 暗影审计面板",
+  "Ctrl+4 情绪面板开关",
+  "Ctrl+5 意义面板开关",
+  "Ctrl+6 人格面板开关",
 ];

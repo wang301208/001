@@ -84,10 +84,14 @@ export function readOwnStructure(
             modules.set(relPath, mod);
             totalLines += lines;
             totalModules += 1;
-          } catch {}
+          } catch {
+            // 模块文件读取失败时跳过
+          }
         }
       }
-    } catch {}
+    } catch {
+      // 目录扫描失败时返回已收集的数据
+    }
   };
 
   scanDir(autonomyDir, "autonomy");

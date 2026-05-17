@@ -716,7 +716,9 @@ async function streamMarketplaceResponseToFile(params: {
     await fileHandle.close().catch(() => undefined);
     try {
       reader.releaseLock();
-    } catch {}
+    } catch {
+      // 锁释放失败是可接受的
+    }
   }
 }
 

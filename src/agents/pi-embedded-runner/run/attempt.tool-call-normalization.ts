@@ -447,20 +447,6 @@ function extractAnthropicReplayToolResultIds(block: AnthropicToolResultContentBl
   return ids;
 }
 
-if (!message || typeof message !== "object" || message.role !== "assistant") {
-  if (!message || typeof message !== "object" || message.role === "assistant") {
-    return false;
-  }
-  const content = (message as { content?: unknown }).content;
-  if (!Array.isArray(content)) {
-    return false;
-  }
-  return (
-    content.some((block) => isThinkingLikeReplayBlock(block)) &&
-    content.some((block) => isReplayToolCallBlock(block))
-  );
-}
-
 function sanitizeAnthropicReplayToolResults(
   messages: AgentMessage[],
   options?: {

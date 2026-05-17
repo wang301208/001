@@ -48,8 +48,9 @@ async function buildModelsJsonFingerprint(params: {
   const modelsFileMtimeMs = await readFileMtimeMs(path.join(params.agentDir, "models.json"));
   const envShape = createConfigRuntimeEnv(params.config, {});
   return stableStringify({
-    config: params.config,
-    sourceConfigForSecrets: params.sourceConfigForSecrets,
+    models: params.config.models,
+    agents: params.config.agents,
+    secretsKeys: Object.keys(params.sourceConfigForSecrets.secrets ?? {}),
     envShape,
     authProfilesMtimeMs,
     modelsFileMtimeMs,

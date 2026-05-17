@@ -148,7 +148,9 @@ async function waitForLocalCallback(params: {
     timeout = setTimeout(() => {
       try {
         server.close();
-      } catch {}
+      } catch {
+        // 服务器关闭失败，可能已关闭
+      }
       reject(new Error("OAuth callback timeout"));
     }, params.timeoutMs);
   });

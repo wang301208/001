@@ -104,7 +104,9 @@ export function injectCanvasLiveReload(html: string): string {
           return true;
         }
       }
-    } catch {}
+    } catch {
+      // Android接口访问失败，非Android环境
+    }
     return false;
   }
   function sendUserAction(userAction) {
@@ -128,7 +130,9 @@ export function injectCanvasLiveReload(html: string): string {
     ws.onmessage = (ev) => {
       if (String(ev.data || "") === "reload") location.reload();
     };
-  } catch {}
+  } catch {
+    // WebSocket连接失败，可能在不支持的环境中
+  }
 })();
 </script>
 `.trim();

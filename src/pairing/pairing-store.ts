@@ -505,7 +505,9 @@ async function writeAllowFromState(filePath: string, allowFrom: string[]): Promi
   let stat: Awaited<ReturnType<typeof fs.promises.stat>> | null = null;
   try {
     stat = await fs.promises.stat(filePath);
-  } catch {}
+  } catch {
+    // 文件状态获取失败，使用null值
+  }
   setAllowFromReadCache(filePath, {
     exists: true,
     mtimeMs: stat?.mtimeMs ?? null,

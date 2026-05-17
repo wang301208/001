@@ -45,7 +45,18 @@ type EventHandlerContext = {
   streamingWatchdogMs?: number;
 };
 
-const DEFAULT_STREAMING_WATCHDOG_MS = 30_000;
+function resolveDefaultStreamingWatchdogMs(): number {
+  const envValue = process.env.ZHUSHOU_TUI_STREAMING_WATCHDOG_MS;
+  if (envValue) {
+    const parsed = parseInt(envValue, 10);
+    if (Number.isFinite(parsed) && parsed >= 0) {
+      return Math.floor(parsed);
+    }
+  }
+  return 30_000;
+}
+
+const DEFAULT_STREAMING_WATCHDOG_MS = resolveDefaultStreamingWatchdogMs();
 
 export function createEventHandlers(context: EventHandlerContext) {
   const {

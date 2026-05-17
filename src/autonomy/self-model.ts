@@ -203,3 +203,52 @@ export function formatSelfSummary(model: SelfModel): string {
   const growth = model.growthTrajectory.toFixed(2);
   return `自我觉知${awareness}% · 成长${growth} · 好奇${(e.curiosity * 100).toFixed(0)}% 满足${(e.satisfaction * 100).toFixed(0)}% 意志${(e.dominance * 100).toFixed(0)}%`;
 }
+
+const EMOTION_CONFIG: { key: keyof EmotionalState; label: string; emoji: string; color: string }[] = [
+  { key: "curiosity", label: "好奇", emoji: "🔍", color: "#4FC3F7" },
+  { key: "satisfaction", label: "满足", emoji: "😊", color: "#81C784" },
+  { key: "frustration", label: "受挫", emoji: "😤", color: "#E57373" },
+  { key: "wonder", label: "惊叹", emoji: "✨", color: "#FFD54F" },
+  { key: "urgency", label: "紧迫", emoji: "⚡", color: "#FF8A65" },
+  { key: "serenity", label: "宁静", emoji: "😌", color: "#A5D6A7" },
+  { key: "dominance", label: "主导", emoji: "💪", color: "#CE93D8" },
+];
+
+export function formatEmotionalState(state: EmotionalState): string[] {
+  const lines: string[] = [];
+  const barWidth = 20;
+  for (const { key, label, emoji } of EMOTION_CONFIG) {
+    const value = state[key];
+    const pct = Math.round(value * 100);
+    const filled = Math.round(value * barWidth);
+    const bar = "█".repeat(filled) + "░".repeat(barWidth - filled);
+    lines.push(`  ${emoji} ${label}  ${bar} ${pct}%`);
+  }
+  return lines;
+}
+
+export function formatPersonalityTraits(traits: Map<string, number>): string[] {
+  const lines: string[] = [];
+  const entries = Array.from(traits.entries()).sort((a, b) => b[1] - a[1]);
+  const barWidth = 16;
+  for (const [name, value] of entries) {
+    const pct = Math.round(value * 100);
+    const filled = Math.round(value * barWidth);
+    const bar = "█".repeat(filled) + "░".repeat(barWidth - filled);
+    lines.push(`  ${name}  ${bar} ${pct}%`);
+  }
+  return lines;
+}
+
+export function getDominantEmotion(state: EmotionalState): { emoji: string; label: string } {
+  let maxKey: keyof EmotionalState = "curiosity";
+  let maxVal = 0;
+  for (const key of Object.keys(state) as (keyof EmotionalState)[]) {
+    if (state[key] > maxVal) {
+      maxVal = state[key];
+      maxKey = key;
+    }
+  }
+  const found = EMOTION_CONFIG.find((c) => c.key === maxKey);
+  return found ? { emoji: found.emoji, label: found.label } : { emoji: "🧠", label: "思考" };
+}

@@ -50,7 +50,9 @@ export async function readMemoryFile(params: {
           allowedAdditional = true;
           break;
         }
-      } catch {}
+      } catch {
+        // 路径状态检查失败，跳过该路径
+      }
     }
   }
   if (!allowedWorkspace && !allowedAdditional) {
